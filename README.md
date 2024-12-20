@@ -14,16 +14,16 @@ VFSMOD, the core of the modeling system, is a computer simulation model created 
 INSTALLATION INSTRUCTIONS FOR VFSmod v4.x.x
 (See latest version changes in CHANGES.txt files in source code directories src_vfsm and scr_uh)
 
-1. Obtaining VFSMOD
+Obtaining VFSMOD
+----------------------------------------------------------------
 Clone this repository. You can find additional release information at https://abe.ufl.edu/carpena/vfsmod/
 
-
-2. Installing and running VFSMOD
-
+Installing and running VFSMOD
+----------------------------------------------------------------
 VFSMOD (and UH) source code is distributed both in DOS and UNIX versions along with make files and sample input and output files. The source code is written entirely in standard FORTRAN77 so that compilation should be straight forward following the included makefile and using the proper set of files for each platform (DOS/UNIX). Binaries for a few computer platforms can also be found at the internet sites. 
 
 
-2.1. Installing in a DOS system (under MS-Windows '95 or later):
+Installing in a DOS system (under MS-Windows '95 or later)
 -----------------------------------------------------------------
 
 a) Create a directory named VFSMOD
@@ -50,7 +50,7 @@ The content of both input/output files is explained in detail in User's Manual.
 
 
 
-2.2. UNIX system:
+UNIX system
 -----------------
 
 a) Create a directory named VFSMOD
