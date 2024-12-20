@@ -1,0 +1,78 @@
+File: output\cuenca.out                                UH v3.0.6, 06/2021
+ 
+  
+  HYDROGRAPH CALCULATION FOR WATERSHED-SCS METHOD
+  
+ INPUTS
+ ------
+Storm Rainfall=  271.80 mm
+SCS storm type= II   
+Storm duration=  24.0 h
+SCS Curve number=  45.0
+Watershed area=  404.70 ha
+Maximum flow path length= 3048.00 m
+Average slope of flow path=    1.00 %
+MUSLE type=  1 where:
+  0=Foster, 1=Williams and 2=GLEAMS  (See Manual)
+  
+ OUTPUTS
+ -------
+Runoff volume=   84.55 mm=******** m3
+Initial Abstraction=   62.09 mm
+Concentration time=    8.47 h=   508.32 min
+  
+ SCS ****-min unit hydrograph
+ time (h)    q(m3/s)   q(mm/h)
+------------------------------
+    0.0000    0.0000    0.0000
+    2.0333    0.0277    0.0246
+    4.0665    0.1074    0.0955
+    6.0998    0.1410    0.1254
+    8.1330    0.1187    0.1056
+   10.1663    0.0783    0.0697
+   12.1996    0.0443    0.0394
+   14.2328    0.0226    0.0201
+   16.2661    0.0106    0.0094
+   18.2994    0.0047    0.0042
+   20.3326    0.0020    0.0018
+   22.3659    0.0008    0.0007
+   24.3991    0.0003    0.0003
+   26.4324    0.0001    0.0001
+   28.4657    0.0000    0.0000
+   30.4989    0.0000    0.0000
+   32.5322    0.0000    0.0000
+
+PASSED unit hydrograph check- V(mm)=  1.01
+Number of unit hydrograph steps (n)  =   17
+Number of excess hyetograph steps (m)=    7
+
+ Final hydrograph (convolution)
+ time (h)    q(m3/s)   q(mm/h)
+------------------------------
+   12.0000    0.0000    0.0000
+   14.0333    0.3895    0.3464
+   16.0665    2.6347    2.3437
+   18.0998    6.6082    5.8783
+   20.1330    8.6053    7.6548
+   22.1663    8.1330    7.2347
+   24.1996    6.5727    5.8468
+   26.2328    4.9913    4.4400
+   28.2661    3.6860    3.2788
+   30.2994    2.5004    2.2242
+   32.3326    1.5164    1.3489
+   34.3659    0.8297    0.7381
+   36.3991    0.4171    0.3710
+   38.4324    0.1958    0.1742
+   40.4657    0.0870    0.0774
+   42.4989    0.0370    0.0329
+   44.5322    0.0151    0.0135
+   46.5654    0.0060    0.0053
+   48.5987    0.0022    0.0020
+   50.6320    0.0008    0.0007
+   52.6652    0.0003    0.0003
+   54.6985    0.0001    0.0001
+   56.7318    0.0000    0.0000
+
+Peak flow=   8.6053 m3/s=    7.6548 mm/h
+Time to peak=   20.13 h=  1207.98 min
+Number of final hydrograph steps (nhyd)  =   23

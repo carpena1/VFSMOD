@@ -1,0 +1,19 @@
+
+                              VFSMOD-W v5.x
+                        Vegetative Filter Strip Model
+
+        -------------------------------------------------------------
+
+VFSMOD was developed in the Department of Biological and Agricultural
+Engineering by Dr. Rafael Munoz-Carpena under the direction of Dr. John E.
+Parsons. The model and associated documentation is supplied as-is with no
+warranty - explicit or implied. The model is provided to as an educational
+and research tool. This version is the second moving the model from a
+research tool to one available for general users. As with any model, the
+results are totally dependent on the user's ability to wisely select input
+parameters that represent the "field" and to interpret the results. We will
+make every effort to provide assistance and encouragement as our other
+commitments allow. We do ask that you reference our work if you find it
+helpful in your pursuits.
+        -------------------------------------------------------------
+(c) University of Florida by R.Munoz-Carpena (carpena@ufl.edu)

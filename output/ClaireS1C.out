@@ -1,0 +1,92 @@
+File: output/ClaireS1c.out                             UH v3.0.8, 09/2023
+ 
+  
+  HYDROGRAPH CALCULATION FOR WATERSHED-SCS METHOD
+  
+ INPUTS
+ ------
+Storm Rainfall=   17.30 mm
+SCS storm type= user 
+Storm duration=   1.0 h
+SCS Curve number=  89.0
+Watershed area=    1.00 ha
+Maximum flow path length=  100.00 m
+Average slope of flow path=    2.00 %
+MUSLE type=  1 where R-factor is (see manual)
+  0=Foster, 1=Williams,   2=GLEAMS
+  3=Cooley, 4=PRZM-MUSLE, 5=PRZM-MUSS
+  
+ OUTPUTS
+ -------
+Runoff volume=    9.51 mm=   95.08 m3
+Initial Abstraction=    6.28 mm
+Concentration time=    0.11 h=     6.73 min
+  
+ SCS  1.6-min unit hydrograph
+ time (h)    q(m3/s)   q(mm/h)
+------------------------------
+    0.0000    0.0000    0.0000
+    0.0269    0.0052    1.8581
+    0.0539    0.0200    7.2144
+    0.0808    0.0263    9.4689
+    0.1077    0.0221    7.9718
+    0.1346    0.0146    5.2619
+    0.1616    0.0083    2.9778
+    0.1885    0.0042    1.5154
+    0.2154    0.0020    0.7135
+    0.2423    0.0009    0.3166
+    0.2693    0.0004    0.1340
+    0.2962    0.0002    0.0546
+    0.3231    0.0001    0.0216
+    0.3500    0.0000    0.0083
+    0.3770    0.0000    0.0031
+    0.4039    0.0000    0.0012
+
+PASSED unit hydrograph check- V(mm)=  1.01
+Number of unit hydrograph steps (n)  =   16
+Number of excess hyetograph steps (m)=   21
+
+ Final hydrograph (convolution)
+ time (h)    q(m3/s)   q(mm/h)
+------------------------------
+    0.4737    0.0000    0.0000
+    0.5006    0.0001    0.0247
+    0.5275    0.0006    0.2157
+    0.5545    0.0023    0.8235
+    0.5814    0.0056    2.0057
+    0.6083    0.0104    3.7366
+    0.6352    0.0153    5.5070
+    0.6622    0.0183    6.5845
+    0.6891    0.0194    6.9917
+    0.7160    0.0196    7.0475
+    0.7429    0.0189    6.7996
+    0.7699    0.0177    6.3613
+    0.7968    0.0165    5.9366
+    0.8237    0.0155    5.5726
+    0.8507    0.0146    5.2575
+    0.8776    0.0140    5.0252
+    0.9045    0.0135    4.8517
+    0.9314    0.0130    4.6898
+    0.9584    0.0127    4.5613
+    0.9853    0.0124    4.4758
+    1.0122    0.0123    4.4118
+    1.0391    0.0122    4.3748
+    1.0661    0.0115    4.1500
+    1.0930    0.0092    3.3118
+    1.1199    0.0061    2.2111
+    1.1468    0.0036    1.2832
+    1.1738    0.0019    0.6701
+    1.2007    0.0009    0.3230
+    1.2276    0.0004    0.1462
+    1.2545    0.0002    0.0630
+    1.2815    0.0001    0.0260
+    1.3084    0.0000    0.0104
+    1.3353    0.0000    0.0040
+    1.3623    0.0000    0.0015
+    1.3892    0.0000    0.0005
+    1.4161    0.0000    0.0001
+
+Peak flow=   0.0196 m3/s=    7.0475 mm/h
+Time to peak=    0.72 h=    42.96 min
+Number of final hydrograph steps (nhyd)  =   36
+Time to ponding=   0.456 h

@@ -1,0 +1,116 @@
+File: output/Haan_pg91.hyt                             UH v3.0.8, 09/2023
+
+ SCS  6.1-MIN HYETOGRAPH (25 of  239 steps printed)
+
+  No.   Time(hr)   Rainfall(mm) Rain30(mm) Eff.rain(mm)
+    1      0.91         0.97      0.83      0.00
+    2      1.92         2.44      0.90      0.00
+    3      2.92         4.03      0.97      0.00
+    4      3.93         5.75      1.05      0.00
+    5      4.94         7.65      1.16      0.00
+    6      5.95         9.76      1.30      0.00
+    7      6.96        12.15      1.48      0.00
+    8      7.97        14.94      1.73      0.00
+    9      8.97        18.31      2.11      0.00
+   10      9.98        22.67      2.77      0.00
+   11     10.99        29.20      4.30      0.00
+   12     12.00        63.37     30.01      5.84
+   13     13.01        97.53      7.12     20.49
+   14     14.02       104.06      3.50     23.96
+   15     15.03       108.42      2.46     26.37
+   16     16.03       111.79      1.93     28.29
+   17     17.04       114.58      1.61     29.91
+   18     18.05       116.97      1.40     31.32
+   19     19.06       119.08      1.24     32.58
+   20     20.07       120.98      1.11     33.72
+   21     21.08       122.70      1.02     34.77
+   22     22.08       124.29      0.94     35.74
+   23     23.09       125.76      0.87     36.65
+   25     24.00       127.00      0.82     37.43
+
+  Computed Total Rain =     127.0 mm
+    Actual Total Rain =     127.0 mm
+    Total Rain Excess =      37.4 mm
+    raimax30          =      50.2 mm
+    I30               =     100.4 mm/h
+
+
+ RAINFALL ENERGY FACTOR R FOR EROSION CALCULATIONS
+
+  a) Foster et al. (1977)
+    E=    4628.485 ft-tonf/acre =    31.011 MJ/ha
+    Volume Runoff=  367.6914 mm; qpeak =   33.1275 mm/h
+    Factors in Rm: Rstorm=  311.5262; Rrunoff= 1180.8994
+    Rm (Foster)=  569.0779 N/h
+
+  b) Williams (1975)
+    Watershed area=    40.470 ha
+    Volume runoff=********** m3; qpeak=    3.7241 m3/s
+    Rw (Williams)=  366.0541 N/h
+
+  c) GLEAMS/ daily CREAMS
+    Rain  =127.00 mm
+    R_GLM =     89.42 From GLEAMS - Wischmeier
+    R_GLM =  152.1875 N/h,  Converted to Metric
+
+  d) Cooley (1980) - Design Storm 
+    a1=   17.9000 b1=    0.4134
+    Rain=   127.000 mm   D=    24.000 hr
+    Rst =   160.114 ft-tonf/acre =   272.515 N/ha
+
+
+ ERODIBILITY K AND PARTICLE SIZE SELECTION
+
+    Table for computing Ksoil (from GLEAMS and KINEROS)-OM=2%
+     i    Soil Type         %Sand  %Silt   Tex.F.    Str.F.    Per.F.    D50(um) K(kg-h/N-m^2)
+     1  Clay                   20.   30.   0.01287    0.0650    0.075    23.0    0.035
+     2  Silty clay             10.   45.   0.01870    0.0650    0.075    24.0    0.043
+     3  Sandy clay             50.   10.   0.01714    0.0650    0.075    66.0    0.041
+     4  Silty clay loam        15.   50.   0.02606    0.0650    0.050    25.0    0.049
+     5  Clay loam              35.   30.   0.02360    0.0650    0.050    18.0    0.046
+     6  Sandy clay loam        55.   20.   0.02778    0.0650    0.050    91.0    0.052
+     7  Silt                    5.   85.   0.05845    0.0650    0.025    19.0    0.089
+     8  Silt loam              20.   60.   0.04259    0.0650    0.025    27.0    0.068
+     9  Loam                   45.   35.   0.03618    0.0325    0.025    35.0    0.055
+    10  Very fine sandy loam   60.   25.   0.03877   -0.0325    0.000    35.0    0.047
+    11  Fine sandy loam        60.   25.   0.03205    0.0000    0.000    80.0    0.042
+    12  Sandy loam             60.   25.   0.02549    0.0325    0.000    98.0    0.038
+    13  Coarse sandy loam      60.   25.   0.01914    0.0325    0.000   160.0    0.029
+    14  Loamy very fine sand   84.    8.   0.03726   -0.0325   -0.025    90.0    0.041
+    15  Loamy fine sand        84.    8.   0.02301    0.0000   -0.025   120.0    0.027
+    16  Loamy sand             84.    8.   0.01624    0.0325   -0.025   135.0    0.022
+    17  Loamy coarse sand      84.    8.   0.00982    0.0325   -0.025   180.0    0.014
+    18  Very fine sand         90.    5.   0.04401   -0.0325   -0.050   140.0    0.047
+    19  Fine sand              90.    5.   0.02173    0.0000   -0.050   160.0    0.022
+    20  Sand                   90.    5.   0.01481    0.0325   -0.050   170.0    0.017
+    21  Coarse sand            90.    5.   0.00827    0.0325   -0.050   200.0    0.009
+
+  For the selected soil type: Clay                
+     K=     0.037 kg-h/N-m^2   Eng. K=     0.282  % Org Matter=   1.0
+     dp (d50)=       23.00 um
+
+
+ MISCELLANEOUS CALCS:
+
+     SlopeL  =  1335.353 m  Beta    =     2.408
+     L-Factor=    18.198    S-Factor=     7.596
+     C-fact  =      1.00    P-fact  =      1.00
+
+
+ FINAL CALCS:
+
+  Method                Soil Loss A          Sediment   R-Factor  K-Factor  L-Factor S-Factor C-Factor P-Factor
+                    kg/m^2    EngUnits t/ac  Conc g/l   N/ha      kg-N/N-m^2
+--------------------------------------------------------------------------------------------------------------
+ Rm (Foster)       2908.30      12973.62       7909.62      569.08    0.037   18.198    7.596    1.000    1.000
+ Rw (Williams)     1870.74       8345.16       5087.79      366.05
+ Rm (GLEAMS)        777.76       3469.51       2115.26      152.19
+ Rst (Cooley)      1392.70       6212.68       3787.68      272.51
+--------------------------------------------------------------------------------------------------------------
+                    kg/m^2    EngUnits t/ac  Conc g/l   N/ha      0.01ton.ac.h/(ac.ft-ton.in)
+ PRZM (MUSLE)      1867.83       8332.21       5079.89                0.282
+ PRZM (MUSS)       1438.73       6418.04       3912.89                0.282
+
+======================================================================
+ Method selected for VFSMOD .isd file:  Williams Rw (MUSLE) 
+======================================================================
