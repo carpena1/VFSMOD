@@ -16,46 +16,39 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 c*** Command line option to input filename
 c*** Comment out the following depending for which system you complile
-CDOS
-      slash='\'
-CDOS
-      INARGS=NARGS()-1
-CDOS
-      IF (INARGS.EQ.1) THEN
-CDOS
-          CALL GETARG(1,FILENM1,IFSTATUS)
-CUNIX      slash='/'
-CUNIX      INARGS=IARGC()
-CUNIX      IF (INARGS.EQ.1) THEN
-CUNIX        CALL GETARG(1,FILENM1)
+CDOS      slash='\'
+CUNIX
+      slash='/'
 c***End of UNIX/DOS selection***********
-        ISCR=0
+CF2003*** New fortran 2003 standard for command line input ***
+      iargs = command_argument_count()
+      IF (IARGS.EQ.1) THEN
+          CALL get_command_argument(1, FILENM1)
+          ISCR=0
 c-----Write welcome message ---------------------------------------
-        WRITE(*,*)'   @     @ @@@@  @@@  @   @  @@@@  @@@'
-        WRITE(*,*)'   @     @ @    @     @@ @@  @  @  @  @'
-        WRITE(*,*)'    @   @  @@@   @@@  @ @ @  @  @  @   @'
-        WRITE(*,*)'     @ @   @        @ @   @  @  @  @  @'
-        WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 02/2023 v4.5.2'
-        WRITE(*,160)
-        WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
-        WRITE(*,*)'       U. of FL - USA               NCSU - USA'
-        WRITE(*,*)'       carpena@ufl.edu        john_parsons@ncsu.edu'
-        WRITE(*,160)
-        WRITE(*,*)'PROGRAM TO CALCULATE OVERLAND FLOW AND SEDIMENT',
+          WRITE(*,*)'   @     @ @@@@  @@@  @   @  @@@@  @@@'
+          WRITE(*,*)'   @     @ @    @     @@ @@  @  @  @  @'
+          WRITE(*,*)'    @   @  @@@   @@@  @ @ @  @  @  @   @'
+          WRITE(*,*)'     @ @   @        @ @   @  @  @  @  @'
+          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 11/2024 v4.6.0'
+          WRITE(*,160)
+          WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
+          WRITE(*,*)'       U. of FL - USA               NCSU - USA'
+          WRITE(*,*)'       carpena@ufl.edu        john_parsons@ncsu.edu'
+          WRITE(*,160)
+          WRITE(*,*)'PROGRAM TO CALCULATE OVERLAND FLOW AND SEDIMENT',
      &      ' FILTRATION THROUGH A'
-        WRITE(*,*)'VEGETATIVE FILTER STRIP OF AN INFLOW HYDROGRAPH',
+          WRITE(*,*)'VEGETATIVE FILTER STRIP OF AN INFLOW HYDROGRAPH',
      &      ' FROM AN ADJACENT FIELD,'
-        WRITE(*,*)'DURING A STORM EVENT. VFSMOD HANDLES THE CASE OF',
+          WRITE(*,*)'DURING A STORM EVENT. VFSMOD HANDLES THE CASE OF',
      &      ' VARYING SURFACE COVER'
-        WRITE(*,*)'AND SLOPES AT THE NODES AND TIME DEPENDENT',
+          WRITE(*,*)'AND SLOPES AT THE NODES AND TIME DEPENDENT',
      &      ' INFILTRATION FOR THE DOMAIN.'
-        WRITE(*,160)
-        WRITE(*,*)
-       ELSEIF (INARGS.EQ.2) THEN
-CDOS
-        CALL GETARG(1,FILENM1,IFSTATUS)
-CUNIX        CALL GETARG(1,FILENM1)
-        ISCR=1
+          WRITE(*,160)
+          WRITE(*,*)
+       ELSEIF (IARGS.EQ.2) THEN
+          CALL get_command_argument(1, FILENM1)
+          ISCR=1
        ELSE
           WRITE(*,*)
           WRITE(*,105)
@@ -84,25 +77,29 @@ c     *** fill filename array with safe names
                 DUMMY1=SCOD(I)
                   if (dummy1.eq.'i') then
                       WRITE(LISFIL(I),'(5A)')
-     1          'inputs',slash,'dummy','.',SCOD(I)
+     1                   'inputs',slash,'dummy','.',SCOD(I)
                    else
                       WRITE(LISFIL(I),'(5A)')
-     1          'output',slash,'dummy','.',SCOD(I)
+     1                   'output',slash,'dummy','.',SCOD(I)
               endif
 cdebug      print *,'Debug: i=',i,':',lisfil(i)
 11               continue
 c
-            open (unit=99,file=FILENM1,status='old')
-12              read(99,'(a)',end=18) linein
-              lpos = index(linein,'=')
+            open (unit=99,file=FILENM1,iostat=istat,status='old')
+            if (istat .ne. 0) then
+               write(*,*)'Project file cannot be opened:',FILENM1
+               stop
+            end if
+12          read(99,'(a)',end=18) linein
+            lpos = index(linein,'=')
             lstr = len(linein)
 cdebug      print *,'lpos,lstr=',lpos,lstr,':',linein
             if ((lpos.gt.0).and.(lstr.gt.0)) then
                   do 14 jj=1,13
                    lpp=index(linein(1:lpos-1),scod(jj))
                    if (lpp.gt.0) lisfil(jj)=linein(lpos+1:)
-14          continue
-              endif
+14                continue
+            endif
             go to 12
 c       **** done
 18      continue
@@ -171,12 +168,12 @@ c*** in summary file, put the list of files for this run
      &      '         projectname is .prj project name (w/o extension)',
      &    /,'Usage 2: vfsm projectname 1 (quiet execution)')
 C----Select unix/DOS versions for help message
-Cunix140   FORMAT('Version: v4.5.2 for Unix - 02/2023')
+Cunix140   FORMAT('Version: v4.6.0 for Unix - 11/2024')
 CDOS
-140   FORMAT('Version: v4.5.2 for Win64 - 02/2023')
+140   FORMAT('Version: v4.6.0 for Win64 - 11/2024')
 150   FORMAT('Authors: R.Munoz-Carpena & J.E.Parsons (UFL & NCSU)')
 160   FORMAT(72('-'))
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.5.2 02/2023')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.0 11/2024')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 
       RETURN
