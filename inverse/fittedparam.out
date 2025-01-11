@@ -1,0 +1,29 @@
+Iterations=	109
+Final OF=	0.002591793931256342
+
+Estimated parameters [Global Search MCS]
+	0.00001356877833
+
+Estimated parameters [Local Search NMS]
+	0.00001356877833
+
+	Xopt	+-90%ConfLimits	+-95%CI
+	1.35688e-05	2.16413e-07	2.61030e-07
+
+Parameters covariance matrix
+0.0000000000
+
+Parameters correlation matrix
+1.0000000000
+
+Model adequacy (p_adeq):	100.000000
+
+Goodness-of-fit
+Ceff   = 0.997	 IoA   = 0.999
+Ceff_m = 0.981	 IoA_m = 1.003
+Ceff_r = -277.194	 IoA_r = -68.822
+RMSE = 0.000024	 MAE = 0.000006
+
+Started at:	16:49:38	2019/12/21
+Finished at:	16:51:48	2019/12/21
+Duration:	0:2:9

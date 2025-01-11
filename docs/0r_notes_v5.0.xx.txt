@@ -1,0 +1,238 @@
+MODEL NAME AND VERSION: VFSMOD-W Vegetative Filter Strips Design and 
+Modeling System, v5.x.x, Nov. 2008
+
+****************      NEW IN VFSMOD v5.x      ******************
+* - code restructured to include pollutant trapping component  * 
+* - addition of the pesticide reduction of Sabbagh et al (2009)*
+* - design now includes filter design for pesticide reduction  *
+* - error checking if input files are missing                  *
+****************      NEW IN VFSMOD v4.x      ******************
+* - automatic inverse calibration engine                       *
+* - global sensitivity and uncertainty analysis modules        *
+* - updated versions of the vfsm/uh programs                   *
+* - updated program built-in help file (calibration component) *
+****************************************************************
+
+DESCRIPTION: VFSMOD-W is a complete design-oriented computer modeling 
+system (VFSMOD-W). The  MS-Windows32 graphical user interface (GUI) 
+integrates the numerical model  VFSMOD, a utility to generate source 
+(upslope) disturbed area inputs for the  model based on readily 
+available NRCS site characteristics (UH), and vegetative filter strip 
+design, uncertainty and sensitivity analyses menu-driven components.
+    VFSMOD, the core of the modeling system, is a computer simulation 
+model created  to study hydrology, sediment transport and pesticide
+trapping through vegetative filter strips (VFS).  The model comprises
+the following: a) a finite element solution is done for the  overland
+flow equations for the strip; b) infiltration within the strip is
+computed using the Green-Ampt method for unsteady rainfall; c) sediment
+deposition and filtration is modeled using an implementation of the 
+Univ. of Kentucky grass filtration model; and d) new contaminant 
+transport component (first implemented pesticide reduction of Sabbagh et
+al., 2009). This model formulation effectively handles  complex sets of
+inputs similar to those found in natural events. The  improvements of
+this combined model over previous models are the inclusion of:  a) 
+state of the art description of flow through the filter; b) changes in
+flow  derived from sediment deposition; c) physically based time 
+dependent soil water  infiltration; d) handling of complex storm 
+pattern and intensity; and e) varying  surface conditions (slope and
+vegetation) along the filter. The model is targeted at studying VFS
+performance on an event by event basis. VFSMOD, when  combined with the
+upslope source area input preparation utility (UH), becomes a  powerful
+and objective VFS design tool. Although the model was originally 
+developed as research tool, VFSMOD-W can now be used by planners and
+regulators  to design optimal filter strips for specific scenarios, and
+to determine  relative effectiveness of existing VFS.
+    The design objective implemented in VFSMOD-W is to find optimal 
+constructive  characteristics (length, slope, vegetation) of a VFS to 
+reduce the outflow of  sediment from a given disturbed area (soil, 
+crop, area, management practices,  design storm with desired return 
+period) to  achieve a certain reduction in % sediment (i.e. that for 
+TMDLs). In the  MS-Windows VFSMOD-W modelling system, versions 2.x and 
+up, the design task is  automated. The projects for each combination of 
+design inputs are automatically  created within the program GUI after 
+the user selects a range on the desired  parameters. This new version 
+also automatically produces combined analysis  output tables. 
+Additionally, the program provides two powerful tools. Once the  
+optimal design parameters are selected an uncertainty analysis can be 
+conducted  using the graphical tools provided. The objective of this 
+analysis is to  identify the level of confidence that the adopted 
+design has against the  uncertainties present when selecting the model 
+inputs. Finally a sensitivity  analysis procedure is included in the 
+GUI to identify the parameters to which  the model is more sensitive 
+for a given scenario, thus allowing the user to  economize effort by 
+focusing on better identifying just the sensitive  parameters. New in
+v4 is an automatic inverse calibration engine, global sensitivity and
+uncertainty analysis modules, updated versions of the vfsm/uh programs,
+and updated built-in program help file (for the calibration component).
+    Documentation for the model is available in several forms (web, 
+printable PDF  and on-line program help). This version of the model 
+uses inputs that are easily  obtainable from tables and other sources 
+contained in the manual.
+
+DESCRIPTION OF NEW FEATURES (v5.X.X)
+Major release, version 5.x.x of vfsmod-w with the addition of the pesticide
+reduction components of Sabbagh et al (2009). This includes:
+- Restructured VFSM code and GUI to add water quality components while 
+ensuring backwards compatibility. New IWQ flag added at the end of IKW file
+ inputs. If "1" is present there it will expect a new input file with IWQ 
+extension and produce a new output OWQ file. If no flag is present or a 
+character other that "1" is there it will execute with no water quality 
+component. The new program files WQSUB.f handles the processing of the water
+quality component when the component is selected. In addition, changes were
+made to VFSMOD.f, INPUTS.f, FINPUTS.f and OUTMASS.f.
+- Output reader now views the .OWQ
+- The "Design" feature of the program also considers pesticide trapping if
+the orifinal VFSM project has the IWQ=1. The .CSV output file then contains
+a new column (PDR=pollutant delivery ratio).
+- Error checking on input files. It will print error and exit gracefully
+if any of the project files are missing
+
+DISTRIBUTION: via WWW
+USA: http://carpena.ifas.ufl.edu/vfsmod
+
+CONTACT INFORMATION:
+R.Munoz-Carpena (carpena@ufl.edu), University of Florida
+
+MODEL INPUTS:
+- Vegetative Filter Strip length and slope
+- Vegetation characteristics including surface
+- Vegetation characteristics including surface roughness, average 
+height roughness, average height
+- Green-Ampt infiltration parameters for the filter
+- Design storm or event hyetograph for the area
+- Source (disturbed) upslope area characteristics (dimensions, slope, 
+crop practices and NRCS runoff and erosion parameters)
+- Pesticide characteristics (when options is selected)
+
+MODEL OUTPUTS:
+- Detailed outputs on transport and deposition of sediment within the 
+filters
+- Detailed outputs on runoff depth and velocity within the filters
+- Summary outputs showing sediment in and out along with infiltration 
+within the filters (this is used for the design guide)
+- Filter effectiveness indicators
+- Analysis of sensitivity of selected parameters (if desired)
+- Uncertainty analysis of modeling inputs (if desired)
+- Design response curves to identify optimal filter dimensions or 
+vegetation cover to achieve user defined runoff/sediment reduction rate 
+(if desired).
+- Pesticide trapping in the filter (when option is selected by the user)
+
+RELATED PROJECTS: Hatch USA-CSREES S-1004 Regional Project: 
+"Development and Evaluation of TMDL Planning and Assessment Tools and 
+Processes"
+
+DISCLAIMER:
+VFSmod was originally developed in the Department of Biological and 
+Agricultural Engineering by Dr. Rafael Munoz-Carpena under the 
+direction of Dr. John E. Parsons at North Carolina State University.
+The model and associated documentation is supplied as-is with no warranty
+- explicit or implied. The model is provided to as an educational, 
+research and planning tool. This version is the fourth moving the model
+from a research tool to one available for general users. As with any model,
+the results are totally dependent on the user's ability to wisely select
+input parameters that represent the "field" and to interpret the results.
+We will make every effort to provide assistance and encouragement as our
+other commitments allow. We do ask that you reference our work if you 
+find it helpful in your pursuits and also that file bugs or suggestions
+to help us improve the program (use form on-line).
+
+Bugs - v5.x.x
+None reported yet
+
+Bugs - v4.x.x
+None reported yet
+
+Bugs - V2.2.2
+1. In the sensitivity analysis section.  If one runs any of the parameters
+singly and then repeats the same run with Dp selected, they may get different
+results for the Ss sensitivity simulations. The input data for Dp was not
+being reset to the original values correctly for the next simulation. This
+only affects sensitivity simulations with Ss. If Ss sensitivity is run
+alone without selecting Dp, then the results are based on the values of
+Dp in the base input datasets selected. This has been fixed in version 2.2.3.
+
+Bug Fixes in the Fortran source code for vfsm.exe (v2.2.1)
+- Fixed infiltration solution issue when initial F is 0. It was caused 
+by the Newton-Raphson solution algorithm used in the Mein and Larson 
+time implicit solution to the Green-Ampt equation. The solution will 
+not take as a seed total infiltration F= 0.
+- Added work-around for problem found when compiling vfsm with the unix 
+g77 (gcc v3.1) fortran compiler. There is a bug in the compiler by 
+which local variables are not treated properly. This gave different 
+(incorrect) results for the cumulative flows calculated in kwwrite.f 
+(written in .ohy file) between code compiled with g77 and other 
+compilers (including those in PC). The cumulative values are now 
+declared in a common block to force them to be static.
+
+NEW FEATURES IN RELEASE V2.2.XX
+I) New, more intuitive, menu labels and lay-out
+II) Expanded and improved sensitivity and uncertainty analyses 
+procedures. Individual filter areas or combines source-filter areas can 
+be now analyzed individually. Multi-dimensional analysis is also 
+available as well as print-out of graphical results. Ranges of user 
+selected parameters are now automatically checked against physically 
+admissible values.
+III) VFSMOD and UH have been further refined to improve integration 
+with the GUI environment and graphical inputs.
+IV) Improved handling of special cases (small runoff, impermeable 
+surfaces, saturated soils, etc).
+
+NEW FEATURES IN RELEASE V2.00.XX
+I) Model now packed together with MS-Windows GUI for Design and 
+Modeling.
+II) The new integrated package now includes design, sensitivity and 
+uncertainty analysis under the program GUI.
+III) Enhaced web and PDF documentations, including new a manual Part to 
+discuss the MS-Windows package
+IV) Extensive program help built into the MS-Windows (GUI)
+
+NEW FEATURES IN RELEASE V1.06:
+I) Fixed problem when incoming sediment was 100% fine. This was caused 
+by a line out of sequence in sediment filtration subroutine (step3.f). 
+Fixed.
+II) changed affiliation of one of the authors.
+
+NEW FEATURES IN RELEASE V1.05:
+I) New way of handling a sediment filled strip (grassed.f) . After this 
+happens (NFUP=1), all the sediment inflow is routed to the outflow end 
+(no deposition) and without stopping the simulation. This way the 
+simulation summary (*.osm) now shows realistic trapping efficiencies 
+and mass balance (outmass.f).
+II) Sediment trapping subroutine (step3.f) re-worked to avoid problems 
+with equilibrium slope Se in some cases that led to NaNs.
+III) Output format for saturated hydraulic conductivity changed to 
+exponential.
+
+NEW FEATURES IN RELEASE V1.04b:
+I) Windows GUI to handle UH and VFSMOD programs now available. Both 
+fortran codes modified to produce outputs suitable for the GUI.
+
+NEW FEATURES IN RELEASE V1.04:
+I) Input preparation program, UH
+A program for preparing VFSmod inputs is included as integral part of 
+this release. UH uses readily available data to automatically create 
+VFSmod the following input files: a) rainfall hyetograph; b) runoff 
+hydrograph from source area; and c) erosion loss from source area and 
+sediment concentration in runoff. The utility is based on the following 
+methods:
+- Generates rainfall hyetographs using SCS method
+- Generates runoff hydrographs using SCS curve number method and Unit 
+hydrograph method
+- Erosion estimates done using a version of the modified Universal Soil 
+Loss Equation for storm events
+- Modifies the Rainfall erosivity factor ± three options
+II) Project files added
+VFSmod (and UH) now handle project files. This enables the user to use 
+any naming convention and directory structure for inputs and outputs.
+III) Improved model outputs
+New output files give more details on the simulations and a new output 
+summary file summarizes filter performance (*.osp)
+IV) Updated and expanded documentation.
+The manual has been revised and now contains numerous new sections on 
+model use, reference tables for inputs to use in the model, and new 
+documentation on the UH utility. An on-line version of the manual can 
+be found on the web site and a PDF version is included in the 
+distribution files.
+
+

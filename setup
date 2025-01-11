@@ -1,0 +1,10 @@
+#sh
+rm vfsm uh
+cd src_vfsm
+make $1
+cd ../src_uh
+make $1
+cd ..
+ln -s src_vfsm/vfsm . 
+ln -s src_uh/uh . 
+cat docs/disclaim.txt

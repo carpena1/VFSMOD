@@ -1,0 +1,23 @@
+!--------------------------------------------------------------------------
+! When selecting the shallow water table option (WT) the inputs below are used:
+! ITHETATYPE is an integer to select the soil water characteristic curve
+! type with values: 1=van Genuchten, 2=Brooks and Corey.
+! Note that SAV and OI are now calculated internally, but some dummy numbers 
+! must be included to ensure backwards compatibility, even although these 
+! numbers are ignored by the program when the WT option is selected.
+! Equation   ITHETATYPE PAR1 PAR2     PAR3    PAR4
+! van Genuchten 1       OR   VGALPHA  VGN     VGM
+! Brooks&Corey  2       OR   BCALPHA  BCLAMBDA --
+!
+! IKUNSTYPE is an integer to select the unsaturated hydraulic conductivity 
+! curve type with values: 1=van Genuchten, 2=Brooks and Corey, 3=Gardner
+!
+! Equation   IKUNSTYPE PARK1    PARK2
+! van Genuchten 1      VGM     --
+! Brooks&Corey  2      BCETA   BCALPHA
+! Gardner       3      GDALPHA
+! Also, Ks (m/s) is read as part of the common soil properties in ISO (VKS).
+!--------------------------------------------------------------------------
+
+      COMMON/WTGA1/PAR1,PAR2,PAR3,PAR4,PARK1,PARK2
+      COMMON/WTGA2/ITHETATYPE,IKUNSTYPE   

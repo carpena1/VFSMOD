@@ -1,0 +1,5 @@
+Goodness-of-fit
+Ceff   = 0.997	 IoA   = 0.999
+Ceff_m = 0.981	 IoA_m = 1.003
+Ceff_r = -277.194	 IoA_r = -68.822
+RMSE = 0.000024	 MAE = 0.000006

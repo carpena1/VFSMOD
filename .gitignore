@@ -1,0 +1,12 @@
+*.i
+*.i90
+*.o
+*.f90
+*.mod
+
+*.DS_Store
+*.vscode
+*Zone.Identifier
+*.code-workspace
+*.cson
+*.cson0
