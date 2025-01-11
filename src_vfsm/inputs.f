@@ -21,6 +21,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CHARACTER*75 LISFIL(13)
       CHARACTER*1 CWQ
       CHARACTER*10 CWTD,CIDG,CIMOB
+      CHARACTER*200 line
 
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
@@ -28,12 +29,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/PAR/QK(1001),R,THETAW,DX,DT,NDT,NELEM,MAXITER,NPOL,IOUT,NL
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
-      COMMON/WQ1/VKD,CCP,CSAB(5),DGMRES0
+      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF    
+      
       DIMENSION BCROFF(200,2),RAIN(200,2)
       DIMENSION NODEP(MAXEQN),RNA(MAXEQN),SOA(MAXEQN),SX(MAXEQN)
-      DIMENSION PGPAR(4),CSAB2(5)
+      DIMENSION PGPAR(4),CSAB2(5),VKOC(10),DGHALF(10),test_array(100)
 
 C-----(.IKW file) Read in main parameters of the program--------------
 
@@ -62,10 +64,12 @@ c---------- Read surface properties of the filter -------------------
         READ(1,*)SX(IPROP),RNA(IPROP),SOA(IPROP)
 5     CONTINUE
 
-c--[06/2008]--Read WQ flag (0= no; 1= yes) --------------------------
-      READ(1,*,END=8)CWQ
-      IWQ=INDEX(CWQ,'1')
-      IF(IWQ.NE.1) IWQ=0
+c--[06/2008]--Read IWQ flag (0= no; >1= yes where IWQ sets the number of species)-
+      IWQ=0
+      read(1,'(i10)',IOSTAT=ios,ERR=8,END=8) IWQ
+      IF(IOS.NE.0.OR.IWQ.LT.0)THEN
+            IWQ=0
+	END IF
 
 C--[EVR-1998]-Assign nodes to the X-values where filter changes -----
 
@@ -143,7 +147,7 @@ c-----(.IRN file) Read rainfall distribution [time[s]=RAIN(I,1);i[m/s]=RAIN(I,2)
       IF(IOS.NE.0) THEN
         WRITE(*,111)
 111     format(/,71('*'),/,'*  NRAIN does not match rain steps.'
-     &     ' Please correct and rerun          *',/,71('*'),/)
+     &     ,' Please correct and rerun          *',/,71('*'),/)
         STOP
       ENDIF
       DR1=RAIN(NRAIN,1)
@@ -277,7 +281,7 @@ C-----(.IRO file) Read runoff inflow at upper side of strip (BC) in (m3/s) ---
         IF(IOS.NE.0) THEN
           WRITE(*,112)
 112       format(/,71('*'),/,'*  NBCROFF does not match runoff steps'
-     &     '. Please correct and rerun      *',/,71('*'),/)
+     &     ,'. Please correct and rerun      *',/,71('*'),/)
           STOP
         ENDIF
         IF(I.GE.2) THEN
@@ -371,7 +375,7 @@ C-------Set the order of the integration rule-------------------
 
 C-----(.IWQ file) [06/2008]-Read water quality parameters, ensure backwards compatibility ---
 
-      IF(IWQ.EQ.1) THEN
+      IF(IWQ.GT.0) THEN
          IF (ISCR.EQ.0) THEN
            WRITE(*,'(" ... Reading inputs from: ",A45)')LISFIL(12)
          ENDIF
@@ -400,63 +404,157 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
 50       IF(IWQPRO.GT.0.AND.IWQPRO.LE.4) THEN
            READ(17,*)IKD
            BACKSPACE(17)
-           IF(IKD.EQ.1) THEN
-                  READ(17,*)IKD,VKOC,OCP
-                  READ(17,*)CCP
-                  VKD=VKOC*OCP*.01D0
-                  IF(VKOC.GT.9000.D0) ICAT=1
-             ELSE
-                  READ(17,*)IKD,VKD
-                  READ(17,*)CCP
-           ENDIF
+           IF(IKD.EQ.1.and.IWQ.eq.1) THEN
+              READ(17,*,iostat=ierr)IKD,VKOC(1),OCP
+              if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. With IKD=1, both Koc',
+     &               '       and %OC must be provided. Please fix and rerun.'
+                  write(*,199)
+                 stop
+               endif
+            elseif(IKD.EQ.0.and.IWQ.eq.1) then
+               READ(17,*,iostat=ierr)IKD,VKD(1)
+              if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. Missing IKD and/or Kd.',
+     &               '       Please fix and rerun.'
+                  write(*,199)
+                  stop
+               endif
+            elseif(IKD.EQ.1.and.IWQ.GT.1) then
+               READ(17,*,iostat=ierr)IKD,VKOC(1),OCP,(VKOC(JJ),JJ=2,IWQ)
+               if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. Missing Koc for ',
+     &               '       additional products. Please fix and rerun.'
+                  write(*,199)
+                  stop
+               endif
+               if (OCP.GT.100.d0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. %OC>100% not possible. ',
+     &               '       Please fix and rerun.'
+                  write(*,199)
+                  stop
+               endif
+            else
+               READ(17,*,iostat=ierr)IKD,VKD(1),(VKD(JJ),JJ=2,IWQ)
+               if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. Missing Kd for ',
+     &               '       additional products. Please fix and rerun.'
+                  write(*,199)
+                  stop
+               endif
+         ENDIF            
 c---------Check when Chen et al. eq. was selected that KOC is provided
            IF(IWQPRO.EQ.4.AND.IKD.EQ.0) THEN
                   WRITE(*,120)
 120    format(/,71('*'),/,'*  ERROR: Chen et al.(2016) eq. was',
      &     ' selected and KOC & %OC must be    *',/,'*  provided ',
-     &     'not just KD. Please correct & rerun.',22(' '),'*',/,
+     &     'not KD. Please correct & rerun.',22(' '),'*',/,
      &     71('*'),/)
                   STOP
            ENDIF
-c---------- check if degradation is requested (IDG=1 TO 4)
+           IF(IKD.EQ.1) THEN
+             DO 55 JJ=1,IWQ
+                VKD(JJ)=VKOC(JJ)*OCP*.01D0
+                IF(VKOC(JJ).GT.9000.D0) ICAT=1
+55           CONTINUE
+           ENDIF
+           READ(17,*)CCP
+c---------- check if pesticide degradation is requested (IDG=1 TO 4)
+           IDG=0
            READ(17,*,END=32)CIDG
            BACKSPACE(17)
            READ(17,*,ERR=32)IDG
-c------------Pesticide degradation requested :IDG
-           READ(17,*,iostat=ierr)NDGDAY,DGHALF,FC,DGPIN,DGML,DGLD,
-     &                DGMRES0
-           if (ierr.ne.0) then
-             BACKSPACE(17)
-             READ(17,*,iostat=ierr)NDGDAY,DGHALF,FC,DGPIN,DGML,DGLD
-             if (ierr.ne.0) then
-               DGLD=0.05d0
-               DGMRES0=0.d0
-               write(*,199)
-               print*,'WARNING: missing DGLD in IWQ Line 5,',
-     &                ' set to 0.05 m'
-              else
-               DGMRES0=0.d0
-               write(*,199)
-               print *,'WARNING: missing DGMRES0 in IWQ Line 5',
-     &               ', DGMRES0=0 is assumed.'
-             end if
-           end if
-c-rmc10/2021--Add surface redidues from last event to incoming mass---
-           DGPIN=DGPIN+DGMRES0
-           IF(NDGDAY.LT.0.OR.NDGDAY.GT.365) THEN
-             WRITE(*,125)NDGDAY
-125    format(/,71('*'),/,'*  ERROR: NDGDAY= 0-365, used ',I5,
-     &        ' days. Please correct and rerun    *',/,71('*'),/)
-             STOP
+           IF(IDG.LT.0.OR.IDG.GT.4) THEN
+             IDG=0
+             write(*,199)
+             write(*,*)'WARNING: IDG outside 0 to 4 range; set to 0',
+     &                 ' (no degradation)'
+             write(*,199)
            ENDIF
-           DGKREF=DLOG(2.D0)/DGHALF
+c----------When Pesticide degradation requested: IDG=1-4'         
+           IF (IDG.GT.0) THEN
+            READ(17,'(A)',iostat=io) line
+            ncount = 0
+            ipos = 1
+            maxlen = len(trim(line))
+c-------   Parse numbers from the line
+            do while (ipos.LE.maxlen)
+                  call getnumber(line, ipos, vnum, ios)
+                  if (ios.ne.0) then
+                  exit
+                  else
+                  ncount = ncount + 1
+                  if (ncount.GT.100) then
+                        print *, 'ERROR: .iwq file line 5. Exceeded max. number products.'
+                        stop
+                  endif
+                  test_array(ncount) = vnum
+                  endif
+            end do
+            nexpect= 7+4*(IWQ-1)
+c-------   debug error checking for product properties ----
+c           print *,'Numbers read and expected: ', ncount, nexpect
+c           do i = 1, ncount
+c                 print *, test_array(i)
+c           end do
+c-----------------------  
+            BACKSPACE(17)
+            IF(nexpect.EQ.ncount) then
+                  READ(17,*,iostat=ierr)NDGDAY,DGHALF(1),FC,DGPIN(1),DGML,DGLD(1),
+     &             DGMRES0(1),((dgHalf(JJ),dgPIN(JJ),dgLD(JJ),dgmres0(JJ)),JJ=2,IWQ)                        
+               ELSEIF(IWQ.GT.1) THEN
+                  write(*,199)
+                  write(*,121)
+                  write(*,199)
+                  STOP
+121   format('ERROR: .iwq file line 5. Number of inputs does not match number of',/
+     &            ' chemicals selected at the end of .ikw file. Please fix and rerun.')
+               ELSEIF(ncount.EQ.6) THEN
+                  READ(17,*,iostat=ierr)NDGDAY,DGHALF(1),FC,DGPIN(1),DGML,DGLD(1)
+                  DGMRES0(1)=0.d0
+                  write(*,199)
+                  write(*,122)
+                  write(*,199)
+122   format('WARNING: .iwq file line 5. Missing DGMRES0 in IWQ Line 5. Set to 0 mg/m2')
+               ELSEIF(ncount.EQ.5) THEN
+                  READ(17,*,iostat=ierr)NDGDAY,DGHALF(1),FC,DGPIN(1),DGML
+                  DGMRES0(1)=0.d0
+                  DGLD(1)=0.05d0
+                  write(*,199)
+                  write(*,123)
+                  write(*,199)
+123   format('WARNING: .iwq file line 5. Missing DGLD and DGMRES0.',
+     &                ' Set to 0.05 m, 0 mg/m2.')                        
+               ELSE
+                  write(*,199)
+                  write(*,124)
+                  write(*,199)
+                  STOP
+124   format('ERROR: .iwq file line 5. Product inputs mismatch. Please fix and rerun.')
+            ENDIF
+c-rmc10/2021--Add surface redidues from last event to incoming mass---
+           DO 127 JJ=1,IWQ
+            DGPIN(JJ)=DGPIN(JJ)+DGMRES0(JJ)
+            DGKREF(JJ)=DLOG(2.D0)/DGHALF(JJ)
+127        continue
+           IF(NDGDAY.LT.0.OR.NDGDAY.GT.365) THEN
+             WRITE(*,128)NDGDAY
+128   format(/,71('*'),/,'*  ERROR: NDGDAY= 0-365, used ',I5,
+     &        ' days. Please correct and rerun    *',/,71('*'),/)
+            STOP
+           ENDIF
            READ(17,*,iostat=ierr)(DGT(I),I=1,NDGDAY)
            READ(17,*,iostat=ierr)(DGTHETA(I),I=1,NDGDAY)
-127        if (ierr.ne.0) then
-             WRITE(*,128)
-128    format(/,71('*'),/,'*  ERROR: Number of T and theta values in '
-     &        '.IWQ is less than NDGDAY.   *',/,'*  Please correct and'
-     &        ' rerun',43(' '),'*',/,71('*'),/)
+           if (ierr.ne.0) then
+             WRITE(*,129)
+129    format(/,71('*'),/,'*  ERROR: Number of T and theta values in '
+     &      ,'.IWQ is less than NDGDAY.   *',/,'*  Please correct and'
+     &      ,' rerun',43(' '),'*',/,71('*'),/)
              STOP
            ENDIF
 c-rmc01/2020--Check if remobilization scheme requested (IMOB=1 TO 3)
@@ -467,15 +565,16 @@ c------------Residue remobilitation requested: IMOB
 33         IF(IMOB.LT.1.OR.IMOB.GT.3) IMOB=1
 c -------------Placeholder for other wq problems, i.e. TaRSE, 07/28/08 rmc
           ELSE
-             WRITE(*,130)
-130    format(/,71('*'),/,'*     ERROR: WQ problem selected is not',
+             WRITE(*,131)
+131    format(/,71('*'),/,'*     ERROR: WQ problem selected is not',
      &    ' available in this version     *',/,'*     (IWQPRO= 1-4 ',
-     &    'only). Please correct & rerun.',21(' '),'*',/,71('*'),/)
-             STOP
+     &    'only). IWQ set 0 (no water quality).',21(' '),'*',/,71('*'),/)
+             IWQ=0
          ENDIF
         ELSE
            write(15,*)
            write(15,*)
+      ENDIF
       ENDIF
 
 C-------Output all the parameters-------------------------------
@@ -620,10 +719,10 @@ C-------Print header for output values--------------------------
         WRITE(11,198)
       ENDIF
 
-c-----------Output all input values for Water Quality (if IWQ=1)--------
-      IF(IWQ.EQ.1) THEN
+c-----------Output all input values for Water Quality (if IWQ>0)--------
+      IF(IWQ.GT.0) THEN
             WRITE(18,*)
-            WRITE(18,*)'Parameters for Water Quality'
+            WRITE(18,803)'Parameters for Water Quality - No. products=',IWQ
             WRITE(18,*)'-----------------------------------------'
             SELECT CASE (IWQPRO)
               CASE (1)
@@ -631,7 +730,7 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
      &           'Pesticide trapping (Sabbagh et al., 2009)'
               CASE (2)
                  WRITE(18,799)'Type of problem - ',
-     &           'Pesticide trapping (Sabbagh refit:',
+     &           'Pesticide trapping (Sabbagh refit):',
      &           (CSAB(I),I=1,5)
               CASE (3)
                  WRITE(18,*)'Type of problem - ',
@@ -640,9 +739,9 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
                  WRITE(18,*)'Type of problem - ',
      &           'Pesticide trapping (Chen et al.,2017)'
             END SELECT
-            WRITE(18,800)'Partition coefficient (Kd)=',VKD,'L/Kg'
-            WRITE(18,800)'% Clay in sediment (%CL)  =',CCP,'%'
-            WRITE(18,800)'Dispersion length (l)=',DGLD,'m'
+            WRITE(18,800)'Partition coefficient (Kd)=',VKD(1),'L/Kg (Product 1) '
+            WRITE(18,800)'% Clay in sediment (%CL)  =',CCP,'%                '
+            WRITE(18,800)'Dispersion length (l)=',DGLD(1),'m (Product 1)    '
             SELECT CASE (IMOB)
               CASE (2)
                 WRITE(18,607)
@@ -666,15 +765,15 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
                 WRITE(18,605)
             ENDIF
             WRITE(18,800)'Pesticide half-life (Ln2/Kref)=',
-     &               DGHALF,'days'
+     &               DGHALF(1),'days (Product 1) '
             WRITE(18,800)'  Soil field capacity (FC)=',FC,
-     &               '(-)'
+     &               '(-)              '
             WRITE(18,800)'Incoming pesticide mass (mi)=',
-     &               DGPIN-DGMRES0,'mg/m2'
+     &               DGPIN(1)-DGMRES0(1),'mg/m2 (Product 1)'
             WRITE(18,800)'Mixing layer thickness (dml)=',
-     &               DGML,'cm'
+     &               DGML,'cm               '
             WRITE(18,800)'Pest. surface residue (mres0)=',
-     &               DGMRES0,'mg/m2'
+     &               DGMRES0(1),'mg/m2 (Product 1)'
             WRITE(18,801)'No. of days between events=',
      &               NDGDAY
             WRITE(18,802)
@@ -705,7 +804,7 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
 208   FORMAT(2x,'KUNSAT curve in infiltration=',3x,A15)
 209   FORMAT(A31,I12)
 210   FORMAT(A31,A12)
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.5.2 02/2023')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.0 11/2024')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 350   FORMAT(A31,2F12.2)
 400   FORMAT(A31,2E12.4)
@@ -728,9 +827,10 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
 608   FORMAT(1x,'Residue remobilitation (IMOB)=   3: no remobilization')
 700   FORMAT(A31,4F9.5)
 799   FORMAT(A18,A34,5F7.3,')')
-800   FORMAT(A31,F12.6,A11)
+800   FORMAT(A31,F12.6,A20)
 801   FORMAT(A31,I5)
 802   FORMAT(40x,'day    T(C)  theta(-)')
+803   FORMAT(A44,I4)
 910   FORMAT(100(35x,I6,2F10.5,/))
 
       RETURN
@@ -738,6 +838,50 @@ c-----------Output all input values for Water Quality (if IWQ=1)--------
 1500  WRITE(*,1600)'ERROR: Input file missing (check project)'
 1600  FORMAT(/,A50,/)
 
-
       STOP
       END
+
+            subroutine getnumber(line, ipos, vnum, ios)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                 
+C     Helper subroutine for error checking when reading. It parses the 
+C     read line and identies the numbers to check if the number in the 
+C     input file matches the number expected for the input
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+	IMPLICIT DOUBLE PRECISION(a-h,o-z)
+      character*200 line
+      character*20 buffer
+
+      ios = 0
+      numstart = ipos
+c     Skip non-numeric characters
+      do while (numstart.LE.len(line))
+         if ((line(numstart:numstart).GE.'0'.and.line(numstart:numstart).LE.'9') .or.
+     &       line(numstart:numstart).EQ.'.'.or.line(numstart:numstart).EQ.'+' .or.
+     &       line(numstart:numstart).EQ.'-'.or.line(numstart:numstart).EQ.'E' .or.
+     &       line(numstart:numstart).EQ.'e') then
+            exit
+         else
+            numstart = numstart + 1
+         endif
+      end do
+      if (numstart.GT.len(line)) then
+         ios = 1
+         return
+      endif
+      numend = numstart      
+c     Find the end of the number
+      do while (numend.LE.len(line).and.((line(numend:numend).GE.'0'.and.
+     &         line(numend:numend).LE.'9').or.line(numend:numend).EQ.'.' .or.
+     &         line(numend:numend).EQ.'E'.or.line(numend:numend).EQ.'e' .or.
+     &         (line(numend:numend).EQ.'+'.or.line(numend:numend).EQ.'-') .and.
+     &         (line(numend-1:numend-1).EQ.'E'.or.line(numend-1:numend-1).EQ.'e')))
+         numend = numend + 1
+      end do
+      lenbuf = numend - numstart
+      buffer = line(numstart:numend-1)
+      read(buffer,*,iostat=ios) vnum
+      ipos = numend
+	
+      return
+      end

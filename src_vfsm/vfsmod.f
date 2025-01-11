@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                            C
 C     WRITTEN FOR: Ph.D.dissertation and later modified for distribution     C
 C     RE-WRITTEN : combined version, July 1993                               C
-C     Last Updated: 02/2023 v4.5.2                                           C
+C     Last Updated: 11/2024 v4.6.0                                           C
 C     Written by: Rafael Munoz-Carpena         John E. Parsons               C
 C                 ABE-University of Florida    BAE, NC State University      C
 C                 Gainesville, FL 32611        Raleigh, NC 27695-7625 (USA)  C
@@ -249,10 +249,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/GRASSD3/SUSMASS,WEDGEMASS,NFUP
       COMMON/OLD/SEOLD,TOLD,XTOLD,YTOLD,CDEP,SE,VBTOLD,GSOLD
       COMMON/KWW/TIMELAST,OFLOWLAST,OSUMFLOW,QFIELDLAST,FSUMFLOW,FP0
-      COMMON/WQ1/VKD,CCP,CSAB(5),DGMRES0
+      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
-      COMMON/CDE1/DGMfFd,DGMfFp,DGMfF,DGmmld,DGmmlp,DGmml
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
 
       DIMENSION A(MAXEQN,MAXBND),B(MAXEQN),B0(MAXEQN)
       DIMENSION X(MAXEQN),X0(MAXEQN),XM(MAXEQN),Q0(MAXEQN),QM(MAXEQN)
@@ -467,19 +467,20 @@ C----- Write hydrology/sediment summary at the end of the run ----------------
       CALL OUTMASS(TRAI,LISFIL,ISCR,NPRINT,VIN,VOUT,SMIN,SMOUT)
 
 c---- (IWQ=1) Pesticide leaching, degradation and remobilization ------------
-
       IF(IWQ.GT.0) THEN
+            DO 50 JJ=1,IWQ
 c------ Leaching, CDE analytical solution, 3rd type BC (Huang & van Genuchten, 1995)
-        CALL CDE(VIN,VOUT,SMIN,SMOUT,TIME)
+               CALL CDE(JJ,VIN,VOUT,SMIN,SMOUT,TIME)
 c-------Pesticide trapping and remobilization ---------------------------------
-        CALL WQPEST(VIN,VOUT,SMIN,SMOUT)
+               CALL WQPEST(JJ,VIN,VOUT,SMIN,SMOUT)
+ 50          CONTINUE
       ENDIF
 
 c-------Output message at end of program -----------------
 
       IF(ISCR.EQ.0) THEN
         WRITE(*,*)
-        WRITE(*,*)'...FINISHED...','VFSMOD v4.5.2 02/2023'
+        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.0 11/2024'
         WRITE(*,*)
       ENDIF
 

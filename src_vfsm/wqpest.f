@@ -1,4 +1,4 @@
-      SUBROUTINE WQPEST(VIN,VOUT,SMIN,SMOUT)
+      SUBROUTINE WQPEST(JJ,VIN,VOUT,SMIN,SMOUT)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                             C
 C  Pesticide trapping, mass balance and degradation component                 C
@@ -13,9 +13,11 @@ C  TTE [-]= sediment reduction in filter                                      C
 C  PDSED(%) = sediment reduction in filter (dE= TTE*100)                      C
 C  DELTAP (%)= pesticide reduction in filter (dP)                             C
 C  PDQ(%) = flow reduction in filter (dQ)                                     C
-C  DGPIN(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)        C
+C  DGPIN(JJ)(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)    C
+C  DGLD(JJ)(m)= ambda, dispersion length of chemical (m). This can be taken   C
+C           as 0.05m from FOCUS-Pearl (Default)                               C
 C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)    C
-C  DGmmld,DGmmlp,DGmml(mg)= mixing layer pest. (dissolved, adsorbed, total)   C
+C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)   C
 C                                                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
@@ -23,10 +25,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
-      COMMON/WQ1/VKD,CCP,CSAB(5),DGMRES0
+      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
-      COMMON/CDE1/DGMfFd,DGMfFp,DGMfF,DGmmld,DGmmlp,DGmml
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
 
       SAREA=SLENGTH*SWIDTH
       VFSAREA=VL*FWIDTH
@@ -39,9 +41,9 @@ c---- convert from m3 to L ----
       WAT_INL=WAT_IN*1000.d0
 c---- calculate factors for pesticide trapping equations ----
       IF (SMIN.EQ.0.D0) THEN
-          FPH=WAT_INL/(VKD*0.001D0)
+          FPH=WAT_INL/(VKD(JJ)*0.001D0)
         ELSE
-          FPH=WAT_INL/(VKD*SMIN)
+          FPH=WAT_INL/(VKD(JJ)*SMIN)
       ENDIF
       IF(WAT_IN.gt.0.d0.AND.VOUT.GT.0.d0)THEN
           PDQ=VF/WAT_IN*100.D0
@@ -66,8 +68,8 @@ c--------Sabbagh refit eq.
      &          DLOG(FPH+1.D0)+CSAB(5)*CCP
          CASE (3)
 c--------Mechanistic mass balance eq.
-           DELTAP=100.D0*MIN(VINL+VKD*SMIN,PDSED/100*SMIN*VKD+
-     &          PDQ/100*VINL)/(VINL+VKD*SMIN)
+           DELTAP=100.D0*MIN(VINL+VKD(JJ)*SMIN,PDSED/100*SMIN*VKD(JJ)+
+     &          PDQ/100*VINL)/(VINL+VKD(JJ)*SMIN)
          CASE DEFAULT
 c--------Chen eq. (California)
            DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
@@ -110,24 +112,24 @@ c---------Carry-over sorbed in mixing layer from previous event--------
       IF(IMOB.EQ.2) then
           DGMRESP0=0
         ELSE
-          DGMRESP0=DGMRES0*vKd*DGROB/OI*SAREA
+          DGMRESP0=DGMRES0(JJ)*VKD(JJ)*DGROB/OI*SAREA
       ENDIF
 c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
-      DGMI=DGPIN*SAREA
+      DGMI=DGPIN(JJ)*SAREA
       DGMO=DGMI*(1.d0-DELTAP/100.d0)
       IF(VIN.le.0.d0.and.SMIN.le.0.d0) THEN
           DGSI=0.d0
         ELSE
-          DGSI=DGMI*VKD/(VINL+SMIN*VKD)
+          DGSI=DGMI*VKD(JJ)/(VINL+SMIN*VKD(JJ))
       ENDIF
       DGMF=DGMI*DELTAP/100.d0
       DGMFSED=DGSI*SMIN*PDSED/100.d0
 c-----For high sorption pesticides check if all pesticide is sediment-bonded
       IF(DGMFSED.GT.DGMF) DGMFSED=DGMF
       DGMFF=DGMF-DGMFSED
-      DGMRES=DGMFSED+DGMML+DGMRESP0
+      DGMRES=DGMFSED+DGMml+DGMRESP0
       DGMRESFSED=DGMFSED
-      DGMRESMML=DGMML
+      DGMRESMML=DGMml
       DGTHETAN=OS
 
 c-----Scheme for 4 degradation types (IDG=1: EU-FOCUS; 2: US-EPA K=Kref;
@@ -157,18 +159,20 @@ c----------------- EPA/PMRA PRZM Guidance v.1.0 (2012) (Appendix A, page 5)
                    DGKTEMP=1.D0
                    DGKTHETA=(DGTHETA(I)/FC)**DGBETA
                ENDIF
-               DGKI=DGKREF*DGKTEMP*DGKTHETA
+               DGKI=DGKREF(JJ)*DGKTEMP*DGKTHETA
                DGMRES=DGMRES*DEXP(-DGKI)
-               IF(ISNAN(DGMRES)) DGMRES=0.d0
+c              check for NaN
+c old fortran  IF(ISNAN(DGMRES)) DGMRES=0.d0
+               IF(DGMRES.NE.DGMRES) DGMRES=0.d0
 c               DGMRESFSED=DGMRESFSED*DEXP(-DGKI)
 c               DGMRESMML=DGMRESMML*DEXP(-DGKI)
 40        CONTINUE
       ENDIF
 
 c-----Solid/liquid phase partitioning between outgoing sediment (SMOUT)
-c-----and water (VOUT)assuming linear equilibrium based on Kd (VKD).
+c-----and water (VOUT)assuming linear equilibrium based on Kd (VKD(JJ)).
       IF(VOUT.GT.0.D0) THEN
-            DGMOP=(DGMO*SMOUT*VKD)/(VOUT*1000.D0+SMOUT*VKD)
+            DGMOP=(DGMO*SMOUT*VKD(JJ))/(VOUT*1000.D0+SMOUT*VKD(JJ))
             DGMOD=DGMO-DGMOP
          ELSE
             DGMOP=0.D0
@@ -179,8 +183,8 @@ c-----Calculate surface residue mass in the porewater based sorption
 c-----equilibrium for the soil water content at the next event
       Vw=dgML*VFSAREA*DGTHETAN*10.d0
       DGMsoil=dgML*VFSAREA*DGROB*10.d0
-      DGMRESD=DGMRES*Vw/(Vw+DGMsoil*vKd)
-      DGMRESP=DGMRESD*vkd*DGMsoil/Vw
+      DGMRESD=DGMRES*Vw/(Vw+DGMsoil*VKD(JJ))
+      DGMRESP=DGMRESD*VKD(JJ)*DGMsoil/Vw
 
 c-----Remobilization (IMOB) options. Calculate
       SELECT CASE (IMOB)
@@ -212,11 +216,11 @@ C-----Write pesticide trapping outputs in OWQ file--------------
       write(18,4800)DGMF
       IF(DGMFSED.LT.ZEROPRT)DGMFSED=0.d0
       write(18,4805)DGMFSED
-      IF(DGMML.LT.ZEROPRT)DGMML=0.d0
-      write(18,4900)DGMML
+      IF(DGMml.LT.ZEROPRT)DGMml=0.d0
+      write(18,4900)DGMml
       IF(DGMRESP0.LT.ZEROPRT)DGMRESP0=0.d0
       write(18,4950)DGMRESP0
-      write(18,5000)DGMML+DGMFSED+DGMRESP0
+      write(18,5000)DGMml+DGMFSED+DGMRESP0
       IF(DGMRES.LT.ZEROPRT)DGMRES=0.d0
       write(18,5100)DGMRES,NDGDAY
       IF(DGMRESD.LT.ZEROPRT)DGMRESD=0.d0
@@ -229,15 +233,15 @@ C-----Write pesticide trapping outputs in OWQ file--------------
       WRITE(18,*)'Normalized values by source area:'
       WRITE(18,*)
       WRITE(18,5150)SAREA
-      write(18,5200)DGPIN
+      write(18,5200)DGPIN(JJ)
       write(18,5300)DGMO/SAREA
       write(18,5850)DGMOP/SAREA
       write(18,5950)DGMOD/SAREA
       write(18,5400)DGMF/SAREA
       write(18,5405)DGMFSED/SAREA
-      write(18,5500)DGMML/SAREA
+      write(18,5500)DGMml/SAREA
       write(18,5550)DGMRESP0/SAREA
-      write(18,5600)(DGMML+DGMFSED+DGMRESP0)/SAREA
+      write(18,5600)(DGMml+DGMFSED+DGMRESP0)/SAREA
       write(18,5700)DGMRES/SAREA,NDGDAY
       write(18,5705)DGMRESD/SAREA,NDGDAY
       write(18,5710)DGMRESP/SAREA,NDGDAY
