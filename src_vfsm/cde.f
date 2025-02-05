@@ -1,4 +1,4 @@
-      SUBROUTINE CDE(VIN,VOUT,SMIN,SMOUT,TIME)
+      SUBROUTINE CDE(JJ,VIN,VOUT,SMIN,SMOUT,TIME)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                             C
 C      The subroutine solves Huang and van Genuchten (1995, Soil Sci. 159(4): C
@@ -25,7 +25,7 @@ C      DGPIN(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)    C
 C      DGCIN (mg/L) = Chemical concentration of runoff                        C
 C      DGCIN2 (mg/L) = Average chemical concentration of infiltrating water   C
 C      DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved,adsorbed,total)  C
-C      DGmmld,DGmmlp,DGmml(mg)= mixing layer pest. (dissolved,adsorbed,total) C
+C      DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved,adsorbed,total) C
 C                                                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
@@ -33,11 +33,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
-      COMMON/WQ1/VKD,CCP,CSAB(5),DGMRES0
+      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
       COMMON/CINT/XI(20,20),W(20,20)
-      COMMON/CDE1/DGMfFd,DGMfFp,DGMfF,DGmmld,DGmmlp,DGmml
+      COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
 
       MAXIT=100
 c------Infiltration and water balance after event
@@ -61,15 +61,15 @@ c------Average chemical concentration (DGCIN2) of infiltrating water. The incomi
 c------mass is DGPIN plus remobilized residues from prev. event, DGPIN=DGPIN+DGM,FRES
 c------(see inputs.f). The mass is partitioned in dissolved (mdi)+sorbed mass (mpi)
       Ei=SMIN
-      DGPINd=DGPIN*VinL/(VinL+Ei*vKd)
-      DGPINp=DGPIN*Ei*vKd/(VinL+Ei*vKd)
+      DGPINd=DGPIN(JJ)*VinL/(VinL+Ei*VKD(JJ))
+      DGPINp=DGPIN(JJ)*Ei*VKD(JJ)/(VinL+Ei*VKD(JJ))
       DGCIN=DGPINd/VinL
-      DGSIN=vKd*DGCIN
+      DGSIN=VKD(JJ)*DGCIN
 C-------check distribution of incoming pesticide mass ------
       DGPIN_check=DGCIN*VinL+DGSIN*Ei
-      IF(DGPIN_check-DGPIN.GT.0.000000000001d0) THEN
+      IF(DGPIN_check-DGPIN(JJ).GT.0.000000000001d0) THEN
         print*,'WARNING: incoming mass distribution wrong:'
-        print*,'         DGPIN_check,DGPIN=',DGPIN_check,DGPIN
+        print*,'         DGPIN_check,DGPIN=',DGPIN_check,DGPIN(JJ)
       ENDIF
 
 c------A) Average infiltration resident concentration. The concentration is the
@@ -104,8 +104,8 @@ C           DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
 C     &          DLOG(FPH+1.D0)+CSAB(5)*CCP
 C         CASE (3)
 C--------Mechanistic mass balance eq.
-C           DELTAP=100.D0*MIN(VINL+VKD*SMIN,PDSED/100*SMIN*VKD+
-C     &          PDQ/100*VINL)/(VINL+VKD*SMIN)
+C           DELTAP=100.D0*MIN(VINL+VKD(JJ)*SMIN,PDSED/100*SMIN*VKD(JJ)+
+C     &          PDQ/100*VINL)/(VINL+VKD(JJ)*SMIN)
 C         CASE DEFAULT
 C--------Chen eq. (California)
 C           DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
@@ -120,15 +120,16 @@ C-------Prepare inputs for CDE transport solution ------
       C1=DGCIN2
       C2=0.d0
       DGROB=(1.d0-OS)*2.65d0
-      RF=1.d0+VKD*DGROB/OS
+      RF=1.d0+VKD(JJ)*DGROB/OS
       TT=F/OS
       TT0=F0/OS
       Zf=Z1
       ZD=0.D0
-
+      DGHALFJJ=DLOG(2.D0)/DGKREF(JJ)
+ 
 C-------Output CDE transport inputs-------------------------------
-      WRITE(18,*)'Soil leaching and mixing layer calculations (CDE)'
-      WRITE(18,*)'-------------------------------------------------'
+      IF(JJ.EQ.1)WRITE(18,300)'Soil leaching and mixing layer calculations (CDE)'
+      IF(IWQ.GT.1) WRITE(18,350)'PRODUCT',JJ,':'
       WRITE(18,*)'Huang & van Genuchten (1995) CDE analytical solution'
       WRITE(18,*)'Single pulse with C1=dissolved in mass/(runoff+rain)'
       WRITE(18,800)'Wetting front depth (z)=',Z1,'m'
@@ -137,12 +138,15 @@ C-------Output CDE transport inputs-------------------------------
       WRITE(18,800)'Event rainfall (P)=',TOTRAINL,'L'
       WRITE(18,800)'Total infiltration (F)=',VFL,'L'
       WRITE(18,800)'Incoming sediment (Ei)=',Ei,'Kg'
+      WRITE(18,800)'Incoming pesticide mass (mi)=',DGPIN(JJ),'mg/m2'
       WRITE(18,800)'Incoming dissolved mass (mdi)=',DGPINd,'mg/m2'
       WRITE(18,800)'Incoming sed-sorbed mass (mpi)=',DGPINp,'mg/m2'
       WRITE(18,800)'Incoming dissolved mass (mdi)=',DGPINd*SAREA,'mg'
       WRITE(18,800)'Incoming sed-sorbed mass (mpi)=',DGPINp*SAREA,'mg'
-
       WRITE(18,800)'Pulse concentration (C1)=',C1,'mg/L'
+      WRITE(18,800)'Partition coefficient (Kd)=',VKD(JJ),'L/Kg'
+      WRITE(18,800)'Dispersion length (l)=',DGLD(JJ),'m'
+      WRITE(18,800)'Pesticide half-life (Ln2/Kref)=',DGHALFJJ,'days'
       WRITE(18,800)'Retardation factor (R)=',RF,'(-)'
       WRITE(18,800)'Transformed time (T)=',TT,'(-)'
       WRITE(18,*)
@@ -151,84 +155,101 @@ C-------Output CDE transport inputs-------------------------------
 
 c-------Huang and Van Genuchten (1995) CDE analytical solution
       do while (ZD.le.Zf)
-        C=CONC(C1,C2,TT,TT0,ZD)
-        WRITE(18,500)ZD,C,VKD*C
+        C=CONC(JJ,C1,C2,TT,TT0,ZD)
+        WRITE(18,500)ZD,C,VKD(JJ)*C
         ZD=ZD+0.01D0
       end do
       C=0.d0
-      WRITE(18,500)ZD,C,VKD*C
+      WRITE(18,500)ZD,C,VKD(JJ)*C
 
 c-----Integrate mass in the soil profile for the event
-      call qgausscde(C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
-      DGMfFd=CONCINTG*OS*1000.d0*VFSAREA
-      DGMfFp=CONCINTG*vKd*DGROB*1000.d0*VFSAREA
-      DGMfF=DGMfFd+DGMfFp
-	    DGMfFdPCT=DGMfFd/DGMfF*100.d0
-      DGMfFpPCT=DGMfFp/DGMfF*100.d0
-      DGMfFPCT=DGMfF/DGMfF*100.d0
+      call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
+      DGMfFd(JJ)=CONCINTG*OS*1000.d0*VFSAREA
+      DGMfFp(JJ)=CONCINTG*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      DGMfF(JJ)=DGMfFd(JJ)+DGMfFp(JJ)
+      IF(DGMfF(JJ).EQ.0.d0) THEN
+          DGMfFdPCT= 0.d0
+          DGMfFpPCT= 0.d0
+          DGMfFPCT= 0.d0
+        ELSE
+          DGMfFdPCT=DGMfFd(JJ)/DGMfF(JJ)*100.d0
+          DGMfFpPCT=DGMfFp(JJ)/DGMfF(JJ)*100.d0
+          DGMfFPCT=DGMfF(JJ)/DGMfF(JJ)*100.d0
+        END IF
       WRITE(18,*)
-      WRITE(18,475)'Soil profile total mass (mfF mg)=',DGMfF,
+      WRITE(18,475)'Soil profile total mass (mfF mg)=',DGMfF(JJ),
      &  DGMfFPCT
-      WRITE(18,475)'Soil profile dissolved mass (mfFd mg)=',DGMfFd,
+      WRITE(18,475)'Soil profile dissolved mass (mfFd mg)=',DGMfFd(JJ),
      &  DGMfFdPCT
-      WRITE(18,475)'Soil profile sorbed mass (mfFp mg)=',DGMfFp,
+      WRITE(18,475)'Soil profile sorbed mass (mfFp mg)=',DGMfFp(JJ),
      &  DGMfFpPCT
 
 c-----Integrate mass in mixing layer for the event
-      call qgausscde(C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
+      call qgausscde(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
       IF(CONCINTG1.GT.CONCINTG) CONCINTG1=CONCINTG
-      DGMmld=CONCINTG1*OS*1000.d0*VFSAREA
-      DGMmlp=CONCINTG1*vKd*DGROB*1000.d0*VFSAREA
-      DGMml= DGMmld+DGMmlp
-      DGMmldPCT=DGMmld/DGMfF*100.d0
-      DGMmlpPCT=DGMmlp/DGMfF*100.d0
-      DGMmlPCT=DGMml/DGMfF*100.d0
-      WRITE(18,475)'Mixing layer total mass (mfml mg)=',DGmml,
-     &  DGmmlPCT
+      DGMmld(JJ)=CONCINTG1*OS*1000.d0*VFSAREA
+      DGMmlp(JJ)=CONCINTG1*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      DGMml(JJ)= DGMmld(JJ)+DGMmlp(JJ)
+      IF(DGMfF(JJ).EQ.0.d0) THEN
+          DGMmldPCT= 0.d0
+          DGMmlpPCT= 0.d0
+          DGMmlPCT= 0.d0
+        ELSE
+          DGMmldPCT=DGMmld(JJ)/DGMfF(JJ)*100.d0
+          DGMmlpPCT=DGMmlp(JJ)/DGMfF(JJ)*100.d0
+          DGMmlPCT=DGMml(JJ)/DGMfF(JJ)*100.d0
+      END IF
+      WRITE(18,475)'Mixing layer total mass (mfml mg)=',DGMml(JJ),
+     &  DGMmlPCT
       WRITE(18,475)'Mixing layer dissolved mass (mfmld mg)=',
-     &  DGmmld,DGmmldPCT
-      WRITE(18,475)'Mixing layer sorbed mass (mfmlp mg)=',DGmmlp,
-     &  DGmmlpPCT
+     &  DGMmld(JJ),DGMmldPCT
+      WRITE(18,475)'Mixing layer sorbed mass (mfmlp mg)=',DGMmlp(JJ),
+     &  DGMmlpPCT
 
+300   FORMAT(/,65('-'),/,A50,/,65('-'))
+350   FORMAT(/,A7,I3,A1)
 400   FORMAT(A41,3E12.4)
 450   FORMAT(A20,F12.2)
 475   FORMAT(A41,f12.4,F8.2,'%')
 500   FORMAT(6F12.4)
 600   FORMAT(A40,2F12.4)
 800   FORMAT(A31,F12.4,A11)
+c800   FORMAT(A31,F12.6,A20)
+
+
 
       return
       end
 
-      FUNCTION CONC(C1,C2,TT,TT0,ZD)
+      FUNCTION CONC(JJ,C1,C2,TT,TT0,ZD)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Auxiliary function of van Genuchten and Alves (1980) A(x,t)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 
       if(TT.le.TT0) THEN
-          CONC=C2+(C1-C2)*AUX(ZD,TT)
+          CONC=C2+(C1-C2)*AUX(JJ,ZD,TT)
         ELSE
-          CONC=C2+(C1-C2)*(AUX(ZD,TT)-AUX(ZD,TT-TT0))
+          CONC=C2+(C1-C2)*(AUX(JJ,ZD,TT)-AUX(JJ,ZD,TT-TT0))
       ENDIF
 
       return
       END
 
 
-      FUNCTION AUX(ZD,TTF)
+      FUNCTION AUX(JJ,ZD,TTF)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Auxiliary function of van Genuchten and Alves (1980) A(x,t)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
 
       PI=3.14159265358979323846264338327950288419716939937510582d0
-      D1=(RF*ZD-TTF)/(2.d0*dsqrt(RF*DGLD*TTF))
-      D2=(RF*ZD+TTF)/(2.d0*dsqrt(RF*DGLD*TTF))
+      D1=(RF*ZD-TTF)/(2.d0*dsqrt(RF*DGLD(JJ)*TTF))
+      D2=(RF*ZD+TTF)/(2.d0*dsqrt(RF*DGLD(JJ)*TTF))
       A1= 0.5d0*erfcc(D1)
-      A2= -0.5d0*(1.d0+ZD/DGLD+TTF/(DGLD*RF))*dexp(ZD/DGLD)*erfcc(D2)
-      A3= dsqrt(TTF/(PI*DGLD*RF))*dexp(-D1**2)
+      A2= -0.5d0*(1.d0+ZD/DGLD(JJ)+TTF/(DGLD(JJ)*RF))*dexp(ZD/DGLD(JJ))*erfcc(D2)
+      A3= dsqrt(TTF/(PI*DGLD(JJ)*RF))*dexp(-D1**2)
       AUX= A1 + A2 + A3
 
       return
@@ -263,7 +284,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       return
       END
 
-      subroutine qgausscde(C1,C2,TT,TT0,a,b,ngl,sst)
+      subroutine qgausscde(JJ,C1,C2,TT,TT0,a,b,ngl,sst)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Numerical integration of a generic function using Gauss-Legendre quadrature
 C   a,b: limits of integration
@@ -280,7 +301,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       sst=0.d0
       do 11 j=1,ngl
         dx=xr*xi(j,ngl)
-        sst=sst+w(j,ngl)*CONC(C1,C2,TT,TT0,xm+dx)
+        sst=sst+w(j,ngl)*CONC(JJ,C1,C2,TT,TT0,xm+dx)
 11     continue
       sst=xr*sst
 

@@ -13,27 +13,38 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
       COMMON/GRASSD3/SUSMASS,WEDGEMASS,NFUP
       COMMON/OLD/SEOLD,TOLD,XTOLD,YTOLD,CDEP,SE,VBTOLD,GSOLD
-      COMMON/WQ1/VKD,CCP,CSAB(5),DGMRES0
+      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF,FC,DGPIN,DGML,DGT(366),DGTHETA(366),DGLD,RF
-      CHARACTER*75 DUMMY
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      CHARACTER*75 DUMMY,DUMMY1
       CHARACTER*75 LISFIL(13)
 
 C-------------- Summarize results in .osp from filename.ohy file -------------
       WRITE(10,*)'INPUTS'
       WRITE(10,*)'------'
-c-----Close .OHY and open again to output table (last NPRINT lines)-----------
+c-----Close .OHY and .OSM and open again to output table (last NPRINT lines)--
       CLOSE(11)
       CLOSE(13)
       OPEN(11,FILE=LISFIL(6),STATUS='OLD')
       OPEN(13,FILE=LISFIL(8),STATUS='OLD')
 
 c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
+      VFSAREA=VL*FWIDTH
       IDX=0
+      IDXR=0
       DO 5 WHILE (IDX.EQ.0)
             READ(11,'(A)')DUMMY
             IDX=INDEX(DUMMY,'OUTFLOW')
             IF(IDX.EQ.0) WRITE(10,*)DUMMY
+            IDXR=INDEX(DUMMY,'Total rainfall')
+            IF(IDXR.NE.0) THEN
+                  BACKSPACE(11)
+                  READ(11,100)DUMMY1,TRAIN
+                  IF(TRAI.EQ.0) THEN
+                        TRAI=TRAIN/1000.d0
+                        PS=TRAI
+                  ENDIF
+             ENDIF
 5     CONTINUE
       READ(11,'(A)')DUMMY
       READ(11,'(A)')DUMMY
@@ -52,7 +63,6 @@ c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
       VF0=0.D0
       TINI=0.D0
       TEND=0.D0
-      VFSAREA=VL*FWIDTH
       DO 10 I=1,NPRINT+1
             READ(11,*,END=16)TIME1,OUTF1,CUMFLOW,RAIN_E1,UPIN1,CUMIF,
      &             VF1
@@ -87,7 +97,7 @@ c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
             IF(C1.GT.0.D0)TEND=TIME1
 10      CONTINUE
 c-----Echo sediment inputs from .OG1 and write into summary file .OSM---------
-12      READ(13,'(A)')DUMMY
+12    READ(13,'(A)')DUMMY
       IDX=INDEX(DUMMY,'gsI')
       IF(IDX.NE.0) GOTO 16
       WRITE(10,*)DUMMY
@@ -262,6 +272,7 @@ c--- rmc 04/20/03 --end of fix
             WRITE(15,1875)
       ENDIF
 
+100   FORMAT(A31,F12.2)
 150   FORMAT('Volume from outflow = ', E14.4,' m3')
 200   FORMAT('Volume from i_e     = ', E14.4,' m3',F14.2,'%')
 300   FORMAT('Volume from up-field= ', E14.4,' m3')

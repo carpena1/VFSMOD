@@ -153,7 +153,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             PS= PSOLD + RAIN(L,2)*(TIME-RAIN(L,1))
             C1= AGA*(TIME-TP+TPP)
             F=RNEWTON(C1,C2,F)
-            IF(ISNAN(F)) F=PS
+c          check for F=NAN
+            if(F.NE.F) F=PS
+c old fortran IF(ISNAN(F)) F=PS
             FPI=AGA+BGA/F
             ROI= PS -F - RO
             IF(ROI.LT.0.d0) ROI=0.d0

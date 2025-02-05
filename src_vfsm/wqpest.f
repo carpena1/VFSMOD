@@ -1,25 +1,26 @@
-      SUBROUTINE WQPEST(JJ,VIN,VOUT,SMIN,SMOUT)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                             C
-C  Pesticide trapping, mass balance and degradation component                 C
-C  Variables used:                                                            C
-C  SAREA,VFSAREA (m2): Source (field) and filter areas                        C
-C  VIN,VOUT(m3)= VFS runoff inflow and outflow volume hydrograph areas        C
-C  SMIN,SMOUT(Kg)= VFS sediment inflow and outflow                            C
-C  WAT_IN(m3)= Runoff inflow (VIN) + total rain on the filter for the event   C
-C  VF(m3)= Total Infiltration in Filter                                       C
-C  OS= soil saturated water content (porosity)                                C
-C  TTE [-]= sediment reduction in filter                                      C
-C  PDSED(%) = sediment reduction in filter (dE= TTE*100)                      C
-C  DELTAP (%)= pesticide reduction in filter (dP)                             C
-C  PDQ(%) = flow reduction in filter (dQ)                                     C
-C  DGPIN(JJ)(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)    C
-C  DGLD(JJ)(m)= ambda, dispersion length of chemical (m). This can be taken   C
-C           as 0.05m from FOCUS-Pearl (Default)                               C
-C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)    C
-C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)   C
-C                                                                             C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      SUBROUTINE WQPEST(VIN,VOUT,SMIN,SMOUT)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                              C
+C  Pesticide trapping, mass balance and degradation component                  C
+C  Variables used:                                                             C 
+C  SAREA,VFSAREA (m2): Source (field) and filter areas                         C
+C  VIN,VOUT(m3)= VFS runoff inflow and outflow volume hydrograph areas         C
+C  SMIN,SMOUT(Kg)= VFS sediment inflow and outflow                             C
+C  WAT_IN(m3)= Runoff inflow (VIN) + total rain on the filter for the event    C
+C  VF(m3)= Total Infiltration in Filter                                        C
+C  OS= soil saturated water content (porosity)                                 C
+C  TTE [-]= sediment reduction in filter                                       C
+C  PDSED(%) = sediment reduction in filter (dE= TTE*100)                       C
+C  DELTAP (%)= pesticide reduction in filter (dP)                              C
+C  PDQ(%) = flow reduction in filter (dQ)                                      C
+C  DGPIN(JJ)(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)     C
+C  DGLD(JJ)(m)= ambda, dispersion length of chemical (m). This can be taken    C
+C           as 0.05m from FOCUS-Pearl (Default)                                C
+C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)     C
+C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)    C
+C  DGMRES(mg)= pesticide surface residues at the next storm (after degradation)C
+C                                                                              C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       IMPLICIT DOUBLE PRECISION   (A-H,O-Z)
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
@@ -29,7 +30,33 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
+      
+      DIMENSION DGMRESP0(10),DGMI(10),DGMO(10),DGMOD(10),DGMOP(10),DGMf(10),
+     &      DGMfSED(10),DGMRES(10),DGMRESFSED(10),DGMRESMML(10),FPH(10),
+     &      DGMRESP(10),DGMRESD(10), DGMRESI(10),DGMSurf(10)
+      DIMENSION DGMRESP0AREA(10),DGMIAREA(10),DGMOAREA(10),DGMODAREA(10),
+     &      DGMOPAREA(10),DGMfAREA(10), DGMfSEDAREA(10),DGMRESAREA(10),
+     &      DGMRESFSEDAREA(10),DGMRESMMLAREA(10),DGMRESPAREA(10),
+     &      DGMRESDAREA(10), DGMRESIAREA(10),DGMSurfAREA(10),DGMmlAREA(10)
+      CHARACTER*200 LINE
+      CHARACTER*3 SNDGDAY 
+      CHARACTER*1 SIMOB 
+      CHARACTER*58 DESCR1(13)
+      DATA(DESCR1(I),I=1,13)/'Pesticide input (mi)',
+     & 'Pesticide output (mo)',
+     & 'Pesticide outflow in solid phase (mop)',
+     & 'Pesticide outflow in liquid phase (mod)',
+     & 'Pesticide trapped in VFS (mf)',
+     & 'Pesticide trapped with sediment (mfsed)',
+     & 'Pesticide trapped in mixing layer (mfml)',
+     & 'Pesticide in mixing layer from last event (mfml0)',
+     & 'Total surface residue (mres1=mfml+mfsed+mfml0)',
+     & 'Total surface residue after degradation (',
+     & 'Dissolved surface residue after degradation (',
+     & 'Sorbed surface residue after degradation (',
+     & 'Next event residue remobilization (mresn, IMOB='/
 
+c---- Water in VFS
       SAREA=SLENGTH*SWIDTH
       VFSAREA=VL*FWIDTH
       VF=F*VFSAREA
@@ -39,12 +66,11 @@ c---- convert from m3 to L ----
       VINL=Vin*1000.D0
       TOTRAINL=TOTRAIN*1000.d0
       WAT_INL=WAT_IN*1000.d0
-c---- calculate factors for pesticide trapping equations ----
-      IF (SMIN.EQ.0.D0) THEN
-          FPH=WAT_INL/(VKD(JJ)*0.001D0)
-        ELSE
-          FPH=WAT_INL/(VKD(JJ)*SMIN)
-      ENDIF
+c-----Auxiliary values for pesticide redistribution---
+      DGROB=(1.d0-OS)*2.65d0
+      OI=OS-DM
+      DGTHETAN=DGTHETA(NDGDAY)
+c---- Calculate flow and sediment reduction factors for pesticide trapping equations ----
       IF(WAT_IN.gt.0.d0.AND.VOUT.GT.0.d0)THEN
           PDQ=VF/WAT_IN*100.D0
         ELSE
@@ -57,199 +83,194 @@ C-------IWQPRO=1 - Sabbagh et al. (2009) semiempirical eq. ---------------
 C-------IWQPRO=2 - Refitted Sabbagh et al. eq. w/user supplies coeff -----
 C-------IWQPRO=3 - Based on Muñoz-Carpena et al. (2015) mechanistic eq. --
 C-------IWQPRO=4 - Chen et al. (2017) empirical eq. ----------------------
-      SELECT CASE (IWQPRO)
-        CASE (1)
-c-------Orifinal Sabbagh eq.
-           DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
-     &          DLOG(FPH+1.D0)+CSAB(5)*CCP
-         CASE (2)
-c--------Sabbagh refit eq.
-           DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
-     &          DLOG(FPH+1.D0)+CSAB(5)*CCP
-         CASE (3)
-c--------Mechanistic mass balance eq.
-           DELTAP=100.D0*MIN(VINL+VKD(JJ)*SMIN,PDSED/100*SMIN*VKD(JJ)+
+      WRITE(18,3400)'Outputs for Water Quality'
+      DO JJ=1,IWQ
+            IF (SMIN.EQ.0.D0) THEN
+                FPH(JJ)=WAT_INL/(VKD(JJ)*0.001D0)
+              ELSE
+                FPH(JJ)=WAT_INL/(VKD(JJ)*SMIN)
+            ENDIF
+            SELECT CASE (IWQPRO)
+              CASE (1)
+c-------------Original Sabbagh eq.
+                DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
+     &          DLOG(FPH(JJ)+1.D0)+CSAB(5)*CCP
+              CASE (2)
+c-------------Sabbagh refit eq.
+                DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
+     &          DLOG(FPH(JJ)+1.D0)+CSAB(5)*CCP
+              CASE (3)
+c-------------Mechanistic mass balance eq. - (DEFAULT)
+                DELTAP=100.D0*MIN(VINL+VKD(JJ)*SMIN,PDSED/100*SMIN*VKD(JJ)+
      &          PDQ/100*VINL)/(VINL+VKD(JJ)*SMIN)
-         CASE DEFAULT
-c--------Chen eq. (California)
-           DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
+              CASE DEFAULT
+c-------------Chen eq. (California)
+                DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
      &          2.17D0*ICAT+0.02D0*PDQ*ICAT-0.0003D0*PDQ*PDSED)**2.D0
-      END SELECT
-      IF (DELTAP.GT.100.D0.OR.PDQ.GE.100.d0.OR.VOUT.LE.0.d0) DELTAP=100.D0
-      IF (PDQ.EQ.0.d0.AND.PDSED.EQ.0.d0) DELTAP=0.D0
-      IF (DELTAP.LT.0.d0) DELTAP=0.D0
-
-      WRITE(18,*)
-      WRITE(18,*)'Outputs for Water Quality'
-      WRITE(18,3500)
-      WRITE(18,4005)VIN
-      WRITE(18,4105)SMIN
-      IF(dabs(FPH).le.9999.d0) THEN
-          WRITE(18,4200)FPH
-        ELSE
-          WRITE(18,4205)FPH
-      ENDIF
-      WRITE(18,4300)PDQ
-      WRITE(18,4400)PDSED
-      IF(Vin.gt.0.d0) THEN
-          RRED=100.D0*(1-Vout/Vin)
-        ELSE
-          RRED=100.d0
-      ENDIF
-      IF(dabs(RRED).gt.200.d0) THEN
-          WRITE(18,4455)RRED
-        ELSE
-          WRITE(18,4450)RRED
-      ENDIF
-      WRITE(18,*)
-      WRITE(18,4500)DELTAP
-
+            END SELECT
+            IF (DELTAP.GT.100.D0.OR.PDQ.GE.100.d0.OR.VOUT.LE.0.d0) DELTAP=100.D0
+            IF (PDQ.EQ.0.d0.AND.PDSED.EQ.0.d0) DELTAP=0.D0
+            IF (DELTAP.LT.0.d0) DELTAP=0.D0
+C-------Print VFS efficiencies in .iwq file --------------
+            IF(IWQ.GT.1) WRITE(18,3500)'PRODUCT',JJ,':'
+            WRITE(18,4005)VIN
+            WRITE(18,4105)SMIN
+            IF(dabs(FPH(JJ)).le.9999.d0) THEN
+              WRITE(18,4200)FPH(JJ)
+             ELSE
+              WRITE(18,4205)FPH(JJ)
+            ENDIF
+            WRITE(18,4300)PDQ
+            WRITE(18,4400)PDSED
+            IF(Vin.gt.0.d0) THEN
+              RRED=100.D0*(1-Vout/Vin)
+             ELSE
+              RRED=100.d0
+            ENDIF
+            IF(dabs(RRED).gt.200.d0) THEN
+              WRITE(18,4455)RRED
+             ELSE
+              WRITE(18,4450)RRED
+            ENDIF
+            WRITE(18,*)
+            WRITE(18,4500)DELTAP            
 C-------Calculate pesticide mass balance and degradation (IDG=1-4)-----
 C-------based on Muñoz-Carpena et al. (2015) --------------------------
-      DGROB=(1.d0-OS)*2.65d0
-      OI=OS-DM
 c---------Carry-over sorbed in mixing layer from previous event--------
-      IF(IMOB.EQ.2) then
-          DGMRESP0=0
-        ELSE
-          DGMRESP0=DGMRES0(JJ)*VKD(JJ)*DGROB/OI*SAREA
-      ENDIF
+            IF(IMOB.EQ.2) then
+              DGMRESP0(JJ)=0
+             ELSE
+              DGMRESP0(JJ)=DGMRES0(JJ)*VKD(JJ)*DGROB/OI*SAREA
+            ENDIF
 c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
-      DGMI=DGPIN(JJ)*SAREA
-      DGMO=DGMI*(1.d0-DELTAP/100.d0)
-      IF(VIN.le.0.d0.and.SMIN.le.0.d0) THEN
-          DGSI=0.d0
-        ELSE
-          DGSI=DGMI*VKD(JJ)/(VINL+SMIN*VKD(JJ))
-      ENDIF
-      DGMF=DGMI*DELTAP/100.d0
-      DGMFSED=DGSI*SMIN*PDSED/100.d0
+            DGMI(JJ)=DGPIN(JJ)*SAREA
+            DGMO(JJ)=DGMI(JJ)*(1.d0-DELTAP/100.d0)
+            IF(VIN.le.0.d0.and.SMIN.le.0.d0) THEN
+              DGSI=0.d0
+             ELSE
+              DGSI=DGMI(JJ)*VKD(JJ)/(VINL+SMIN*VKD(JJ))
+             ENDIF
+            DGMf(JJ)=DGMI(JJ)*DELTAP/100.d0
+            DGMfSED(JJ)=DGSI*SMIN*PDSED/100.d0
 c-----For high sorption pesticides check if all pesticide is sediment-bonded
-      IF(DGMFSED.GT.DGMF) DGMFSED=DGMF
-      DGMFF=DGMF-DGMFSED
-      DGMRES=DGMFSED+DGMml+DGMRESP0
-      DGMRESFSED=DGMFSED
-      DGMRESMML=DGMml
-      DGTHETAN=OS
+            IF(DGMfSED(JJ).GT.DGMf(JJ)) DGMfSED(JJ)=DGMf(JJ)
+            DGMfF1=DGMf(JJ)-DGMfSED(JJ)
+            IF(DABS(DGMfF1- DGMfF(JJ)).gt.1.d0) print*,'Warning:',DGMfF1,DGMfF(JJ)
+c-----Pesticide residues on the VFS surface at the end of the runoff event
+            DGMRES(JJ)=DGMfSED(JJ)+DGMml(JJ)+DGMRESP0(JJ)
+            DGMRESFSED(JJ)=DGMfSED(JJ)
+            DGMRESMML(JJ)=DGMml(JJ)
+      END DO
 
-c-----Scheme for 4 degradation types (IDG=1: EU-FOCUS; 2: US-EPA K=Kref;
-c-----3: k=k(T); 4:k=k(theta))
-      IF(IDG.GT.0.AND.IDG.LE.4.AND.NDGDAY.GT.0) THEN
-            DGTHETAN=DGTHETA(NDGDAY)
-          DGBETA=-0.7d0
-          DO 40 I=1,NDGDAY
-              IF(IDG.EQ.1) THEN
-c------------------For EU FOCUS reference temperature is 20 C, QT10=2.58,
-c------------------EFSA Journal (2007):622:1-32
-                   DGC1=65.4d0/(0.008314d0)
-                   DGC2=1.d0/293.15d0
-                   DGKTEMP=DEXP(DGC1*(DGC2-(1.d0/(DGT(I)+273.15d0))))
-                   DGKTHETA=(DGTHETA(I)/FC)**DGBETA
-                ELSEIF(IDG.EQ.2) THEN
-                   DGKTEMP=1.D0
-                   DGKTHETA=1.D0
-                ELSEIF(IDG.EQ.3) THEN
-c------------------For US EPA the reference temperature is 25 C, , QT10=2.0,
-c----------------- EPA/PMRA PRZM Guidance v.1.0 (2012) (Appendix A, page 5)
-                   DGC1=49.5d0/(8.314d0/1000.d0)
-                   DGC2=1.d0/298.15d0
-                   DGKTEMP=DEXP(DGC1*(DGC2-(1.d0/(DGT(I)+273.15d0))))
-                   DGKTHETA=1.D0
-                ELSEIF(IDG.EQ.4) THEN
-                   DGKTEMP=1.D0
-                   DGKTHETA=(DGTHETA(I)/FC)**DGBETA
-               ENDIF
-               DGKI=DGKREF(JJ)*DGKTEMP*DGKTHETA
-               DGMRES=DGMRES*DEXP(-DGKI)
-c              check for NaN
-c old fortran  IF(ISNAN(DGMRES)) DGMRES=0.d0
-               IF(DGMRES.NE.DGMRES) DGMRES=0.d0
-c               DGMRESFSED=DGMRESFSED*DEXP(-DGKI)
-c               DGMRESMML=DGMRESMML*DEXP(-DGKI)
-40        CONTINUE
-      ENDIF
+c-----Pesticide degradation in days between runoff events for single compound 
+c-----and multiple species reactions (parent-metabolites)     
+      CALL multspcalc(DGMRES)   
 
-c-----Solid/liquid phase partitioning between outgoing sediment (SMOUT)
-c-----and water (VOUT)assuming linear equilibrium based on Kd (VKD(JJ)).
-      IF(VOUT.GT.0.D0) THEN
-            DGMOP=(DGMO*SMOUT*VKD(JJ))/(VOUT*1000.D0+SMOUT*VKD(JJ))
-            DGMOD=DGMO-DGMOP
-         ELSE
-            DGMOP=0.D0
-            DGMOD=0.D0
-      ENDIF
-
-c-----Calculate surface residue mass in the porewater based sorption
-c-----equilibrium for the soil water content at the next event
+c---- Final mass balance and remobilization
       Vw=dgML*VFSAREA*DGTHETAN*10.d0
       DGMsoil=dgML*VFSAREA*DGROB*10.d0
-      DGMRESD=DGMRES*Vw/(Vw+DGMsoil*VKD(JJ))
-      DGMRESP=DGMRESD*VKD(JJ)*DGMsoil/Vw
+      DO JJ=1,IWQ
+c-------Solid/liquid phase partitioning between outgoing sediment (SMOUT)
+c-------and water (VOUT)assuming linear equilibrium based on Kd (VKD(JJ)).
+        IF(VOUT.GT.0.D0) THEN
+            DGMOP(JJ)=(DGMO(JJ)*SMOUT*VKD(JJ))/(VOUT*1000.D0+SMOUT*VKD(JJ))
+            DGMOD(JJ)=DGMO(JJ)-DGMOP(JJ)
+         ELSE
+            DGMOP(JJ)=0.D0
+            DGMOD(JJ)=0.D0
+        ENDIF
+c-----Calculate surface residue mass in the porewater based sorption
+c-----equilibrium for the soil water content at the next event
+        DGMRESD(JJ)=DGMRES(JJ)*Vw/(Vw+DGMsoil*VKD(JJ))
+        DGMRESP(JJ)=DGMRESD(JJ)*VKD(JJ)*DGMsoil/Vw
 
 c-----Remobilization (IMOB) options. Calculate
-      SELECT CASE (IMOB)
+        SELECT CASE (IMOB)
 c-------Full remobilization of surface residue, m'i= mml_res+mf,sed_res (IMOB=2)
-        CASE (2)
-          DGMRESI=DGMRES
+          CASE (2)
+            DGMRESI(JJ)=DGMRES(JJ)
 c-------No remobilization of surface residue, m'i= 0 (IMOB=3)
-        CASE (3)
-          DGMRESI=0
+          CASE (3)
+            DGMRESI(JJ)=0
 c-------Partial remobilization of surface residue, m'i= mml_res (IMOB=1)
-        CASE DEFAULT
-          DGMRESI=DGMRESD
-      END SELECT
+          CASE DEFAULT
+            DGMRESI(JJ)=DGMRESD(JJ)
+        END SELECT
+      END DO
 
-C-----Write pesticide trapping outputs in OWQ file--------------
-      ZEROPRT=1D-99
+c -----Write mass balance for all products in .owq file
       WRITE(18,*)
       WRITE(18,3525)
-      WRITE(18,3550)
-      IF(DGMI.LT.ZEROPRT)DGMI=0.d0
-      write(18,4600)DGMI
-      IF(DGMO.LT.ZEROPRT)DGMO=0.d0
-      write(18,4700)DGMO
-      IF(DGMOP.LT.ZEROPRT)DGMOP=0.d0
-      write(18,5800)DGMOP
-      IF(DGMOD.LT.ZEROPRT)DGMOD=0.d0
-      write(18,5900)DGMOD
-      IF(DGMF.LT.ZEROPRT)DGMF=0.d0
-      write(18,4800)DGMF
-      IF(DGMFSED.LT.ZEROPRT)DGMFSED=0.d0
-      write(18,4805)DGMFSED
-      IF(DGMml.LT.ZEROPRT)DGMml=0.d0
-      write(18,4900)DGMml
-      IF(DGMRESP0.LT.ZEROPRT)DGMRESP0=0.d0
-      write(18,4950)DGMRESP0
-      write(18,5000)DGMml+DGMFSED+DGMRESP0
-      IF(DGMRES.LT.ZEROPRT)DGMRES=0.d0
-      write(18,5100)DGMRES,NDGDAY
-      IF(DGMRESD.LT.ZEROPRT)DGMRESD=0.d0
-      write(18,5105)DGMRESD,NDGDAY
-      IF(DGMRESP.LT.ZEROPRT)DGMRESP=0.d0
-      write(18,5110)DGMRESP,NDGDAY
-      IF(DGMRESI.LT.ZEROPRT)DGMRESI=0.d0
-      WRITE(18,6001)DGMRESI,IMOB
+      ZEROPRT=1D-99
+      WRITE (SNDGDAY, '(I3)') NDGDAY
+      WRITE (SIMOB, '(I1)') IMOB
+c------normalize values by area
+      DO JJ=1,IWQ
+            IF(DGMI(JJ).LT.ZEROPRT)DGMI(JJ)=0.d0
+            DGMIAREA(JJ)=DGMI(JJ)/SAREA
+            IF(DGMO(JJ).LT.ZEROPRT)DGMO(JJ)=0.d0
+            DGMOAREA(JJ)=DGMO(JJ)/SAREA
+            IF(DGMOP(JJ).LT.ZEROPRT)DGMOP(JJ)=0.d0
+            DGMOPAREA(JJ)=DGMOP(JJ)/SAREA
+            IF(DGMOD(JJ).LT.ZEROPRT)DGMOD(JJ)=0.d0
+            DGMODAREA(JJ)=DGMOD(JJ)/SAREA
+            IF(DGMf(JJ).LT.ZEROPRT)DGMf(JJ)=0.d0
+            DGMfAREA(JJ)=DGMf(JJ)/SAREA
+            IF(DGMfSED(JJ).LT.ZEROPRT)DGMfSED(JJ)=0.d0
+            DGMfSEDAREA(JJ)=DGMfSED(JJ)/SAREA
+            IF(DGMml(JJ).LT.ZEROPRT)DGMml(JJ)=0.d0
+            DGMmlAREA(JJ)=DGMml(JJ)/SAREA
+            IF(DGMRESP0(JJ).LT.ZEROPRT)DGMRESP0(JJ)=0.d0
+            DGMRESP0AREA(JJ)=DGMRESP0(JJ)/SAREA
+            DGMSurf(JJ)=DGMml(JJ)+DGMfSED(JJ)+DGMRESP0(JJ)
+            DGMSurfAREA(JJ)=DGMSurf(JJ)/SAREA
+            IF(DGMRES(JJ).LT.ZEROPRT)DGMRES(JJ)=0.d0
+            DGMRESAREA(JJ)=DGMRES(JJ)/SAREA
+            IF(DGMRESD(JJ).LT.ZEROPRT)DGMRESD(JJ)=0.d0
+            DGMRESDAREA(JJ)=DGMRESD(JJ)/SAREA
+            IF(DGMRESP(JJ).LT.ZEROPRT)DGMRESP(JJ)=0.d0
+            DGMRESPAREA(JJ)=DGMRESP(JJ)/SAREA
+            IF(DGMRESI(JJ).LT.ZEROPRT)DGMRESI(JJ)=0.d0
+            DGMRESIAREA(JJ)=DGMRESI(JJ)/SAREA
+          END DO
+c-------Print mass balance for all products in .owq file
+      IF(IWQ.GT.1) WRITE(18,3535)('Product',JJ,JJ=1,IWQ)
+      CALL COMP_STRING(0,DGMI,DESCR1(1))
+      CALL COMP_STRING(0,DGMO,DESCR1(2))
+      CALL COMP_STRING(0,DGMOP,DESCR1(3))
+      CALL COMP_STRING(0,DGMOD,DESCR1(4))
+      CALL COMP_STRING(0,DGMf,DESCR1(5))
+      CALL COMP_STRING(0,DGMfSED,DESCR1(6))
+      CALL COMP_STRING(0,DGMml,DESCR1(7))
+      CALL COMP_STRING(0,DGMRESP0,DESCR1(8))
+      CALL COMP_STRING(0,DGMSurf,DESCR1(9))
+      CALL COMP_STRING(1,DGMRES,DESCR1(10))
+      CALL COMP_STRING(1,DGMRESD,DESCR1(11))
+      CALL COMP_STRING(1,DGMRESP,DESCR1(12))
+      CALL COMP_STRING(2,DGMRESI,DESCR1(13))
       WRITE(18,*)
       WRITE(18,*)'Normalized values by source area:'
       WRITE(18,*)
       WRITE(18,5150)SAREA
-      write(18,5200)DGPIN(JJ)
-      write(18,5300)DGMO/SAREA
-      write(18,5850)DGMOP/SAREA
-      write(18,5950)DGMOD/SAREA
-      write(18,5400)DGMF/SAREA
-      write(18,5405)DGMFSED/SAREA
-      write(18,5500)DGMml/SAREA
-      write(18,5550)DGMRESP0/SAREA
-      write(18,5600)(DGMml+DGMFSED+DGMRESP0)/SAREA
-      write(18,5700)DGMRES/SAREA,NDGDAY
-      write(18,5705)DGMRESD/SAREA,NDGDAY
-      write(18,5710)DGMRESP/SAREA,NDGDAY
-      WRITE(18,6002)DGMRESI/SAREA,IMOB
+      CALL COMP_STRING(3,DGMIAREA,DESCR1(1))
+      CALL COMP_STRING(3,DGMOAREA,DESCR1(2))
+      CALL COMP_STRING(3,DGMOPAREA,DESCR1(3))
+      CALL COMP_STRING(3,DGMODAREA,DESCR1(4))
+      CALL COMP_STRING(3,DGMfAREA,DESCR1(5))
+      CALL COMP_STRING(3,DGMfSEDAREA,DESCR1(6))
+      CALL COMP_STRING(3,DGMmlAREA,DESCR1(7))
+      CALL COMP_STRING(3,DGMRESP0AREA,DESCR1(8))
+      CALL COMP_STRING(3,DGMSurfAREA,DESCR1(9))
+      CALL COMP_STRING(4,DGMRESAREA,DESCR1(10))
+      CALL COMP_STRING(4,DGMRESDAREA,DESCR1(11))
+      CALL COMP_STRING(4,DGMRESPAREA,DESCR1(12))
+      CALL COMP_STRING(5,DGMRESIAREA,DESCR1(13))
+      WRITE(18,*)
 
-3500  FORMAT(1X,26('-'))
-3525  FORMAT(1X,'Pesticide mass balance, degradation & remobilization')
-3550  FORMAT(1X,43('-'))
+3400  FORMAT(/,43('-'),/,A27,/,43('-'))
+3500  FORMAT(/,A7,I3,A1)
+3525  FORMAT(100('-'),/,4x,'Pesticide mass balance, degradation & remobilization',/,100('-'))
+3535   FORMAT(10(3x,A10,I2))
 4005  FORMAT(E10.3,' m3 = Runoff inflow')
 4105  FORMAT(E10.3,' Kg = Sediment inflow')
 4200  FORMAT(F10.3,'    = Phase distribution, Fph')
@@ -259,46 +280,55 @@ C-----Write pesticide trapping outputs in OWQ file--------------
 4450  FORMAT(F10.3,' %  = Runoff inflow reduction')
 4455  FORMAT(E10.3,' %  = Runoff inflow reduction')
 4500  FORMAT(F10.3,' %  = Pesticide reduction (dP)')
-4600  FORMAT(E15.6,' mg   = Pesticide input (mi)')
-4700  FORMAT(E15.6,' mg   = Pesticide output (mo)')
-4800  FORMAT(E15.6,' mg   = Pesticide trapped in VFS (mf)')
-4805  FORMAT(E15.6,' mg   = Pesticide trapped with sediment (mfsed)')
-4900  FORMAT(E15.6,' mg   = Pesticide trapped in mixing layer (mfml)')
-4950  FORMAT(E15.6,' mg   = Pesticide in mixing layer from last event',
-     &                 ' (mfml0)')
-5000  FORMAT(E15.6,' mg   = Total surface residue ',
-     &                 '(mres1=mfml+mfsed+mfml0)')
-5100  FORMAT(E15.6,' mg   = Total surface residue after ',
-     &                 'degradation (',I3,' days)')
-5105  FORMAT(E15.6,' mg   = Dissolved surface residue after ',
-     &                 'degradation (',I3,' days)')
-5110  FORMAT(E15.6,' mg   = Sorbed surface residue after ',
-     &                 'degradation (',I3,' days)')
-
 5150  FORMAT(F15.2,' m^2  = Source Area (input)')
-5200  FORMAT(E15.6,' mg/m2= Pesticide input (mi)')
-5300  FORMAT(E15.6,' mg/m2= Pesticide output (mo)')
-5400  FORMAT(E15.6,' mg/m2= Pesticide trapped in VFS (mf)')
-5405  FORMAT(E15.6,' mg/m2= Pesticide trapped with sediment (mfsed)')
-5500  FORMAT(E15.6,' mg/m2= Pesticide trapped in mixing layer (mfml)')
-5550  FORMAT(E15.6,' mg/m2= Pesticide in mixing layer from last event',
-     &                 ' (mfml0)')
-5600  FORMAT(E15.6,' mg/m2= Total surface residue ',
-     &                 '(mres1=mfml+mfsed+mfml0)')
-5700  FORMAT(E15.6,' mg/m2= Total residue after ',
-     &                 'degradation (',I3,' days)')
-5705  FORMAT(E15.6,' mg/m2= Dissolved surface residue after ',
-     &                 'degradation (',I3,' days)')
-5710  FORMAT(E15.6,' mg/m2= Sorbed surface residue after ',
-     &                 'degradation (',I3,' days)')
-5800  FORMAT(E15.6,' mg   = Pesticide outflow in solid phase (mop)')
-5850  FORMAT(E15.6,' mg/m2= Pesticide outflow in solid phase (mop)')
-5900  FORMAT(E15.6,' mg   = Pesticide outflow in liquid phase (mod)')
-5950  FORMAT(E15.6,' mg/m2= Pesticide outflow in liquid phase (mod)')
-6001  FORMAT(E15.6,' mg   = Next event residue remobilization',
-     & ' (mresn, IMOB=',I1,')')
-6002  FORMAT(E15.6,' mg/m2= Next event residue remobilization',
-     & ' (mresn, IMOB=',I1,')')
 
       RETURN
       END
+
+
+      SUBROUTINE COMP_STRING(IFMT,DUM,DESCR)
+c-----prepare lines for mass balance with multiple products in a single line
+c-----DUM(JJ): array containing values for each product (JJ=1,WQ)
+c-----DESCR: Units and descriptor for value
+c-----IFMT: 0 for outputs with no days or imob variable (mg), 1,2 for NDGDAY 
+c-----      and IMOB (mg), 3 for outputs with no NDGDAYS or IMOB (mg/m2), 
+c-----      4,5 for NDGDAY and IMOB (mg/m2), 
+
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
+      DIMENSION DUM(10)
+      CHARACTER*200 LINE
+      CHARACTER*3 SNDGDAY 
+      CHARACTER*1 SIMOB 
+      CHARACTER*58 DESCR     
+      
+      LINE = ' '
+      DO JJ = 1, IWQ
+            WRITE(LINE, '(A,E15.6,E15.6)') TRIM(LINE),DUM(JJ)
+      END DO
+
+      SELECT CASE (IFMT)
+        CASE (1)
+          WRITE (SNDGDAY, '(I3)') NDGDAY
+          LINE=TRIM(LINE) // ' mg   = ' // TRIM(DESCR) // SNDGDAY // ' days)'
+        CASE (2)
+          WRITE (SIMOB, '(I1)') IMOB
+          LINE=TRIM(LINE)  // ' mg   = ' // TRIM(DESCR) // SIMOB // ')'
+        CASE (3)
+          LINE=TRIM(LINE)  //' mg/m2= ' // TRIM(DESCR)
+        CASE (4)
+          WRITE (SNDGDAY, '(I3)') NDGDAY
+          LINE=TRIM(LINE) // ' mg/m2= ' // TRIM(DESCR) // SNDGDAY // ' days)'
+        CASE (5)
+          WRITE (SIMOB, '(I1)') IMOB
+          LINE=TRIM(LINE)  // ' mg/m2= ' // TRIM(DESCR) // SIMOB // ')'
+        CASE DEFAULT
+          LINE=TRIM(LINE)  //' mg   = ' // TRIM(DESCR)
+      END SELECT
+
+      LINE=TRIM(LINE)
+      WRITE(18,'(A)'), LINE
+
+      return
+      END
+      

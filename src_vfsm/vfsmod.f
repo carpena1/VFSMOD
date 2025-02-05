@@ -449,9 +449,9 @@ C--------------c) Write outputs files (and pesticide trapping when IWQ=1-4)-----
                   QOUT=Q0(N)
                   CALL GRASSED(TIME,N,QIN,QOUT,NODEX,
      &                        ICOARSE,COARSE,FWIDTH,ISCR)
-                  IF((BCRO.NE.0.D0).or.(QOUT.ne.0.d0)) THEN
-                     IF(IWQ.GT.5) CALL WQSUB(IWQ,TIME,N)
-                  ENDIF
+c                  IF((BCRO.NE.0.D0).or.(QOUT.ne.0.d0)) THEN
+c                     IF(IWQ.GT.5) CALL WQSUB(IWQ,TIME,N)
+c                   ENDIF
                   TOLD=TIME
                   CALL KWWRITE(N,LCOUNT,M,QTEMP,X,BCROQ,FWIDTH)
                   QTEMP=0.D0
@@ -471,9 +471,9 @@ c---- (IWQ=1) Pesticide leaching, degradation and remobilization ------------
             DO 50 JJ=1,IWQ
 c------ Leaching, CDE analytical solution, 3rd type BC (Huang & van Genuchten, 1995)
                CALL CDE(JJ,VIN,VOUT,SMIN,SMOUT,TIME)
-c-------Pesticide trapping and remobilization ---------------------------------
-               CALL WQPEST(JJ,VIN,VOUT,SMIN,SMOUT)
- 50          CONTINUE
+50          CONTINUE
+c-------Pesticide trapping, degradation and remobilization ---------------------------------
+            CALL WQPEST(VIN,VOUT,SMIN,SMOUT)
       ENDIF
 
 c-------Output message at end of program -----------------

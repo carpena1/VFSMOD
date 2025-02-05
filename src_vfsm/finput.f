@@ -35,6 +35,9 @@ c-----Write welcome message ---------------------------------------
           WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
           WRITE(*,*)'       U. of FL - USA               NCSU - USA'
           WRITE(*,*)'       carpena@ufl.edu        john_parsons@ncsu.edu'
+          WRITE(*,*)
+          WRITE(*,*)' Licensed under CC BY-ND 4.0'
+          WRITE(*,*)' https://abe.ufl.edu/faculty/carpena/vfsmod/'
           WRITE(*,160)
           WRITE(*,*)'PROGRAM TO CALCULATE OVERLAND FLOW AND SEDIMENT',
      &      ' FILTRATION THROUGH A'
@@ -180,5 +183,4 @@ CDOS
 
 1500  WRITE(*,1600)'ERROR: Input file(s) missing (check project)'
 1600  FORMAT(/,A50,/)
-      STOP
       END
