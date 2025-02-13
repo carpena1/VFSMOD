@@ -1,5 +1,12 @@
 Changes in 4.5.1
 ----------------
+(01/2025)
+- Added multispecies deviation and remobilization.
+- Added input error checking on a number of instances, and in particular around the new requirements when running multispecies.
+- Checked compatibility with single species v4.5.2
+
+Changes in 4.5.1
+----------------
 (02/2023)
 - Added option for automatic calculation of number of nodes (N). If the user selects N=-1 in the IKW file the program will internally calculate the number of nodes for the simulation based on the filter size (VL). The user can still select N if the number of nodes is specified in that file.  
 

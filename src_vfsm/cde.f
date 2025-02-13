@@ -129,7 +129,7 @@ C-------Prepare inputs for CDE transport solution ------
  
 C-------Output CDE transport inputs-------------------------------
       IF(JJ.EQ.1)WRITE(18,300)'Soil leaching and mixing layer calculations (CDE)'
-      IF(IWQ.GT.1) WRITE(18,350)'PRODUCT',JJ,':'
+      IF(IWQ.GT.1) WRITE(18,350)'COMPOUND',JJ,':'
       WRITE(18,*)'Huang & van Genuchten (1995) CDE analytical solution'
       WRITE(18,*)'Single pulse with C1=dissolved in mass/(runoff+rain)'
       WRITE(18,800)'Wetting front depth (z)=',Z1,'m'
@@ -207,7 +207,7 @@ c-----Integrate mass in mixing layer for the event
      &  DGMmlpPCT
 
 300   FORMAT(/,65('-'),/,A50,/,65('-'))
-350   FORMAT(/,A7,I3,A1)
+350   FORMAT(/,A8,I3,A1)
 400   FORMAT(A41,3E12.4)
 450   FORMAT(A20,F12.2)
 475   FORMAT(A41,f12.4,F8.2,'%')

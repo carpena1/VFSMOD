@@ -23,10 +23,10 @@ c------For US EPA (IDG=3) the reference temperature is 25 C, , QT10=2.0,
 c------EPA/PMRA PRZM Guidance v.1.0 (2012) (Appendix A, page 5)
       DGC3=49.5d0/(8.314d0/1000.d0)
       DGC4=1.d0/298.15d0
-c------Print section header in OWQ file (don;t print with IWQ=1 for version  compatibility)
+c------Print section header in OWQ file (don't print with IWQ=1 for version  compatibility)
       IF(IWQ.GT.1) THEN
-        WRITE(18,160)'Product degradation between runoff events (mg)'
-        WRITE(18,170)'Time(d)   ',('Product',II,II=1,IWQ)
+        WRITE(18,160)'Compound degradation between runoff events (mg)'
+        WRITE(18,170)'Time(d)   ',('Compound',II,II=1,IWQ)
       ENDIF
 c-----A) Single species (IWQ=1) degradation (compatible ith previous version)
       IF(IWQ.EQ.1) THEN
@@ -59,7 +59,7 @@ c            WRITE(18,180)I,DGMRES(JJ)
         ENDIF   
        ELSE
 c-----(IWQ>1) Multispecies reaction (parent-metabilites) degration algorithm 
-C-----Solve the daily mass degradation problem for multiple products with an explicit 
+C-----Solve the daily mass degradation problem for multiple compounds with an explicit 
 c-----finite difference backwards approximation. dt=0.01 days to minimize convergence errors.
         DGDT=0.01d0
         TIME=0.d0

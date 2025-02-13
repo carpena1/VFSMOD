@@ -397,8 +397,10 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
          CSAB(5)= -.89D0
          READ(17,*)IWQPRO
          IF(IWQPRO.EQ.2) THEN
-           BACKSPACE(17)
-           READ(17,*,ERR=50)IWQPRO,(CSAB(I),I=1,5)
+             BACKSPACE(17)
+             READ(17,*,ERR=50)IWQPRO,(CSAB(I),I=1,5)
+           ELSEIF(IWQPRO.LT.1.or.IWQPRO.GT.4) THEN
+             IWQPRO=3
          ENDIF
 50       IF(IWQPRO.GT.0.AND.IWQPRO.LE.4) THEN
            READ(17,*)IKD
@@ -426,7 +428,7 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
                if (ierr.ne.0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. Missing Koc for IWQ',
-     &               '     products set in .ikw. Please fix and rerun.'
+     &               '     compounds set in .ikw. Please fix and rerun.'
                   write(*,199)
                   stop
                endif
@@ -442,7 +444,7 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
                if (ierr.ne.0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. Missing Kd for IWQ',
-     &               '     products set in .ikw. Please fix and rerun.'
+     &               '     compounds set in .ikw. Please fix and rerun.'
                   write(*,199)
                   stop
                endif
@@ -490,14 +492,14 @@ c-------   Parse numbers from the line
                     ncount = ncount + 1
                     if (ncount.GT.100) then
                         print *, 'ERROR: .iwq file line 5. Exceeded max.',
-     &                  'number products.'
+     &                  'number compounds.'
                         stop
                     endif
                     test_array(ncount) = vnum
                   endif
             end do
             nexpect= 7+4*(IWQ-1)
-c-------   debug error checking for product properties ----
+c-------   debug error checking for compound properties ----
 c           print *,'Numbers read and expected: ', ncount, nexpect
 c           do i = 1, ncount
 c                 print *, test_array(i)
@@ -743,7 +745,7 @@ C-------Print header for output values--------------------------
 
 c-----------Output all input values for Water Quality (if IWQ>0)--------
       IF(IWQ.GT.0) THEN
-            WRITE(18,803)'Parameters for Water Quality - No. products=',IWQ
+            WRITE(18,803)'Parameters for Water Quality - No. Compounds=',IWQ
             SELECT CASE (IWQPRO)
               CASE (1)
                  WRITE(18,*)'Type of problem - ',
@@ -759,9 +761,9 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
                  WRITE(18,*)'Type of problem - ',
      &           'Pesticide trapping (Chen et al.,2017)'
             END SELECT
-            WRITE(18,800)'Partition coefficient (Kd)=',VKD(1),'L/Kg (Product 1) '
+            WRITE(18,800)'Partition coefficient (Kd)=',VKD(1),'L/Kg (Compound 1) '
             WRITE(18,800)'% Clay in sediment (%CL)  =',CCP,'%                '
-            WRITE(18,800)'Dispersion length (l)=',DGLD(1),'m (Product 1)    '
+            WRITE(18,800)'Dispersion length (l)=',DGLD(1),'m (Compound 1)    '
             SELECT CASE (IMOB)
               CASE (2)
                 WRITE(18,607)
@@ -785,15 +787,15 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
                 WRITE(18,605)
             ENDIF
             WRITE(18,800)'Pesticide half-life (Ln2/Kref)=',
-     &               DGHALF(1),'days (Product 1) '
+     &               DGHALF(1),'days (Compound 1) '
             WRITE(18,800)'  Soil field capacity (FC)=',FC,
      &               '(-)              '
             WRITE(18,800)'Incoming pesticide mass (mi)=',
-     &               DGPIN(1)-DGMRES0(1),'mg/m2 (Product 1)'
+     &               DGPIN(1)-DGMRES0(1),'mg/m2 (Compound 1)'
             WRITE(18,800)'Mixing layer thickness (dml)=',
      &               DGML,'cm               '
-            WRITE(18,800)'Pest. surface residue (mres0)=',
-     &               DGMRES0(1),'mg/m2 (Product 1)'
+            WRITE(18,800)'Remob pest prev. event (mres0)=',
+     &               DGMRES0(1),'mg/m2 (Compound 1)'
             WRITE(18,801)'No. of days between events=',NDGDAY
             WRITE(18,802)
             WRITE(18,910)(I,DGT(I),DGTHETA(I),I=1,NDGDAY)
@@ -802,8 +804,8 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
      &               (DGMOL(JJ),JJ=1,IWQ)
                 WRITE(18,200)'Pesticide half-life (Ln2/Kref)=',
      &               (DGHALF(JJ),JJ=1,IWQ)
-                WRITE(18,*)'Molar transformation fractions of products (dgFRACj)(-)='
-                WRITE(18,'(31x,A7,10I8)')'Product',(JJ,JJ=1,IWQ)
+                WRITE(18,*)'Molar transformation fractions of Compounds (dgFRACj)(-)='
+                WRITE(18,'(31x,A7,10I8)')'Compound',(JJ,JJ=1,IWQ)
                 DO 132 II=1,IWQ
                   WRITE(18,805)II,(DGFRAC(II,JJ),JJ=1,IWQ)
  132            CONTINUE
@@ -859,7 +861,7 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
 800   FORMAT(A31,F12.6,A20)
 801   FORMAT(A31,I5)
 802   FORMAT(40x,'day    T(C)  theta(-)')
-803   FORMAT(51('-'),/,A44,I4,/,51('-'))
+803   FORMAT(51('-'),/,A45,I4,/,51('-'))
 805   FORMAT(31x,I8,10F8.2)
 910   FORMAT(365(35x,I6,2F10.5,/))
 
