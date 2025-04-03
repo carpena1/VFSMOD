@@ -13,56 +13,44 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       character*1 slash
       DATA(SCOD(I),I=1,6)/'inp','out','hyt','iro','irn','isd'/
 
-c*** Command line option to input filename
 c*** Comment out the following depending for which system you compile
-
-CWIN32*** Start of Win32 file i/o     ***
-CWIN32      slash='\'
-CWIN32      INARGS=NARGS()-1
-CWIN32      IF (INARGS.EQ.1) THEN
-CWIN32          CALL GETARG(1,FILENM1,IFSTATUS)
-CWIN32*** End of Win32 file i/o       ***
-cUNIX *** Start Unix file i/o         ***
+CDOS      slash='\'
 CUNIX
       slash='/'
-CUNIX
-      INARGS=IARGC()
-CUNIX
-      IF (INARGS.EQ.1) THEN
-CUNIX
-         CALL GETARG(1,FILENM1)
 cUNIX*** End of UNIX file i/o section ***
+c-----F2003*** New fortran 2003 standard for command line input ***
+      iargs = command_argument_count()
+      IF (IARGS.EQ.1) THEN
+        CALL get_command_argument(1, FILENM1)
+c-----Write welcome message ---------------------------------------
+        write(*,*)
+        WRITE(*,160)
+        WRITE(*,*)'                 @    @ @    @'
+        WRITE(*,*)'                 @    @ @    @'
+        WRITE(*,*)'                 @    @ @@@@@@'
+        WRITE(*,*)'                 @    @ @    @'
+        WRITE(*,*)'                  @@@@  @    @  April 2025-v3.0.9'
+        WRITE(*,160)
+        WRITE(*,*)'        R.Munoz-Carpena              J.E. Parsons'
+        WRITE(*,*)'          UFL - USA                   NCSU - USA'
+        WRITE(*,*)'       carpena@ufl.edu'
+        WRITE(*,160)
+        WRITE(*,*)'      PROGRAM GENERATE RAINFALL, AND SOURCE AREA'
+        WRITE(*,*)'      RUNOFF AND SEDIMENT INPUTS FOR VFSMOD.'
+        WRITE(*,160)  
        ELSE
-          WRITE(*,*)
-          WRITE(*,105)
-          WRITE(*,110)
-          WRITE(*,130)
-          WRITE(*,140)
-          WRITE(*,150)
-          WRITE(*,*)
-          STOP
+        WRITE(*,*)
+        WRITE(*,105)
+        WRITE(*,110)
+        WRITE(*,130)
+        WRITE(*,140)
+        WRITE(*,150)
+        WRITE(*,*)
+        STOP
       ENDIF
 
-c-----Write welcome message ---------------------------------------
-      write(*,*)
-      WRITE(*,160)
-      WRITE(*,*)'                 @    @ @    @'
-      WRITE(*,*)'                 @    @ @    @'
-      WRITE(*,*)'                 @    @ @@@@@@'
-      WRITE(*,*)'                 @    @ @    @'
-      WRITE(*,*)'                  @@@@  @    @  Sept. 2023-v3.0.8'
-      WRITE(*,160)
-      WRITE(*,*)'        R.Munoz-Carpena              J.E. Parsons'
-      WRITE(*,*)'          UFL - USA                   NCSU - USA'
-      WRITE(*,*)'       carpena@ufl.edu'
-      WRITE(*,160)
-           WRITE(*,*)'      PROGRAM GENERATE RAINFALL, AND SOURCE AREA'
-      WRITE(*,*)'      RUNOFF AND SEDIMENT INPUTS FOR VFSMOD.'
-      WRITE(*,160)
-c      WRITE(*,*)
 C------ create I/O filenames from input string -------------------------
 c------    or read filenames from a project file -----------------------
-
       ilstr=index(filenm1,'.')
       if (ilstr.gt.0) then
 c      *** using project file (.prj or .lis) to read filenames
@@ -143,13 +131,13 @@ C---------Open I/O files -------------------------------
 110   FORMAT(9x,'(Generate rainfall and runoff inputs for VFSMOD)')
 130   FORMAT('Usage:   uh filename (max 8 characters or project name)')
 CWIN32 identifier for the simulation
-CWIN32 140   FORMAT('Version: v3.0.8 for Windows -09/2023')
+CWIN32 140   FORMAT('Version: v3.0.9 for Windows -04/2025')
 cUNIX identifier for the simulation
 cUNIX
-140   FORMAT('Version: v3.0.8 for Unix -09/2023')
+140   FORMAT('Version: v3.0.9 for Unix -04/2025')
 150   FORMAT('Authors: R.Munoz-Carpena & J.E.Parsons (UFL & NCSU)')
 160   FORMAT(72('-'))
-220   FORMAT('File: ',A40,9x,'UH v3.0.8, 09/2023')
+220   FORMAT('File: ',A40,9x,'UH v3.0.9, 04/2025')
 
       RETURN
       END

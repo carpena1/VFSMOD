@@ -1,6 +1,6 @@
       program uh
 C---------------------------------------------------------------
-c      version 3.0.8, Last Modified: See Modifications below
+c      version 3.0.9, Last Modified: See Modifications below
 C      WRITTEN FOR: ASAE'99 Toronto paper, March 8, 2002
 C      Written by: R. Munoz-Carpena (rmc)   &   J. E. Parsons, BAE (jep)
 C                  University of Florida        BAE, NC State University
@@ -81,14 +81,19 @@ c              but if not provided dincr=5min).  v3.0.7          rmc
 c   20/02/23   Fixed processing issues with user hyetographs     rmc
 c              (jstype=5,6) affecting runoff, rainfall and       rmc
 c              sediment calculations and outfiles. Issue remains rmc
-c              with integer/real conversions that affects array  rmc
-c              bounds when selecting compiler optimization (-O   rmc
-c              ir higher). IMPORTANT: v3.0.8 of the code must be rmc   
+c              with Intel compiler integer/real conversions that rmc
+c              affects array bounds when selecting compiler      rmc
+c              optimization (-O or higher). The code must be     rmc   
 c              compiled with option '-O -fp-model precise' to    rmc
 c              ensure correct floating point preserve array      rmc
-c
+c              bounds. More in next version. v3.0.8              rmc
+c   02/04/25   Fixed bug in mass balance in .iro and .irn where  rmc
+c              the values for total rain and runoff reported on  rmc
+c              the .out file do not match the integral under the rmc
+c              irn and irn curves.    v3.0.9                     rmc
+c                                                                rmc
 c---------------------------------------------------------------
-c    Compiling for Win32 and Unix environments:
+c    Compiling for Win32 and Unix environments9
 c       1. The i/o for these operating systems is different.
 c       2. Change the Unix/Win32 comments in the finput.f program 
 c          to reflect your operating system.   3/9/00

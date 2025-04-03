@@ -128,7 +128,6 @@ c---------------------
 c  Calculate cumulative hyetograph for any duration and volume
 c---------------------
         cumtotal=pd*(ptp-pm)/(pp-pm)
-c        STOP
 
         if(cumtotal.gt.xIa.and.iflag.eq.0) then
            iflag=1
@@ -234,12 +233,15 @@ c---print hyetograph results 25 time steps only
       write(10,10)k,rti(ndtime+1),crainh,rainh30(ndtime+1),cref
 10    format(2x,i3,2x,f8.2,3x,3f10.2)
 
-      write(10,15) cumtotal,P,refcum,raimax30,rfix30
-15    format(/,2x,'Computed Total Rain =',f10.1,' mm'/,
-     1   2x,'  Actual Total Rain =',f10.1,' mm',/,
-     2   2x,'  Total Rain Excess =',f10.1,' mm',/,
-     3   2x,'  raimax30          =',f10.1,' mm',/,
-     4   2x,'  I30               =',f10.1,' mm/h')
+      write(10,15) cumtotal,P,refcum,raimax30,rfix30,ti,rti(ndtime+1)-ti
+15    format(/,4x,'Computed Total Rain =',f10.1,' mm'/,
+     1   2x,'  Actual Total Rain    =',f10.1,' mm',/,
+     2   2x,'  Total Rain Excess    =',f10.1,' mm',/,
+     3   2x,'  raimax30             =',f10.1,' mm',/,
+     4   2x,'  I30                  =',f10.1,' mm/h',/,
+     5   2x,'  Time to ponding      =',f10.2,' h',/,
+     6   2x,'  Rainfall excess time =',f10.2,' h')
+
 
       return
        end

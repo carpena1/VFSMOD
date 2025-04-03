@@ -157,15 +157,22 @@ C---------------------------------------------------------------
       subroutine vfsout(dp,ieroty,sconc,A,pL,qp,tp,
      1                  tc,D,ti,nhyet,nhyd,dincr)
 c--------------------------------
-c      Output for VFSMOD input files
+c   Output for VFSMOD input files
+c   dt = dincr*60 time step of hyet-/hydrographs in IRN, IRO (s)
+c   qh(i,j)= hydrograph (i=time step, j=1 time (h), j=2 flow (m3/s))
+c   rti(i),rfi(i)= hyetograph time (s) and instensity (m/s)(i=time step)
+c   nhyd= total number of hydrograph steps
+c   nhyet= total rnumber of hyetograph steps
+c   predm(i,j)=interpolated hydro/hyetograph (i=time step, j=1 time (s), j=2 flow/rain)
 c--------------------------------
       implicit double precision (a-h,o-z)
       common/hydgph/u(10000,2),qh(10000,2)
       common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
-      dimension sconc(6)
+      dimension sconc(6),predm(10000,2)
       logical ende
       character*72 dumline
+      character*1 adum
 
 c--------------------------------
 c Output of VFSMOD input file: *.isd
@@ -194,159 +201,118 @@ c--------------------------------
 c Output of VFSMOD runoff hydrograph: *.iro
 c--------------------------------
 c  Output hydrograph based on 5-, 15, 30-min or 60-min steps (dincr) selected by
-c  user on INP file or if missing set = 5 min.
-      dincr=dincr/60.d0
-c  Use scratch file to store hyetograph and replace final peak rainfall later
-      open(3,status='scratch')
+c  user on .INP input file (if missing default dincr= 5 min).
+
+c  Interpolate original hydrograph from convolution to user desired time step 
+      dt=dincr*60.d0
+c--- debug: show the full synthetic hydrograph before interpolation ---
+c      print*,dt,nhyd,qh(nhyd,1)*3600.d0
+c      do 2 k=1,nhyd
+c          write(*,106)qh(k,1)*3600.d0,qh(k,2)
+c2     continue
+c      write(*,206)   
+c---end debug----
+      time0=0.d0
+      i=0
+      bcropeak=0.d0
+      do while (time0.le.qh(nhyd,1)*3600.d0)
+            i=i+1
+            if (i.eq.1) then
+                  time0=qh(i,1)*3600.d0
+                  predm(i,1)=time0
+                  predm(i,2)=qh(i,2)
+              else
+                  do 10 j=1,nhyd-1
+                     if(time0.gt.qh(j,1)*3600.d0) then
+                        predm(i,2)=(time0/3600.d0-qh(j,1))*(qh(j+1,2)
+     &		       -qh(j,2))/(qh(j+1,1)-qh(j,1)) + qh(j,2)
+                        predm(i,1)=time0
+                        goto 10
+                     endif
+10		      continue
+		endif
+            bcropeak=max(bcropeak,predm(i,2))
+            time0=time0+dt
+  	end do
+c --to conserve the full graph, add last step of the original hydrograph 
+      predm(i+1,1)=qh(nhyd,1)*3600.d0
+      predm(i+1,2)=qh(nhyd,2)
+      nsteps=i+1
+ 
+c --Write *.iro file with the interpolated hydrograph
       swidth=A*10000.d0/pL
       slength=pL
-      write (3,103) swidth,slength
-      nbcroff=nhyd
-      bcropeak=qp
-      dtstep=qh(nhyd,1)-qh(nhyd-1,1)
-      nwrite1=int(dincr/dtstep)
-      if (nwrite1.eq.0) nwrite1=1
-      nstep1=int(nhyd/nwrite1)
-      bcropeak=0.d0
-      write(2,250)ti
-      if(nhyd.le.nstep1) then
-            nsteps=nbcroff+1
-            write (3,104)nsteps,bcropeak
-            do 20 ii=1, nbcroff-1
-               tt=qh(ii,1)*3600.d0
-               if (ii.eq.1) then
-                  write(3,105)tt,qh(ii,2),dincr*60.d0
-                 else
-                  write(3,106)tt,qh(ii,2)
-                endif
-                bcropeak=max(bcropeak,qh(ii,2))
-20          continue
-         else
-            nsteps=nstep1+3
-            write(3,104)nsteps,bcropeak
-            write(3,105)qh(1,1)*3600.d0,qh(1,2),dincr*60.d0
-            nsum=0
-            tsum=0.d0
-            tmean=0.d0
-            qsum=0.d0
-            qmean=0.d0
-            do 29 ii=2,nhyd
-               tsum=tsum+qh(ii,1)*3600.d0
-               qsum=qsum+qh(ii,2)
-               nsum=nsum+1
-               do 25 k=1,nstep1
-                  if(ii.eq.k*nwrite1) then
-c       print point values every nwrite1 steps
-c                       write(3,106)tt,qh(ii,2)
-c       print average values every nwrite1 steps
-                        tmean=tsum/nsum
-                        qmean=qsum/nsum
-                        write(3,106)tmean,qmean
-                        tsum=0.d0
-                        qsum=0.d0
-                        nsum=0
-c       end of print selection
-                  endif
-                  bcropeak=max(bcropeak,qmean)
-25             continue
-29          continue
-      endif
-c---replace bcropeak from the final hydrograph at selected dincr steps
-      rewind(3)
-      read(3,*)dummy1,dummy2
-      write (12,103)dummy1,dummy2
-      read(3,*)dummy1,dummy2
-      write(12,104)nsteps,bcropeak
-      read(3,*)dummy1,dummy2
-      write(12,105)dummy1,dummy2,dincr*60.d0
-      ende = .FALSE.
-      do while (.NOT.ende)
-         read (3,*,end=30)dummy1, dummy2
-         write(12,106)dummy1, dummy2
-      enddo
-30    continue
-      close(3)
-c---write 0 entry after last step
-      tend1=qh(nhyd,1)*3600.d0
-      write(12,106)tend1,qh(nhyd,2)
-      write(12,107)tend1+300.d0,0.d0
+      write (12,103) swidth,slength
+      write (12,104)nsteps,bcropeak
+      do 13 ii=1, nsteps
+            if (ii.eq.1) then
+               write(12,105)(predm(ii,j),j=1,2),dincr
+              else
+               write(12,106)(predm(ii,j),j=1,2)
+             endif
+ 13   continue
+      write(12,206)
 
 c----------------------------------------
 c Output VFSMOD rainfall hyetograph: *.irn
 c----------------------------------------
-c  Output hydrograph based on 5-, 15, 30-min or 60-min steps (dincr) selected as above
-c  Use scratch file to store hyetograph and replace final peak rainfall later
-      open(3,status='scratch')
-      ndev=0
-      dtstep=rti(nhyet)-rti(nhyet-1)
-      nstep2=nint(rti(nhyet)/dincr)
-      nwrite2=nint(real(nhyet)/real(nstep2))
-      if(nstep2*nwrite2.gt.nhyet) then
-        ndev=nint(real(nstep2*nwrite2-nhyet)/real(nwrite2))
-        nstep2=nstep2-ndev
-      endif
-      if (nwrite2.eq.0) nwrite2=1
-      rfix=0.d0
-      if(nhyet.le.nstep2)then
-            nsteps=nhyet+2
-            write(3,201)nsteps,rfix
-            write(3,203) rti(1)*3600.d0,rfi(1),dincr*60.d0
-            do 31 ii=2,nhyet-1
-               write(3,204)rti(ii)*3600.d0,rfi(ii)
-               rfix=max(rfix,rfi(ii))
-31          continue
-         else
-            nsteps=nstep2+3
-            write(3,201)nsteps,rfix
-            write(3,203) rti(1)*3600.d0,rfi(1),dincr*60.d0
-            nsum=0
-            tsum=0.d0
-            tmean=0.d0
-            rsum=0.d0
-            rmean=0.d0
-            do 33 ii=2,nhyet
-               tsum=tsum+rti(ii)*3600.d0
-               rsum=rsum+rfi(ii)
-               nsum=nsum+1
-               do 32 k=1,nstep2
-c       print point values every nwrite2 steps
-                  if(ii.eq.k*nwrite2) then
-c       calculate moving average values every nwrite2 steps
-                        tmean=tsum/nsum
-                        rmean=rsum/nsum
-                        write(3,204)tmean,rmean
-                        tsum=0.d0
-                        rsum=0.d0
-                        nsum=0
-c       end of print selection
-                  endif
-                  rfix=max(rfix,rmean)
-32             continue
-33          continue
-c     write 0 entry after last step
-            write(3,204)rti(nhyet)*3600.d0,0.d0
-      endif
-c     extend the duration of the run tend 5 more minutes (300 s)
-      write(3,204)rti(nhyet)*3600.d0+300.d0,0.d0
+c  Output hyetograph based on 5-, 15, 30-min or 60-min steps (dincr) selected by
+c  user on .INP input file (if missing default dincr= 5 min).
 
-c---replace peak rain from the final hyetograph at selected dincr steps
-      rewind(3)
-      read(3,*)dummy1,dummy2
-      write(14,201)nsteps,rfix
-      read(3,*)dummy1,dummy2
-      write(14,203)dummy1,dummy2,dincr*60.d0
-      ende = .FALSE.
-      do while (.NOT.ende)
-         read (3,*,end=40)dummy1, dummy2
-         write(14,204)dummy1, dummy2
+c  Interpolate original hyetograph to the user desired time step 
+c--- debug: show the full synthetic hyetograph before interpolation---
+c      print*,dt,nhyet,rti(nhyet)*3600.d0
+c      do 15 k=1,nhyet
+c          write(*,106)rti(k)*3600.d0,rfi(k)
+c15     continue
+c      write(*,206)   
+c---end debug---
+      time0=0.d0
+      i=0
+      rpeak=0.d0
+      do while (time0.le.rti(nhyet)*3600.d0)
+            i=i+1
+            if (i.eq.1) then
+                  time0=rti(i)*3600.d0
+                  predm(i,1)=time0
+                  predm(i,2)=rfi(i)
+              else
+                  do 20 j=1,nhyet-1
+                     if(time0.gt.rti(j)*3600.d0) then
+                        predm(i,2)=(time0/3600.d0-rti(j))*(rfi(j+1)
+     &		       -rfi(j))/(rti(j+1)-rti(j)) + rfi(j)
+                        predm(i,1)=time0
+                        goto 20
+                     endif
+20		      continue
+		endif
+            rpeak=max(rpeak,predm(i,2))
+            time0=time0+dt
       end do
-40    continue
-      close(3)
+c --to conserve the full graph, add last step of the original hydrograph with rain=0 
+      predm(i+1,1)=time0
+      predm(i+1,2)=0.d0
+c -- extend the duration of the run "tend" 5 more minutes (300 s) to allow for hydrograph to finish
+      predm(i+2,1)=predm(i+1,1)+300.d0
+      predm(i+2,2)=0.d0
+      nsteps=i+2
+ 
+c --Write *.iro file with the interpolated hydrograph
+      write(14,201)nsteps,rpeak
+      do 25 ii=1, nsteps
+            if (ii.eq.1) then
+               write(14,203)(predm(ii,j),j=1,2),dincr
+              else
+               write(14,106)(predm(ii,j),j=1,2)
+             endif
+25    continue
+      write(14,206)
+
 c----------
 c Output message at end of program -----------------
 c----------
       WRITE(*,*)
-      WRITE(*,*)'...FINISHED...','UH v3.0.8 09/2023'
+      WRITE(*,*)'...FINISHED...','UH v3.0.9 09/2024'
       WRITE(*,*)
 
 c-------------------
@@ -360,20 +326,15 @@ c-------------------
 105   format (2x,e12.5,2x,e12.5,10x,' time(s), ro(m3/s)-',f4.0,
      1   'min steps')
 106   format (2x,e12.5,2x,e12.5)
-107   format (2x,e12.5,2x,e12.5,/,30('-'))
+107   format (3e12.5)
 160   format(72('-'),/,'WARNING: This case produces large sediment',
      1    ' concentration with',/,'the erosion method IEROTY#',i4,
      2    '  selected. Try Williams (1) or',/,'MUSS (5) and rerun',
      3    ' -- Please',' see manual',/,72('-'))
 201   format(i4,2x,e12.5,20x,' NRAIN, RPEAK(m/s)')
-203   format(2x,e12.5,3x,e12.5,10x,'time(s), rainfall(m/s)-',f4.0,
-     1   'min steps')
-204   format(2x,e12.5,3x,e12.5)
-205   format(2x,e12.5,3x,e12.5,/,30('-'))
-250   format('Time to ponding=',f8.3,' h')
-260   format('Duration of rainfall excess=',f8.3,' h')
-270   format('Time to peak after shifting=',f8.3,' h')
-280   format('Time correction to match hyetograph=',f8.3,' h')
+203   format(2x,e12.5,2x,e12.5,10x,'time(s), rainfall(m/s)-',f4.0,
+     1   ' min steps')
+206   format(30('-'))
 
       return
       end
