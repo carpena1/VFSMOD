@@ -888,6 +888,7 @@ c     character*200 line
       numstart = ipos
 c     Skip non-numeric characters
       do while (numstart.LE.len(trim(line)))
+         if (line(numstart:numstart) .GE. '0' .AND. line(numstart:numstart) .LE. '9') then
             if (numstart.EQ.1) then
                   exit   ! Skip first position on the line
               elseif(line(numstart-1:numstart-1) .EQ. ' ' .OR.
