@@ -378,7 +378,13 @@ C-----(.IWQ file) [06/2008]-Read water quality parameters, ensure backwards comp
          IF (ISCR.EQ.0) THEN
            WRITE(*,'(" ... Reading inputs from: ",A45)')LISFIL(12)
          ENDIF
-         OPEN(17,FILE=LISFIL(12),ERR=1500,STATUS='OLD')
+         OPEN(17,FILE=LISFIL(12),iostat=istat,STATUS='OLD')
+         if (istat .ne. 0) then
+            write(*,*)
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(12)
+            write(*,*)
+            stop
+         end if
          OPEN(18,FILE=LISFIL(13),STATUS='UNKNOWN')
          WRITE(18,220)LISFIL(13)
          write(15,225) 12,'iwq',lisfil(12)

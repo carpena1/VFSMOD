@@ -3,6 +3,22 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Create input and output file names from a command line input string  C
 C     NOTE: Maximum length of command line string = 25 characters      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C List of file units to open:                                          C
+C     UNIT 1  LISFIL(1)   inputs/*.ikw                                 C
+C     UNIT 2  LISFIL(2)   inputs/*.irn                                 C
+C     UNIT 3  LISFIL(3)   inputs/*.iro                                 C
+C     UNIT 7  LISFIL(4)   inputs/*.iso                                 C
+C     UNIT 10 LISFIL(5)   output/*.osm                                 C
+C     UNIT 11  LISFIL(6)  output/*.ohy                                 C
+C     UNIT 12  LISFIL(7)  inputs/*.igr                                 C
+C     UNIT 13  LISFIL(8)  output/*.og1                                 C
+C     UNIT 14  LISFIL(9)  output/*.og2                                 C
+C     UNIT 15 LISFIL(10)  output/*.osp                                 C
+C     UNIT 16 LISFIL(11)  inputs/*.isd                                 C
+C     UNIT 17 LISFIL(12)  inputs/*.iwq                                 C
+C     UNIT 18 LISFIL(13)  output/*.owq                                 C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
 
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       CHARACTER*120 FILENM1
@@ -90,7 +106,8 @@ cdebug      print *,'Debug: i=',i,':',lisfil(i)
 c
             open (unit=99,file=FILENM1,iostat=istat,status='old')
             if (istat .ne. 0) then
-               write(*,*)'Project file cannot be opened:',FILENM1
+               write(*,*)'ERROR: Project file cannot be opened:',FILENM1
+               write(*,*)
                stop
             end if
 12          read(99,'(a)',end=18) linein
@@ -138,18 +155,48 @@ cdebug      print*,(i,lisfil(i),i=1,13)
 
 C---------Open I/O files -------------------------------
 c------------Inputs ----------
-      OPEN(1,FILE=LISFIL(1),ERR=1500,STATUS='OLD')
-      OPEN(2,FILE=LISFIL(2),ERR=1500,STATUS='OLD')
-      OPEN(3,FILE=LISFIL(3),ERR=1500,STATUS='OLD')
-      OPEN(7,FILE=LISFIL(4),ERR=1500,STATUS='OLD')
-      OPEN(16,FILE=LISFIL(11),ERR=1500,STATUS='OLD')
+      OPEN(1,FILE=LISFIL(1),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(1)
+            write(*,*)
+            stop
+      end if
+      OPEN(2,FILE=LISFIL(2),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(2)
+            write(*,*)
+            stop
+      end if
+      OPEN(3,FILE=LISFIL(3),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(3)
+            write(*,*)
+            stop
+      end if
+      OPEN(7,FILE=LISFIL(4),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(4)
+            write(*,*)
+            stop
+      end if
+      OPEN(16,FILE=LISFIL(11),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(11)
+            write(*,*)
+            stop
+      end if
+      OPEN(12,FILE=LISFIL(7),iostat=istat,STATUS='OLD')
+      if (istat .ne. 0) then
+            write(*,*)'ERROR: Project file cannot be opened:',LISFIL(7)
+            write(*,*)
+            stop
+      end if
 c------------Outputs ----------
       OPEN(10,FILE=LISFIL(5),STATUS='UNKNOWN')
       WRITE(10,220)LISFIL(5)
       OPEN(11,FILE=LISFIL(6),STATUS='UNKNOWN')
       WRITE(11,220)LISFIL(6)
       WRITE(11,*)
-      OPEN(12,FILE=LISFIL(7),ERR=1500,STATUS='OLD')
       OPEN(13,FILE=LISFIL(8),STATUS='UNKNOWN')
       WRITE(13,220)LISFIL(8)
       WRITE(13,*)
@@ -180,7 +227,4 @@ CDOS
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 
       RETURN
-
-1500  WRITE(*,1600)'ERROR: Input file(s) missing (check project)'
-1600  FORMAT(/,A50,/)
       END
