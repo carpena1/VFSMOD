@@ -1,5 +1,5 @@
       SUBROUTINE INPUTS(N,NBAND,NRAIN,RAIN,NBCROFF,BCROFF,TE,QMAX,
-     & PGPAR,NCHK,LISFIL,ISCR,QSUM0,RMMH,BCROPEAK)
+     & PGPAR,NCHK,LISFIL,ISCR,QSUM0,RMMH,BCROPEAK,RPEAK,CRR,DR1)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
 C  Read data from input files (ikw,iso,igr,isd,irn,iro(,iwq)) in free  C
@@ -841,7 +841,7 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
 208   FORMAT(2x,'KUNSAT curve in infiltration=',3x,A15)
 209   FORMAT(A31,I12)
 210   FORMAT(A31,A12)
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.0 11/2024')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1 04/2025')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 350   FORMAT(A31,2F12.2)
 400   FORMAT(A31,2E12.4)
@@ -932,6 +932,175 @@ c     Find the end of the number
          return
       endif
       ipos = numend
-
+ 
       return
       end
+
+
+      subroutine hydfilter(NBCROFF,BCROFF,PGPAR,
+     &     NCHK,ISCR,QSUM0,BCROPEAK,RPEAK,CRR,DR1)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  For non convergent outputs typically caused by very  c
+c  small buffer size or input values, or unstable input c
+c  hydrograph, automatically rerun the problem with 3.  c
+c  modifications:                                       c
+c  a. Low pass filter of 0 values (<1% of peak) and     c
+c     change inflow hydrograph to triangular with the   c 
+c.    same mass and start and end times as initial.     c
+c     hydrograph                                        c
+c  b. Change Courant number to 0.6                      c
+c  c. Change inflow node chaking to entry of buffer     c
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      implicit double precision(a-h,o-z)
+      COMMON/PAR/QK(1001),R,THETAW,DX,DT,NDT,NELEM,MAXITER,NPOL,IOUT,NL
+      COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
+      COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
+
+      DIMENSION PGPAR(4),BCROFF(200,2),BCROFFN(200)
+      CHARACTER*8 lines,line1,line2,line3
+    
+c    A) For unstable inflow, noise in iro and buld a triangular hydrograph
+c     Low pass filter for zero noise in .iro q<fpass*qpeak -> q=0
+c     Set to 1% to test. Find beggining and end of inflow after pass.
+      fpass=0.01d0
+      Ttrini=0.d0
+      Ttrend=0.d0
+      QSUM1=0.D0
+      DO 40 I=1,NBCROFF
+         IF(BCROFF(I,2).LT.fpass*BCROPEAK) THEN
+             BCROFFN(I)=0.d0
+           ELSE
+             BCROFFN(I)=BCROFF(I,2)
+             IF(Ttrini.eq.0) Ttrini=BCROFF(I,1)
+             Ttrend=BCROFF(I,1)	      
+         ENDIF
+         IF(I.GE.2) THEN
+           TIMEINCR=BCROFF(I,1)-BCROFF(I-1,1)
+           AREA1=TIMEINCR*(BCROFFN(I)+BCROFFN(I-1))/2.D0
+           QSUM1=QSUM1 + AREA1
+         ENDIF
+c         write(*,*)(BCROFF(I,J), J=1,2),BCROFFN(I)
+40    CONTINUE
+c-----Percentsge difference in hydrograph mass after lofilter pass
+      percmass=100.d0*(QSUM0-QSUM1)/QSUM0
+c      write(*,*)Ttrini,Ttrend,QSUM0,QSUM1,percmass
+      
+c     Calculate triangular hydrograph
+      Qtrpeak=2.d0*QSUM1/(Ttrend-Ttrini)
+      Ttrpeak=Ttrini+(Ttrend-Ttrini)/2.67d0
+      
+c     Clean up old BCROFF before converting to triangular hydrograph
+      DO 60 I=1,NBCROFF
+	    DO 50 J=1,2
+              BCROFF(I,J)=0.d0
+50         CONTINUE
+60    CONTINUE
+
+c     Update the BROFF array by triangular shape---
+      BCROPEAK=Qtrpeak
+      NBCROFF=4
+      IF(Ttrini.eq.0.d0) THEN
+          BCROFF(1,1)=Ttrini
+          BCROFF(1,2)=0.d0
+          BCROFF(2,1)=Ttrpeak
+          BCROFF(2,2)=Qtrpeak
+          BCROFF(3,1)=Ttrend
+          BCROFF(3,2)=0.d0
+          BCROFF(4,1)= DR2
+          BCROFF(4,2)=0.d0
+        ELSE
+          NBCROFF=NBCROFF+1
+          BCROFF(1,1)=0.d0
+          BCROFF(1,2)=0.d0
+          BCROFF(2,1)=Ttrini
+          BCROFF(2,2)=0.d0
+          BCROFF(3,1)=Ttrpeak
+          BCROFF(3,2)=Qtrpeak
+          BCROFF(4,1)=Ttrend
+          BCROFF(4,2)=0.d0
+          BCROFF(5,1)= DR2
+          BCROFF(5,2)=0.d0 
+      ENDIF
+      DR2=BCROFF(NBCROFF,1)
+      
+c     Write new BCROFF before returning to the problem
+c      Write(*,*)
+c      write(*,*) 'New Hydrograph file'
+c      write(*,*)SWIDTH,SLENGTH
+c      write(*,*) NBCROFF,BCROPEAK
+c      DO 70 I=1,NBCROFF
+c           write(*,*)(BCROFF(I,J), J=1,2)
+c70    CONTINUE
+
+c----B) Set note check to beginning of buffer, SCHK=0. (NCHK=1)
+      NCHK = 1
+      
+c----C) Reduce Courant number (0.6) and recalculate DT and PGPAR
+c-- Old time step scheme based on Courant number
+      CR=CRR-0.2d0
+      DTC= DT
+      NDTC=NDT
+      C=CRR*DX/DT
+      DT=CR*DX/C
+c-- Find number of time steps in problem
+      DR2=BCROFF(NBCROFF,1)
+      DR=DMAX1(DR1,DR2)
+      NDT=IDINT(DR/DT)
+C-------Calculate the PG Parameters (n=50) (Muñoz-Carpena et al., 1993)-
+c-09/15 Use new CRR calculated from dynamic time step
+      PGPAR(1)=0.0215873D0 - 0.345217D0*CRR + 1.33259D0*CRR**2.D0 -
+     &               1.62016D0*CRR**3.D0 + 0.670333D0*CRR**4.D0
+      PGPAR(2)= 0.0592655D0 - 0.107237D0*CRR + 0.235216D0*CRR**2.D0 -
+     &               0.426017D0*CRR**3.D0 + 0.222228D0*CRR**4.D0
+      PGPAR(3)=0.0280422D0 + 0.175632D0*CRR - 0.592941D0*CRR**2.D0 -
+     &               0.149698D0*CRR**3.D0 - 0.0704731D0*CRR**4.D0
+      PGPAR(4)= -0.0456247D0 +0.00112745D0*CRR +0.420433D0*CRR**2.D0 -
+     &               0.0935913D0*CRR**3.D0 - 0.0764558D0*CRR**4.D0
+ 
+C-------Clean up the previopus output files leaving the headers 
+C     Read .ohy file into memory and start the output table after header
+      REWIND(11)
+      line1='     (s)'
+      i = 0
+      DO WHILE (.TRUE.)
+         READ(11,'(A)', END=100) lines
+         i=i+1
+         IF(lines.eq.line1) exit
+      END DO
+100   CONTINUE
+C     Continue writing the file header
+      WRITE(11,1000)0.d0,0.d0,0.d0,0.d0,BCROFF(1,2),0.d0,0.d0,
+     &         0.d0,0
+
+C     Read .og1 file into memory and start the output table after header
+      REWIND(13)
+      line2='  (s)   '
+      i = 0
+      DO WHILE (.TRUE.)
+         READ(13,'(A)', END=110) lines
+         i=i+1
+         IF(lines.eq.line2) exit
+      END DO
+110   CONTINUE
+C     Continue writing the file header
+      WRITE(13,1100)
+
+C     Read .og2 file into memory and start the output table after header
+      REWIND(14)
+      line3='    (s) '
+      i = 0
+      DO WHILE (.TRUE.)
+         READ(14,'(A)', END=120) lines
+         i=i+1
+         IF(lines.eq.line3) exit
+      END DO
+120   CONTINUE
+C     Continue writing the file header
+      WRITE(14,1200)
+
+1000   FORMAT(101('-'),/,E11.4,7E12.4,I6)
+1100   FORMAT(147('-'))
+1200  FORMAT(187('-'))
+
+      RETURN
+      END

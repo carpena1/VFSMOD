@@ -19,13 +19,12 @@ C     UNIT 17 LISFIL(12)  inputs/*.iwq                                 C
 C     UNIT 18 LISFIL(13)  output/*.owq                                 C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       CHARACTER*120 FILENM1
       CHARACTER*75 LISFIL(13)
       character*200 linein
       CHARACTER*3,SCOD(13)
-      CHARACTER*1,DUMMY1
+      CHARACTER*1,DUMMY1,SISCR
       character*1 slash
       DATA(SCOD(I),I=1,13)/'ikw','irn','iro','iso','osm','ohy','igr',
      &  'og1','og2','osp','isd','iwq','owq'/
@@ -46,7 +45,7 @@ c-----Write welcome message ---------------------------------------
           WRITE(*,*)'   @     @ @    @     @@ @@  @  @  @  @'
           WRITE(*,*)'    @   @  @@@   @@@  @ @ @  @  @  @   @'
           WRITE(*,*)'     @ @   @        @ @   @  @  @  @  @'
-          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 11/2024 v4.6.0'
+          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 04/2025 v4.6.1'
           WRITE(*,160)
           WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
           WRITE(*,*)'       U. of FL - USA               NCSU - USA'
@@ -67,7 +66,16 @@ c-----Write welcome message ---------------------------------------
           WRITE(*,*)
        ELSEIF (IARGS.EQ.2) THEN
           CALL get_command_argument(1, FILENM1)
-          ISCR=1
+          CALL get_command_argument(2, SISCR)
+          READ(SISCR, '(I)', IOSTAT=IOERR) ISCR
+           IF (IOERR .NE. 0) THEN
+            write(*,'(/,A50,/)')'ERROR: The second command argument is not a valid number'
+            STOP
+          ENDIF
+          IF (ISCR.LT.1.OR.ISCR.GT.2) THEN
+            write(*,'(/,A50,/)')'ERROR: The second command argument can only be 1-2'
+            STOP
+          ENDIF
        ELSE
           WRITE(*,*)
           WRITE(*,105)
@@ -212,18 +220,19 @@ c*** in summary file, put the list of files for this run
       write(15,225) (i,scod(i),lisfil(i),i=1,11)
 
 105   FORMAT('Name:    vfsm')
-110   FORMAT(9x,'(VFSMOD model to calculate overland flow and sediment')
+110   FORMAT(9x,'(VFSMOD model to calculate overland flow and pollutant')
 120   FORMAT(9x,'trapping efficiency of Vegetative Filter Strips)')
-130   FORMAT('Usage 1: vfsm projectname (max 25 characters)',/,
-     &      '         projectname is .prj project name (w/o extension)',
-     &    /,'Usage 2: vfsm projectname 1 (quiet execution)')
+130   FORMAT('Usage 1: vfsm projectname  (verbose execution)',/,
+     &      '         projectname (max 25 chars.) is .prj project name (w/o extension)',
+     &    /,'Usage 2: vfsm projectname 1 (quiet execution)',
+     &    /,'Usage 3: vfsm projectname 2 (quiet execution and convergence control)')
 C----Select unix/DOS versions for help message
-Cunix140   FORMAT('Version: v4.6.0 for Unix - 11/2024')
+Cunix140   FORMAT('Version: v4.6.1 for Unix - 04/2025')
 CDOS
-140   FORMAT('Version: v4.6.0 for Win64 - 11/2024')
+140   FORMAT('Version: v4.6.1 for Win64 - 04/2025')
 150   FORMAT('Authors: R.Munoz-Carpena & J.E.Parsons (UFL & NCSU)')
 160   FORMAT(72('-'))
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.0 11/2024')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1 04/2025')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 
       RETURN

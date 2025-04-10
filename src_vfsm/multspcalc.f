@@ -153,7 +153,7 @@ c---------------Change temperature and moisture modifiers based on IDG option
 
 c-----Assign the final residues before the next storm to the DGMRES array
 
-160   FORMAT(/,100('-'),/,4x,A46,/,100('-'))
+160   FORMAT(/,100('-'),/,4x,A47,/,100('-'))
 170   FORMAT(4x,A7,10(A10,I2))
 180   FORMAT(I11,E12.5)
 200   FORMAT(4x,A7,10(A10,I2))

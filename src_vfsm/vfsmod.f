@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                            C
 C     WRITTEN FOR: Ph.D.dissertation and later modified for distribution     C
 C     RE-WRITTEN : combined version, July 1993                               C
-C     Last Updated: 11/2024 v4.6.0                                           C
+C     Last Updated: 04/2025 v4.6.1                                           C
 C     Written by: Rafael Munoz-Carpena         John E. Parsons               C
 C                 ABE-University of Florida    BAE, NC State University      C
 C                 Gainesville, FL 32611        Raleigh, NC 27695-7625 (USA)  C
@@ -275,7 +275,7 @@ C-------Initialize matrices--------------------------
 C-----Get inputs and parameters for hydrology problem------
 
       CALL INPUTS(N,NBAND,NRAIN,RAIN,NBCROFF,BCROFF,TE,QMAX,PGPAR,
-     &     NCHK,LISFIL,ISCR,QSUM0,RMMH,BCROPEAK)
+     &     NCHK,LISFIL,ISCR,QSUM0,RMMH,BCROPEAK,RPEAK,CRR,DR1)
 
 C------------Read inputs for sediment problem---------------------------
 
@@ -287,13 +287,13 @@ C------Get the Gauss quadrature parameters-------
 
 C-------Assemble the system matrix A -------------
 
-      CALL FORMA(A,NBAND,PGPAR)
+1      CALL FORMA(A,NBAND,PGPAR)
 
 C-------Perform LU decomposition over A -----------
 
       CALL FACTOR(A,N,NBAND)
 
-C-------Numerical time dependent solution-----------
+C-------Start time loop for numerical time dependent solution-----------
 
       MAXIT=100
       TIME=0.D0
@@ -424,6 +424,26 @@ C--------------Update h and q for next time level----------------------
             CALL UPDATE(N,X,X0)
             CALL FLOW(N,X,Q0)
 
+c--------------Check output instability (non-convergence, NaN) and if so restart
+
+            DO 22 I = 1, N
+              IF (Q0(I) .NE. Q0(I)) THEN
+                IF(ISCR.NE.2) THEN
+                    write(*,'(/,A32,f8.2,I4,E12.4,/)')'ERROR: NaN in Q0. Time(s)= ',
+     &                    TIME,I, Q0(I)
+                    STOP
+                  ELSE
+                    write(*,'(/,2A29,f8.2,/)')'WARNING: Convergence mods ',
+     &                    'applied for NaN in Q0, time= ',TIME
+                    CALL hydfilter(NBCROFF,BCROFF,PGPAR,NCHK,ISCR,
+     &                    QSUM0,BCROPEAK,RPEAK,CRR,DR1)
+                    CALL INI(A,B,X,XM,X0,Q0,QM,SSE,NODEX)
+                    GOTO 1
+c                    STOP 999
+                  ENDIF
+              ENDIF
+22          CONTINUE
+
 C--------------Calculate sediment & pollutants for NPRINT time steps along the----
 C--------------simulation, each time using the average flow of the last-----------
 C--------------NWRITE values in between, following this steps:--------------------
@@ -480,7 +500,7 @@ c-------Output message at end of program -----------------
 
       IF(ISCR.EQ.0) THEN
         WRITE(*,*)
-        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.0 11/2024'
+        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.1 04/2025'
         WRITE(*,*)
       ENDIF
 

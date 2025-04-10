@@ -1,5 +1,14 @@
-Changes in 4.5.1
+
+Changes in 4.6.1
 ----------------
+- Modifications for SPOTMOD to ensure convergence even in segments <0.5 m. For this, command line argument "2" has been added that calls a new subroutine hydfilter (in inputs.f). When selected, the program checks internally for lack of convergence in overland flow solution (Q0 vector) and if NaN is detected it reformulates and reruns the problem with a) smaller Courant (CR=CR-0.2); b) checks for unstable inflow and smooths it to a triangular shape while ensuring mass balance; c) and changes the inflow check to the first node in the small segment (SCHK=0.).
+ 
+Changes in 4.6.0
+----------------
+(03/2025)
+- Added additional input checks if the file exits gracefully (i.e. missing project files).
+- Fixed bug in multispecies where multiple independent species  (adjacency matrix=0, except diagonal -1) did not gave same results as the species run independently one by one.
+
 (01/2025)
 - Added multispecies deviation and remobilization.
 - Added input error checking on a number of instances, and in particular around the new requirements when running multispecies.

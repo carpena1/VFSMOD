@@ -268,9 +268,9 @@ c-------Print mass balance for all compounds in .owq file
       CALL COMP_STRING(5,DGMRESIAREA,DESCR1(13))
       WRITE(18,*)
 
-3400  FORMAT(/,43('-'),/,A27,/,43('-'))
+3400  FORMAT(/,43('-'),/,A26,/,43('-'))
 3500  FORMAT(/,A8,I3,A1)
-3525  FORMAT(100('-'),/,4x,'Pesticide mass balance, degradation & remobilization',/,100('-'))
+3525  FORMAT(100('-'),/,1x,'Pesticide mass balance, degradation & remobilization',/,100('-'))
 3535   FORMAT(10(3x,A10,I2))
 4005  FORMAT(E10.3,' m3 = Runoff inflow')
 4105  FORMAT(E10.3,' Kg = Sediment inflow')
