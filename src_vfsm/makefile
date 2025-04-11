@@ -5,6 +5,7 @@ FC=ifort
 #FC=xlf_r
 #FC=xlf
 #FC=gfortran
+#FC=nagfor
 
 # LIBRARY NAMES GIVEN BELOW
 LIBRARIES=
@@ -16,18 +17,30 @@ LD=ifort
 #LD=xlf_r
 #LD=xlf
 #LD=gfortran
+#LD=nagfor
 
 # LINKER FLAGS GIVEN BELOW
-# Intel Compiler: optimization with vectorization
-LDFLAGS= -O3
+#This is to supress warnings in ifort after Sonoma
+#LDFLAGS= -Wl,-ld_classic -extend-source 132 -O3
+##LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
 #LDFLAGS= -fast
-#LDFLAGS= -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
-#LDFLAGS= -O0
+# This is for regular gfortran compilation
+#LDFLAGS= -O -ffixed-line-length-132
+# NAG fortran compiler
+#LDFLAGS= -gline -ieee=stop -w=obs -132
+#LDFLAGS= -gline -ieee=stop -132
+#LDFLAGS= -O -ieee=stop -132
+# Intel Compiler: optimization with vectorization
+#LDFLAGS= -O -fp-model precise
+#LDFLAGS= -O3 -fp-model precise
+#LDFLAGS= -fast -fp-model precise
+#LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
+#LDFLAGS= -O0 -fp-model precise
 #LDFLAGS= -qthreaded -O5 -qtune=auto -qarch=auto -qunroll=auto
 #LDFLAGS= -qsmp -qthreaded -O5 -qtune=auto -qarch=auto -qunroll=auto
-#LDFLAGS= -O -qmaxmem=-1
+#LDFLAGS= -O -qmaxmem=-1 -fp-model precise
 # ifort debug
-#LDFLAGS= -g -traceback -check
+LDFLAGS= -g -traceback -check -fp-model precise -Wl,-ld_classic -extend-source 132
 # gfortran: optimization with vectorization
 #LDFLAGS= -O3 -ftree-vectorize -ffixed-form -ffixed-line-length-none
 
@@ -69,6 +82,7 @@ SRCS= vfsmod.f\
  inputs.f\
  kwwrite.f\
  modify.f\
+ multspcalc.f\
  ocf.f\
  outmass.f\
  points.f\
