@@ -155,8 +155,8 @@ c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
 c---------Check approximation error on sediment bonded pesticide nad issue warning if >1%
             DGMfF1=DGMf(JJ)-DGMfSED(JJ)-DGMfF(JJ)
             IF(DABS(DGMfF1/DGMf(JJ)).gt.0.01) THEN
-              print*,'Warning: DGMfSED estimation error >1%)'
-              DGMfSED(JJ)=DGMfSED(JJ)+DGMfF2
+c              print*,'Warning: DGMfSED estimation error >1%)'
+              DGMfSED(JJ)=DGMfSED(JJ)+DGMfF1
             ENDIF
 c---------Pesticide residues on the VFS surface at the end of the runoff event
             DGMRES(JJ)=DGMfSED(JJ)+DGMml(JJ)+DGMRES0P(JJ)

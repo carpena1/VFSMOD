@@ -291,7 +291,7 @@ c--- rmc 04/20/03 --end of fix
 1500  FORMAT(8x,'- Effective filter length,L(t) =',F8.2,' cm')
 1600  FORMAT(8x,'- Sediment tail at field, X1(t)=',F8.2,' cm')
 1700  FORMAT(8x,'- Sediment depth in low section=',F8.2,' cm')
-1800  FORMAT(8x,'- Rough sediment balance error =',F8.2,' %')
+1800  FORMAT(8x,'- Rough sediment balance error =',F12.2,' %')
 1825  FORMAT(8x,'- Rough water balance error    =',F8.2,' %')
 1826  FORMAT(8x,'- Rough water balance error    =',F8.2,' % (adjusted)')
 1850  format(/,66('*'),/,'*  WARNING: Strip filled up!',37x,'*',

@@ -49,12 +49,15 @@ C-----(.IKW file) Read in main parameters of the program--------------
       ENDIF
 
 c-----When N=-1 calculate N based on VL so that 11>=N>=101 for VL=1-100m
-      IF(N.EQ.-1) N=2*nint(0.5d0*((90.d0/99.d0*(VL-1.d0)+11.d0)+1.d0))-1
+c      IF(N.EQ.-1) N=2*nint(0.5d0*((90.d0/99.d0*(VL-1.d0)+11.d0)+1.d0))-1
+c-----When N=-1 calculate N based on VL so that 11>=N>=101 for VL=1-100m
+      IF(N.EQ.-1) N=2*nint(0.5d0*((96.d0/99.5d0*(VL-0.d5)+5.d0)+1.d0))-1
  
 C--[EVR-1998]-Check if N is compatible with type of shape funcion -----
       L=N-1
       M=NPOL-1
       IF (MOD (L,M).NE.0) N = N+M-MOD(L,M)
+      IF(N.LT.5) N=5
       SEPN = VL/(N-1)
 
 c---------- Read surface properties of the filter -------------------
@@ -981,6 +984,7 @@ c     Set to 1% to test. Find beggining and end of inflow after pass.
          ENDIF
 c         write(*,*)(BCROFF(I,J), J=1,2),BCROFFN(I)
 40    CONTINUE
+      
 c-----Percentsge difference in hydrograph mass after lofilter pass
       percmass=100.d0*(QSUM0-QSUM1)/QSUM0
 c      write(*,*)Ttrini,Ttrend,QSUM0,QSUM1,percmass
@@ -998,6 +1002,7 @@ c     Clean up old BCROFF before converting to triangular hydrograph
 
 c     Update the BROFF array by triangular shape---
       BCROPEAK=Qtrpeak
+      DR2=BCROFF(NBCROFF,1)
       NBCROFF=4
       IF(Ttrini.eq.0.d0) THEN
           BCROFF(1,1)=Ttrini
@@ -1021,7 +1026,6 @@ c     Update the BROFF array by triangular shape---
           BCROFF(5,1)= DR2
           BCROFF(5,2)=0.d0 
       ENDIF
-      DR2=BCROFF(NBCROFF,1)
       
 c     Write new BCROFF before returning to the problem
 c      Write(*,*)
