@@ -433,8 +433,8 @@ c--------------Check output instability (non-convergence, NaN) and if so restart
      &                    TIME,I, Q0(I)
                     STOP
                   ELSE
-                    write(*,'(/,2A29,f8.2,/)')'WARNING: Convergence mods ',
-     &                    'applied for NaN in Q0, time= ',TIME
+c                    write(*,'(/,2A29,f8.2,/)')'WARNING: Convergence mods ',
+c     &                    'applied for NaN in Q0, time= ',TIME
                     CALL hydfilter(NBCROFF,BCROFF,PGPAR,NCHK,ISCR,
      &                    QSUM0,BCROPEAK,RPEAK,CRR,DR1)
                     CALL INI(A,B,X,XM,X0,Q0,QM,SSE,NODEX)
