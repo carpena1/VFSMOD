@@ -51,7 +51,6 @@ SAMPLE.OG1  SAMPLE.OG2  SAMPLE.OHY  SAMPLE.OSM  SAMPLE.OSP
 The content of both input/output files is explained in detail in User's Manual.
 
 
-
 UNIX system
 -----------------
 
@@ -86,3 +85,8 @@ sample.og1  sample.og2  sample.ohy  sample.osm  sample.osp
 
 The content of both input/output files is explained in detail 
 in the User's Manual.
+
+
+CHANGES
+-----------------
+See also CHANGES.txt file under src_uh and src_vfsm directories
