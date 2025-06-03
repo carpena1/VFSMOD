@@ -446,7 +446,7 @@ c                    STOP 999
 
 C--------------Calculate sediment & pollutants for NPRINT time steps along the----
 C--------------simulation, each time using the average flow of the last-----------
-C--------------NWRITE values in between, following this steps:--------------------
+C--------------NWRITE values in between, following these steps:-------------------
 C--------------a) Call sediment subroutine if there is inflow (change units-------
 C--------------from q(m2/s)-->qsed(cm2/s))----------------------------------------
 C--------------b) Call numerical transport subroutine IWQ=5 (not in this version)-

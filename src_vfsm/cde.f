@@ -61,10 +61,17 @@ c------Average chemical concentration (DGCIN2) of infiltrating water. The incomi
 c------mass is DGPIN plus remobilized residues from prev. event, DGPIN=DGPIN+DGM,FRES
 c------(see inputs.f). The mass is partitioned in dissolved (mdi)+sorbed mass (mpi)
       Ei=SMIN
-      DGPINd=DGPIN(JJ)*VinL/(VinL+Ei*VKD(JJ))
-      DGPINp=DGPIN(JJ)*Ei*VKD(JJ)/(VinL+Ei*VKD(JJ))
-      DGCIN=DGPINd/VinL
+      IF(VinL.GT.0.d0) THEN
+           DGPINd=DGPIN(JJ)*VinL/(VinL+Ei*VKD(JJ))
+           DGPINp=DGPIN(JJ)*Ei*VKD(JJ)/(VinL+Ei*VKD(JJ))
+           DGCIN=DGPINd/VinL
+        ELSE
+            DGPINd=0.d0
+            DGPINp=0.d0
+            DGPIN=0.d0
+      ENDIF
       DGSIN=VKD(JJ)*DGCIN
+
 C-------check distribution of incoming pesticide mass ------
       DGPIN_check=DGCIN*VinL+DGSIN*Ei
       IF(DGPIN_check-DGPIN(JJ).GT.0.000000000001d0) THEN

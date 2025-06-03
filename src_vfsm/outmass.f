@@ -205,6 +205,7 @@ c------------Filter filled up to top of vegetation
          ELSE
             SED_ERR=0.d0
       ENDIF
+c      print*,'sed_err,wat_err=',(GSIMASS-(BMASS))/GSOMASS*100.D0,WAT_BAL/WAT_IN*100.d0
       WRITE(10,1800) SED_ERR
       IF (WAT_ERR.EQ.0.d0) THEN
             WRITE(10,1826) WAT_ERR

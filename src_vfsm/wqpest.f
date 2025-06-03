@@ -111,6 +111,7 @@ c-------------Chen eq. (California)
             IF (DELTAP.GT.100.D0.OR.PDQ.GE.100.d0.OR.VOUT.LE.0.d0) DELTAP=100.D0
             IF (PDQ.EQ.0.d0.AND.PDSED.EQ.0.d0) DELTAP=0.D0
             IF (DELTAP.LT.0.d0) DELTAP=0.D0
+            IF (Vin.EQ.0.d0) DELTAP=100.D0
 C-------Print VFS efficiencies in .iwq file --------------
             IF(IWQ.GT.1) WRITE(18,3500)'COMPOUND',JJ,':'
             WRITE(18,4005)VIN

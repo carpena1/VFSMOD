@@ -2,6 +2,11 @@
 Changes in 4.6.1
 ----------------
 - Modifications for SPOTMOD to ensure convergence even in segments <0.5 m. For this, command line argument "2" has been added that calls a new subroutine hydfilter (in inputs.f). When selected, the program checks internally for lack of convergence in overland flow solution (Q0 vector) and if NaN is detected it reformulates and reruns the problem with a) smaller Courant (CR=CR-0.2); b) checks for unstable inflow and smooths it to a triangular shape while ensuring mass balance; c) and changes the inflow check to the first node in the small segment (SCHK=0.).
+- Added also exception to handle running pesticides with no inflow (rain remobilization).
+- Added new makefile for new intel ifx fortran compiler (ifort fortran disconnued).
+- Added example for 3 interactive pesticides (sampleP3.prj).
+- Added optimized binary for Windows (/O3) for expected faster executions.
+- (In preparation) Adding Freundlich sorption isotherm option to .iww file. To ensure backwards compatibiity, this is added as an additional option to the second line of iwq (IKD=2 values read are Kd and Freundlich exponent n; IKD=3 values read are Koc, OC, and Freundlich exponent n)  
  
 Changes in 4.6.0
 ----------------
