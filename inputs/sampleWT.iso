@@ -1,0 +1,62 @@
+3.889e-04   1.72   .39   0.25   0   1
+ 0.7
+  1   .15   13.46   1.52   .348
+  1   .348
+-------------------------------------
+Ks(m/s)   Sav(m)  Theta-s   Theta-i   Sm(m)   Schk(ponding ck)
+WTD(m, no value or non numeric value means no water table present and lines below not needed)
+ITHETATYPE OR/OR  VGALPHA/BCALPHA VGN/BCLAMBDA VGM
+IKUNSATYPE VGM/BCETA/GDNALPHA         BCALPHA 
+RVH (if missing RVH = VKS/HKS =1 
+
+-------- Vachaud(1974) Brooks and Corey curves-----
+2.6389e-05   1.72   .3325   0.25   0   1
+ 0.925
+  2   .0     5.17411   0.73
+  2   5.8775 5.17411
+
+-------- example for Brooks and Corey curves and anisotropy RVH-----
+3.889e-05	1.72	.39	0.25	0.	1.
+0.7
+2	0.15	78.286	0.4
+2	6.7471	78.286
+0.8
+-------- example for van Genuchten's curves-----
+3.889e-05   1.72   .39   0.25   0   1
+ 0.7
+  1   .15   13.46   1.52   .348
+  1   .348
+
+-------- example for Garners's curves-----
+3.889e-05   1.72   .39   0.25   0   1
+0.7
+  2   .15     78.286   0.4
+  3   1.6058   
+
+-------- example for van Genuchten/BC's curves-----
+3.889e-05   1.72   .39   0.25   0   1
+ 0.7
+  1   .15   13.46   1.52   .348
+  2	6.7471	78.286
+
+-------- sample.prj soil in standard distribution-----
+1.33e-5  0.37904 0.311    0.125	0.0  1.0
+ 1.5
+  2   .0     5.17411   0.73
+  2   5.8775 5.17411
+
+
+--- problem child -----
+.6389e-06   1.72   .3325   0.25   0   1
+1.5
+  2   .0     5.17411   0.73
+  2   5.8775 5.17411
+
+
+-------------------------------------
+1.33e-6  0.37904 0.311    0.125	0.0  1.0
+ 1.5
+  2   .0     5.17411   0.73
+  2   5.8775 5.17411
+
+
