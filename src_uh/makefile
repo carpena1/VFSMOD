@@ -44,6 +44,7 @@ OPT3 = -align records -align dcommons -O3
 OPT4 = -v -align records -align dcommons -O4
 OPT5 = -v -align records -align dcommons -O5
 #LDOPT =  -Qpath /ncsu/nagf90/lib -L/ncsu/nagf90/lib
+LDOPT =-Wl,-ld_classic
 
 # INCLUDE SEARCH PATH GIVEN BELOW
 INCLUDES=
@@ -87,7 +88,7 @@ opt5:  $(SRCS)
 	rm -f *.u
 
 clean:
-	rm -f *.o core uh
+	rm -f *.o core uh *.i
 # tell make how to create a .prj file from a .f file
 .f.prj:
 	ftnchek -nopretty -project -noextern -columns=132  $<

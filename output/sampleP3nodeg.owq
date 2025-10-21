@@ -1,0 +1,254 @@
+File: output/sampleP3nodeg.owq                        VFSMOD v4.6.1.1 10/2025
+---------------------------------------------------
+Parameters for Water Quality - No. Compounds=   3
+---------------------------------------------------
+ Type of problem - Pesticide trapping (mass balance (Reichenberger 2019)
+    Partition coefficient (Kd)=   10.000000  L/Kg (Compound 1) 
+    % Clay in sediment (%CL)  =   40.000000   %                
+         Dispersion length (l)=    0.050000  m (Compound 1)    
+ Residue remobilitation (IMOB)=   1: partial (surface porewater)
+        Degradation type (IDG)=   0: no degradation
+Pesticide half-life (Ln2/Kref)=   30.000000  days (Compound 1) 
+      Soil field capacity (FC)=    0.280000   (-)              
+  Incoming pesticide mass (mi)=  100.000000  mg/m2 (Compound 1)
+  Mixing layer thickness (dml)=    2.000000   cm               
+Remob pest prev. event (mres0)=    0.000000  mg/m2 (Compound 1)
+
+-----------------------------------------------------------------
+ Soil leaching and mixing layer calculations (CDE)
+-----------------------------------------------------------------
+
+COMPOUND  1:
+ Huang & van Genuchten (1995) CDE analytical solution
+ Single pulse with C1=dissolved in mass/(runoff+rain)
+       Wetting front depth (z)=      0.2303          m
+   Incoming runoff volume (Vi)=   1325.1266          L
+            Event rainfall (P)=    842.2920          L
+        Total infiltration (F)=   1435.0030          L
+        Incoming sediment (Ei)=     45.0623         Kg
+  Incoming pesticide mass (mi)=    100.0000      mg/m2
+ Incoming dissolved mass (mdi)=     74.6235      mg/m2
+Incoming sed-sorbed mass (mpi)=     25.3765      mg/m2
+ Incoming dissolved mass (mdi)=  10148.7939         mg
+Incoming sed-sorbed mass (mpi)=   3451.2061         mg
+      Pulse concentration (C1)=      4.6824       mg/L
+    Partition coefficient (Kd)=     10.0000       L/Kg
+         Dispersion length (l)=      0.0500          m
+Pesticide half-life (Ln2/Kref)=     30.0000       days
+        Retardation factor (R)=     59.7090        (-)
+          Transformed time (T)=      0.1378        (-)
+ 
+      Z(m)      C(mg/L)      S(mg/mg)
+ -------------------------------------
+      0.0000      1.0313     10.3128
+      0.0100      0.4444      4.4445
+      0.0200      0.1425      1.4250
+      0.0300      0.0328      0.3282
+      0.0400      0.0053      0.0530
+      0.0500      0.0006      0.0059
+      0.0600      0.0000      0.0004
+      0.0700      0.0000      0.0000
+      0.0800      0.0000      0.0000
+      0.0900      0.0000      0.0000
+      0.1000      0.0000      0.0000
+      0.1100      0.0000      0.0000
+      0.1200      0.0000      0.0000
+      0.1300      0.0000      0.0000
+      0.1400      0.0000      0.0000
+      0.1500      0.0000      0.0000
+      0.1600      0.0000      0.0000
+      0.1700      0.0000      0.0000
+      0.1800      0.0000      0.0000
+      0.1900      0.0000      0.0000
+      0.2000      0.0000      0.0000
+      0.2100      0.0000      0.0000
+      0.2200      0.0000      0.0000
+      0.2300      0.0000      0.0000
+      0.2400      0.0000      0.0000
+ 
+        Soil profile total mass (mfF mg)=   6719.3060  100.00%
+   Soil profile dissolved mass (mfFd mg)=    112.5342    1.67%
+      Soil profile sorbed mass (mfFp mg)=   6606.7718   98.33%
+       Mixing layer total mass (mfml mg)=   6129.7949   91.23%
+  Mixing layer dissolved mass (mfmld mg)=    102.6611    1.53%
+     Mixing layer sorbed mass (mfmlp mg)=   6027.1337   89.70%
+
+COMPOUND  2:
+ Huang & van Genuchten (1995) CDE analytical solution
+ Single pulse with C1=dissolved in mass/(runoff+rain)
+       Wetting front depth (z)=      0.2303          m
+   Incoming runoff volume (Vi)=   1325.1266          L
+            Event rainfall (P)=    842.2920          L
+        Total infiltration (F)=   1435.0030          L
+        Incoming sediment (Ei)=     45.0623         Kg
+  Incoming pesticide mass (mi)=      5.0000      mg/m2
+ Incoming dissolved mass (mdi)=      1.1362      mg/m2
+Incoming sed-sorbed mass (mpi)=      3.8638      mg/m2
+ Incoming dissolved mass (mdi)=    154.5241         mg
+Incoming sed-sorbed mass (mpi)=    525.4759         mg
+      Pulse concentration (C1)=      0.0713       mg/L
+    Partition coefficient (Kd)=    100.0000       L/Kg
+         Dispersion length (l)=      0.0500          m
+Pesticide half-life (Ln2/Kref)=     60.0000       days
+        Retardation factor (R)=    588.0900        (-)
+          Transformed time (T)=      0.1378        (-)
+ 
+      Z(m)      C(mg/L)      S(mg/mg)
+ -------------------------------------
+      0.0000      0.0053      0.5341
+      0.0100      0.0001      0.0106
+      0.0200      0.0000      0.0000
+      0.0300      0.0000      0.0000
+      0.0400      0.0000      0.0000
+      0.0500      0.0000      0.0000
+      0.0600      0.0000      0.0000
+      0.0700      0.0000      0.0000
+      0.0800      0.0000      0.0000
+      0.0900      0.0000      0.0000
+      0.1000      0.0000      0.0000
+      0.1100      0.0000      0.0000
+      0.1200      0.0000      0.0000
+      0.1300      0.0000      0.0000
+      0.1400      0.0000      0.0000
+      0.1500      0.0000      0.0000
+      0.1600      0.0000      0.0000
+      0.1700      0.0000      0.0000
+      0.1800      0.0000      0.0000
+      0.1900      0.0000      0.0000
+      0.2000      0.0000      0.0000
+      0.2100      0.0000      0.0000
+      0.2200      0.0000      0.0000
+      0.2300      0.0000      0.0000
+      0.2400      0.0000      0.0000
+ 
+        Soil profile total mass (mfF mg)=    102.3146  100.00%
+   Soil profile dissolved mass (mfFd mg)=      0.1740    0.17%
+      Soil profile sorbed mass (mfFp mg)=    102.1406   99.83%
+       Mixing layer total mass (mfml mg)=    102.3068   99.99%
+  Mixing layer dissolved mass (mfmld mg)=      0.1740    0.17%
+     Mixing layer sorbed mass (mfmlp mg)=    102.1328   99.82%
+
+COMPOUND  3:
+ Huang & van Genuchten (1995) CDE analytical solution
+ Single pulse with C1=dissolved in mass/(runoff+rain)
+       Wetting front depth (z)=      0.2303          m
+   Incoming runoff volume (Vi)=   1325.1266          L
+            Event rainfall (P)=    842.2920          L
+        Total infiltration (F)=   1435.0030          L
+        Incoming sediment (Ei)=     45.0623         Kg
+  Incoming pesticide mass (mi)=     25.0000      mg/m2
+ Incoming dissolved mass (mdi)=     24.1778      mg/m2
+Incoming sed-sorbed mass (mpi)=      0.8222      mg/m2
+ Incoming dissolved mass (mdi)=   3288.1819         mg
+Incoming sed-sorbed mass (mpi)=    111.8181         mg
+      Pulse concentration (C1)=      1.5171       mg/L
+    Partition coefficient (Kd)=      1.0000       L/Kg
+         Dispersion length (l)=      0.0500          m
+Pesticide half-life (Ln2/Kref)=    100.0000       days
+        Retardation factor (R)=      6.8709        (-)
+          Transformed time (T)=      0.1378        (-)
+ 
+      Z(m)      C(mg/L)      S(mg/mg)
+ -------------------------------------
+      0.0000      0.8157      0.8157
+      0.0100      0.6769      0.6769
+      0.0200      0.5449      0.5449
+      0.0300      0.4247      0.4247
+      0.0400      0.3199      0.3199
+      0.0500      0.2325      0.2325
+      0.0600      0.1629      0.1629
+      0.0700      0.1098      0.1098
+      0.0800      0.0712      0.0712
+      0.0900      0.0443      0.0443
+      0.1000      0.0265      0.0265
+      0.1100      0.0151      0.0151
+      0.1200      0.0083      0.0083
+      0.1300      0.0044      0.0044
+      0.1400      0.0022      0.0022
+      0.1500      0.0011      0.0011
+      0.1600      0.0005      0.0005
+      0.1700      0.0002      0.0002
+      0.1800      0.0001      0.0001
+      0.1900      0.0000      0.0000
+      0.2000      0.0000      0.0000
+      0.2100      0.0000      0.0000
+      0.2200      0.0000      0.0000
+      0.2300      0.0000      0.0000
+      0.2400      0.0000      0.0000
+ 
+        Soil profile total mass (mfF mg)=   2177.0368  100.00%
+   Soil profile dissolved mass (mfFd mg)=    316.8488   14.55%
+      Soil profile sorbed mass (mfFp mg)=   1860.1880   85.45%
+       Mixing layer total mass (mfml mg)=    970.6181   44.58%
+  Mixing layer dissolved mass (mfmld mg)=    141.2651    6.49%
+     Mixing layer sorbed mass (mfmlp mg)=    829.3531   38.10%
+
+-------------------------------------------
+ Outputs for Water Quality
+-------------------------------------------
+
+COMPOUND  1:
+ 0.133E+01 m3 = Runoff inflow
+ 0.451E+02 Kg = Sediment inflow
+     4.810    = Phase distribution, Fph
+    66.208 %  = Infiltration (dQ)
+    97.463 %  = Sediment reduction (dE)
+    44.729 %  = Runoff inflow reduction
+ 
+    74.139 %  = Pesticide reduction (dP)
+
+COMPOUND  2:
+ 0.133E+01 m3 = Runoff inflow
+ 0.451E+02 Kg = Sediment inflow
+     0.481    = Phase distribution, Fph
+    66.208 %  = Infiltration (dQ)
+    97.463 %  = Sediment reduction (dE)
+    44.729 %  = Runoff inflow reduction
+ 
+    90.360 %  = Pesticide reduction (dP)
+
+COMPOUND  3:
+ 0.133E+01 m3 = Runoff inflow
+ 0.451E+02 Kg = Sediment inflow
+    48.098    = Phase distribution, Fph
+    66.208 %  = Infiltration (dQ)
+    97.463 %  = Sediment reduction (dE)
+    44.729 %  = Runoff inflow reduction
+ 
+    67.236 %  = Pesticide reduction (dP)
+ 
+----------------------------------------------------------------------------------------------------
+ Pesticide mass balance, degradation & remobilization
+----------------------------------------------------------------------------------------------------
+     Compound 1     Compound 2     Compound 3
+   0.136000E+05   0.680000E+03   0.340000E+04 mg   = Pesticide input (mi)                                                                                                                               
+   0.351706E+04   0.655503E+02   0.111398E+04 mg   = Pesticide output (mo)                                                                                                                              
+   0.540626E+02   0.885153E+01   0.173638E+01 mg   = Pesticide outflow in solid phase (mop)                                                                                                             
+   0.346300E+04   0.566988E+02   0.111225E+04 mg   = Pesticide outflow in liquid phase (mod)                                                                                                            
+   0.100829E+05   0.614450E+03   0.228602E+04 mg   = Pesticide trapped in VFS (mf)                                                                                                                      
+   0.336364E+04   0.512142E+03   0.108981E+03 mg   = Pesticide trapped with sediment (mfsed)                                                                                                            
+   0.612979E+04   0.102307E+03   0.970618E+03 mg   = Pesticide trapped in mixing layer (mfml)                                                                                                           
+   0.000000E+00   0.000000E+00   0.000000E+00 mg   = Pesticide sorbed in mixing layer from last event (mfml0)                                                                                           
+   0.949343E+04   0.614449E+03   0.107960E+04 mg   = Total surface residue (mres1=mfml+mfsed+mfml0)                                                                                                     
+   0.949343E+04   0.614449E+03   0.107960E+04 mg   = Total surface residue after degradation (  1 days)                                                                                                 
+   0.140359E+03   0.920704E+00   0.140872E+03 mg   = Dissolved surface residue after degradation (  1 days)                                                                                             
+   0.935307E+04   0.613529E+03   0.938727E+03 mg   = Sorbed surface residue after degradation (  1 days)                                                                                                
+   0.140359E+03   0.920704E+00   0.140872E+03 mg   = Next event residue remobilization (mresn, IMOB=1)                                                                                                  
+ 
+ Normalized values by source area:
+ 
+         136.00 m^2  = Source Area (input)
+   0.100000E+03   0.500000E+01   0.250000E+02 mg/m2= Pesticide input (mi)                                                                                                                               
+   0.258607E+02   0.481988E+00   0.819104E+01 mg/m2= Pesticide output (mo)                                                                                                                              
+   0.397519E+00   0.650848E-01   0.127675E-01 mg/m2= Pesticide outflow in solid phase (mop)                                                                                                             
+   0.254632E+02   0.416903E+00   0.817828E+01 mg/m2= Pesticide outflow in liquid phase (mod)                                                                                                            
+   0.741393E+02   0.451801E+01   0.168090E+02 mg/m2= Pesticide trapped in VFS (mf)                                                                                                                      
+   0.247326E+02   0.376575E+01   0.801330E+00 mg/m2= Pesticide trapped with sediment (mfsed)                                                                                                            
+   0.450720E+02   0.752256E+00   0.713690E+01 mg/m2= Pesticide trapped in mixing layer (mfml)                                                                                                           
+   0.000000E+00   0.000000E+00   0.000000E+00 mg/m2= Pesticide sorbed in mixing layer from last event (mfml0)                                                                                           
+   0.698046E+02   0.451801E+01   0.793823E+01 mg/m2= Total surface residue (mres1=mfml+mfsed+mfml0)                                                                                                     
+   0.698046E+02   0.451801E+01   0.793823E+01 mg/m2= Total surface residue after degradation (  1 days)                                                                                                 
+   0.103205E+01   0.676989E-02   0.103582E+01 mg/m2= Dissolved surface residue after degradation (  1 days)                                                                                             
+   0.687726E+02   0.451124E+01   0.690240E+01 mg/m2= Sorbed surface residue after degradation (  1 days)                                                                                                
+   0.103205E+01   0.676989E-02   0.103582E+01 mg/m2= Next event residue remobilization (mresn, IMOB=1)                                                                                                  
+ 

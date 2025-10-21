@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                            C
 C     WRITTEN FOR: Ph.D.dissertation and later modified for distribution     C
 C     RE-WRITTEN : combined version, July 1993                               C
-C     Last Updated: 04/2025 v4.6.1                                           C
+C     Last Updated: 10/2025 v4.6.1.1                                           C
 C     Written by: Rafael Munoz-Carpena         John E. Parsons               C
 C                 ABE-University of Florida    BAE, NC State University      C
 C                 Gainesville, FL 32611        Raleigh, NC 27695-7625 (USA)  C
@@ -500,7 +500,7 @@ c-------Output message at end of program -----------------
 
       IF(ISCR.EQ.0) THEN
         WRITE(*,*)
-        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.1 04/2025'
+        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.1.1 10/2025'
         WRITE(*,*)
       ENDIF
 

@@ -1,0 +1,53 @@
+3 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+1 1000 1.                               ; IKD (Kd or Koc) (%OC) (repeat Koc or Kd for j species)
+40.                                     ; %Clay content in field soil
+0                                       ; IDG
+1 30. 0.28 100. 2. 0.05 0.              ; ndgday dgHalf FC(m3/m3) dgPin dgML dgLD dgmres0 (repeat {dgHalf,dgPIN,dgLD,dgmres0}_j for j species)
+11.1                                    ; dgT(i)
+0.274                                   ; dgTheta(i)
+1                                       ; IMOB
+
+------------------------------------------------------------------
+IWQPRO    : Pesticide trapping: 1=Sabbagh;2= Sabbagh(refit);3=mech.mass bal.;4=Chen
+CSAB(I)   : Coefficients for refitted Sabbagh equation (used when IWQPRO=2)
+IKD       : Sorption type: 0, Kd(L/Kg); 1, Koc (L/Kg)
+Kd(j) Koc(j): Sorption coefficient (j species) as distribution Kd (IKD= 0) or Koc (IKD=1) (L/Kg)
+%OC       : Source soil organic carbon, only read when IKD=1 (Koc) (%)
+IDG       : Degradation type: 1: EU-FOCUS k=Kref.k(T).k(theta); 2: US-EPA k=Kref;
+            3: k=Kref.k(T);4: k=Kref.k(1theta; 0: No degradation
+ndgday    : no. of days (i) between events (d)
+dgHalf(j) : t0.5, pesticide half-life (d), kref=Ln2/t0.5
+FC        : top soil field capacity (m3/m3). This can be taken from FOCUS R1-R4 scenario
+            parameters used by the PRZM model
+dgPin(j)  : Pin, pesticide mass entering filter for event over source area (mg/m2)
+dgML      : Surface mixing layer thickness (cm, standard= 2cm PRZM)
+dgLD(j)   : lambda, dispersion length of chemical (m). This can be taken as  
+            0.05m from FOCUS-Pearl (Default)
+dgmres0(j): Pesticide residues (i species) on VFS surface (mixing layer) when event starts (mg/m2)
+dgT(i)    : T, daily air temperatures (C) for period between events, PRZM weather
+dgTheta(i): theta, Topsoil daily volumetric moisture (-) for period between events
+IMOB      : Residues remobilization: 1(or none): partial (recomm); 2:full; 3:no remob.
+Mj        : Molar mass of compounds (g/mol) (only read when number of compounds is j>1)
+fij       : matrix of molar formation fractions between compounds {jxj} (when number of compounds is j>1)
+
+Example with 1 pesticide and no degradation (IDG=0 and IWQ=1 in .IKW file). Note that ngday=1 and only one dummy value of dgT and dgTheta is needed (but not used)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+3 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+1 1000 1.                               ; IKD (Kd or Koc) (%OC) (repeat Koc or Kd for j species)
+40.                                     ; %Clay content in field soil
+0                                       ; IDG
+1 30. 0.28 100. 2. 0.05 0.              ; ndgday dgHalf FC(m3/m3) dgPin dgML dgLD dgmres0 (repeat {dgHalf,dgPIN,dgLD,dgmres0}_j for j species)
+11.1                                    ; dgT(i)
+0.274                                   ; dgTheta(i)
+1                                       ; IMOB
+
+Example with 1 pesticide and no degradation (IDG=0 and IWQ=1 in .IKW file). Note that ngday=1 and only one dummy value of dgT and dgTheta is needed (but not used)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+3 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+1 1000 1. 10000 100                     ; IKD (Kd or Koc) (%OC) (repeat Koc or Kd for j species)
+40.                                     ; %Clay content in field soil
+0                                       ; IDG
+1 30. 0.28 100. 2. 0.05 0. 60. 5. 0.05 0. 100. 25. 0.05 0. ; ndgday dgHalf FC(m3/m3) dgPin dgML dgLD dgmres0 (repeat {dgHalf,dgPIN,dgLD,dgmres0}_j for j species)
+11.1                                    ; dgT(i)
+0.274                                   ; dgTheta(i)
+1                                       ; IMOB

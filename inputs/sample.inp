@@ -1,0 +1,7 @@
+ 100.0  70.0  0.5  3  6.0  100.0  0.02  'P,CN,A,storm type,D,L,Y (,dincr)
+                                           'Note: Storm type I,IA,II,III (j=1,4)
+Clay                     'Soil Type
+  -1.0  1.0  1.0  -1.0                           'K, C, P, Dp 
+  5                                 'IREOTY
+  1.0                            'Soil Org Matter
+

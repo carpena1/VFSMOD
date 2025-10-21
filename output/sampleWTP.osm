@@ -1,7 +1,7 @@
-File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
+File: output/sampleWTP.osm                            VFSMOD v4.6.1.1 10/2025
  INPUTS
  ------
- File: output/sampleWTP.ohy                            VFSMOD v4.5.2 02/2023
+ File: output/sampleWTP.ohy                            VFSMOD v4.6.1.1 10/20
                                                                             
   Storm parameters                                                          
   ----------------                                                          
@@ -21,6 +21,7 @@ File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
                      |    9 |  2400.0  to  2700.0 | 0.2540E-05 |            
                      |   10 |  2700.0  to  3001.0 | 0.8467E-06 |            
                      |   11 |  3001.0  to  3603.0 | 0.0000E+00 |            
+                     |   12 |  3603.0  to  4000.0 | 0.0000E+00 |            
                      +------+---------------------+------------+            
             Total rainfall (mm)=       25.15                                
    Peak rainfall intensity(m/s)=  0.1947E-04                                
@@ -64,7 +65,7 @@ File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
                                                                             
   Simulation parameters                                                     
   ---------------------                                                     
-       Length of simulation (s)=  0.3603E+04                                
+       Length of simulation (s)=  0.4000E+04                                
    Order of the basis functions=           2                                
      Petrov-Galerkin parameters=  0.04332 -0.00308 -0.31645  0.14512        
        Time weighting parameter=    0.500000                                
@@ -72,7 +73,7 @@ File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
              Time step, dt (s) =    1.402495                                
   Number of nodes in system    =          57                                
   Number of elements in system =          28                                
-  Number of time steps        =        2568                                 
+  Number of time steps        =        2852                                 
   Maximum number of iterations =         350                                
     Maximum flow rate and depth=    0.000735    0.013894                    
            Celerity of the wave=    0.088159                                
@@ -83,7 +84,7 @@ File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
        Surface changes feedback=          NO                                
                                                                             
                                                                             
- File: output/sampleWTP.og1                            VFSMOD v4.5.2 02/2023
+ File: output/sampleWTP.og1                            VFSMOD v4.6.1.1 10/20
                                                                             
   Sediment parameters                                                       
   -----------------------------------------                                 
@@ -109,26 +110,26 @@ File: output/sampleWTP.osm                            VFSMOD v4.5.2 02/2023
  -------------
 Volume from rainfall=     0.8423E+00 m3
 Volume from up-field=     0.1325E+01 m3
-Volume from outflow =     0.8202E+00 m3
-Volume infiltrated  =     0.1347E+01 m3
+Volume from outflow =     0.1101E+01 m3
+Volume infiltrated  =     0.1067E+01 m3
   
  Hydrology
  -----------
-Time to beginning   =     0.1473E+04 s
-Time and q at peak  =     0.1858E+04 s     0.2433E-02 m3/s
-Time to end runoff  =     0.3366E+04 s
+Time to beginning   =     0.1571E+04 s
+Time and q at peak  =     0.1767E+04 s     0.2739E-02 m3/s
+Time to end runoff  =     0.3416E+04 s
   
  Sediment
  --------
-Sediment inflow     =     0.1164E+03 g/cm    0.4505E+05 g
-Sediment outflow    =     0.1622E+01 g/cm    0.6277E+03 g
-Trapping efficiency =       98.6 %
+Sediment inflow     =     0.1164E+03 g/cm    0.4506E+05 g
+Sediment outflow    =     0.2892E+01 g/cm    0.1119E+04 g
+Trapping efficiency =       97.5 %
                      ----------------
 Sediment deposition :
-        - Sediment wedge depth,   Y(t) =   0.04cm
-        - Sediment wedge length,  X2(t)=   0.14cm
-        - Effective filter length,L(t) = 865.36cm
-        - Sediment tail at field, X1(t)=   0.63cm
-        - Sediment depth in low section=   0.09cm
-        - Rough sediment balance error = 100.60%
-        - Rough water balance error    =   0.00% (adjusted)
+        - Sediment wedge depth,   Y(t) =    0.04 cm
+        - Sediment wedge length,  X2(t)=    0.13 cm
+        - Effective filter length,L(t) =  865.37 cm
+        - Sediment tail at field, X1(t)=    0.63 cm
+        - Sediment depth in low section=    0.09 cm
+        - Rough sediment balance error =    0.01 %
+        - Rough water balance error    =    0.00 % (adjusted)

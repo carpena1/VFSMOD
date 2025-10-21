@@ -139,7 +139,7 @@ C-------Calculate pesticide mass balance and degradation (IDG=1-4)-----
 C-------based on Muñoz-Carpena et al. (2015) --------------------------
 c---------Carry-over sorbed in mixing layer from previous event--------
             IF(IMOB.EQ.2) then
-              DGMRES0P(JJ)=0
+              DGMRES0P(JJ)=0.d0
              ELSE
               DGMRES0P(JJ)=DGMRES0(JJ)*VKD(JJ)*SAREA*DGROB/OI
             ENDIF
@@ -165,8 +165,8 @@ c---------Pesticide residues on the VFS surface at the end of the runoff event
             DGMRESMML(JJ)=DGMml(JJ)
       END DO
 c-----Pesticide degradation in days between runoff events for single compound 
-c-----and multiple species reactions (parent-metabolites)     
-      CALL multspcalc(DGMRES)   
+c-----and multiple species reactions (parent-metabolites)
+      IF(IDG.GT.0) CALL multspcalc(DGMRES)
 
 c---- Final mass balance and remobilization
       Vw=dgML*VFSAREA*DGTHETAN*10.d0

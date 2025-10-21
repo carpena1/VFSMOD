@@ -1,4 +1,4 @@
-File: output/sample2.out                               UH v3.0.8, 09/2023
+File: output/sample2.out                               UH v3.0.9, 04/2025
  
   
   HYDROGRAPH CALCULATION FOR WATERSHED-SCS METHOD
@@ -18,7 +18,7 @@ MUSLE type=  1 where R-factor is (see manual)
   
  OUTPUTS
  -------
-Runoff volume=   16.92 mm=   84.59 m3
+Runoff volume=    4.23 mm=   21.13 m3
 Initial Abstraction=    8.96 mm
 Concentration time=    0.13 h=     7.81 min
   
@@ -166,4 +166,3 @@ Number of excess hyetograph steps (m)=   98
 Peak flow=   0.0133 m3/s=    9.5553 mm/h
 Time to peak=    3.14 h=   188.44 min
 Number of final hydrograph steps (nhyd)  =  113
-Time to ponding=   2.968 h

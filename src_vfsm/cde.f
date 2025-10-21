@@ -164,10 +164,12 @@ c-------Huang and Van Genuchten (1995) CDE analytical solution
       do while (ZD.le.Zf)
         C=CONC(JJ,C1,C2,TT,TT0,ZD)
         WRITE(18,500)ZD,C,VKD(JJ)*C
+c        WRITE(18,550)ZD,C,VKD(JJ)*C
         ZD=ZD+0.01D0
       end do
       C=0.d0
       WRITE(18,500)ZD,C,VKD(JJ)*C
+c      WRITE(18,550)ZD,C,VKD(JJ)*C
 
 c-----Integrate mass in the soil profile for the event
       call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
@@ -219,6 +221,7 @@ c-----Integrate mass in mixing layer for the event
 450   FORMAT(A20,F12.2)
 475   FORMAT(A41,f12.4,F8.2,'%')
 500   FORMAT(6F12.4)
+550   FORMAT(6E12.4)
 600   FORMAT(A40,2F12.4)
 800   FORMAT(A31,F12.4,A11)
 c800   FORMAT(A31,F12.6,A20)

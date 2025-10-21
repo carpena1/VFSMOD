@@ -20,11 +20,12 @@ LD=ifort
 #LD=nagfor
 
 # LINKER FLAGS GIVEN BELOW
-#This is to supress warnings in ifort after Sonoma on Mac
+#This is to supress warnings in ifort after Sonoma
 #LDFLAGS= -O3 -Wl,-ld_classic -extend-source 132 
-##LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
-LDFLAGS= -O4 -fp-model precise -Wl,-ld_classic -extend-source 132
-#LDFLAGS= -fast
+#LDFLAGS= -O3 -fp-model precise -ftree-vectorize -Wl,-ld_classic -extend-source 132
+LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
+#LDFLAGS= -O4 -fp-model precise -Wl,-ld_classic -extend-source 132
+#LDFLAGS= -O5 -fp-model=precise -ftree-vectorize -extend-source 132#LDFLAGS= -fast
 # This is for regular gfortran compilation
 #LDFLAGS= -O -ffixed-line-length-132
 # NAG fortran compiler

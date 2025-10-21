@@ -167,6 +167,13 @@ C-----(.ISO file) Read Green-Ampt infiltration parameters -------------------
       ENDIF
       WTD=999.d0
       READ(7,*)VKS,Sav,OS,OI,SM,SCHK
+c-----check for input error in OI 
+      IF(OI.LT.0.025d0) THEN
+         OI=0.025d0
+         WRITE(*,108)
+108      format('WARNING: OI is outside [OS,WP] range.',
+     &   ' Set to max=OS or min=0.025')
+      ENDIF
 
 C-----Get downslope node for flood checking (0=<schck=<1) or average along --
 C-----filter Xavg (nchk= -1)
@@ -419,7 +426,7 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
               if (ierr.ne.0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. With IKD=1, both Koc',
-     &               '       and %OC must be provided. Please fix and rerun.'
+     &               '    and %OC must be provided. Please fix and rerun.'
                   write(*,199)
                  stop
                endif
@@ -427,8 +434,8 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
                READ(17,*,iostat=ierr)IKD,VKD(1)
               if (ierr.ne.0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. Missing IKD and/or Kd.',
-     &               '       Please fix and rerun.'
+                  print*,'ERROR: line 2 of .iwq file. Missing IKD and/or Kd',
+     &               '    for IWQ compounds set in .ikw. Please fix and rerun.'
                   write(*,199)
                   stop
                endif
@@ -437,14 +444,14 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
                if (ierr.ne.0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. Missing Koc for IWQ',
-     &               '     compounds set in .ikw. Please fix and rerun.'
+     &               '    compounds set in .ikw. Please fix and rerun.'
                   write(*,199)
                   stop
                endif
                if (OCP.GT.100.d0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. %OC>100% not possible. ',
-     &               '       Please fix and rerun.'
+     &               '    Please fix and rerun.'
                   write(*,199)
                   stop
                endif
@@ -453,7 +460,7 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
                if (ierr.ne.0) then
                   write(*,199)
                   print*,'ERROR: line 2 of .iwq file. Missing Kd for IWQ',
-     &               '     compounds set in .ikw. Please fix and rerun.'
+     &               '    compounds set in .ikw. Please fix and rerun.'
                   write(*,199)
                   stop
                endif
@@ -487,7 +494,7 @@ c---------- check if pesticide degradation is requested (IDG=1 TO 4)
              write(*,199)
            ENDIF
 c----------When Pesticide degradation requested: IDG=1-4'         
-           IF (IDG.GT.0) THEN
+c           IF (IDG.GT.0) THEN
             READ(17,'(A)',iostat=io) line
             ncount = 0
             ipos = 1
@@ -547,6 +554,7 @@ c-----------------------
                   write(*,199)
                   STOP
             ENDIF
+            IF(IDG.EQ.0) NDGDAY=1
 c-rmc10/2021--Add surface redidues from last event to incoming mass---
             DO 127 JJ=1,IWQ
               DGPIN(JJ)=DGPIN(JJ)+DGMRES0(JJ)
@@ -576,7 +584,7 @@ c------------Residue remobilitation requested: IMOB
 c ----------Placeholder for other wq problems, i.e. TaRSE, 07/28/08 rmc
 c
 c-----------Multispecies (IWQ>2), read DGMOL(JJ), DGFRAC(JJ,JJ)
-            IF(IWQ.GT.1) THEN
+            IF(IWQ.GT.1.AND.IDG.GT.0) THEN
               READ(17,*,iostat=ierr)(DGMOL(JJ),JJ=1,IWQ)
                if (ierr.ne.0) then
                 write(*,199)
@@ -607,7 +615,7 @@ c-----------Multispecies (IWQ>2), read DGMOL(JJ), DGFRAC(JJ,JJ)
            write(15,*)
            write(15,*)
       ENDIF
-      ENDIF
+c      ENDIF
 
 C-------Output all the parameters-------------------------------
 
@@ -752,7 +760,7 @@ C-------Print header for output values--------------------------
         WRITE(11,198)
       ENDIF
 
-c-----------Output all input values for Water Quality (if IWQ>0)--------
+c--------Output all input values for Water Quality in OWQ (if IWQ>0)--------
       IF(IWQ.GT.0) THEN
             WRITE(18,803)'Parameters for Water Quality - No. Compounds=',IWQ
             SELECT CASE (IWQPRO)
@@ -805,19 +813,21 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
      &               DGML,'cm               '
             WRITE(18,800)'Remob pest prev. event (mres0)=',
      &               DGMRES0(1),'mg/m2 (Compound 1)'
-            WRITE(18,801)'No. of days between events=',NDGDAY
-            WRITE(18,802)
-            WRITE(18,910)(I,DGT(I),DGTHETA(I),I=1,NDGDAY)
-            IF(IWQ.GT.1) THEN
-                WRITE(18,200)'Pest. molar mass (dgMOL,g/mol)=',
+            IF(IDG.GT.0) THEN
+               WRITE(18,801)'No. of days between events=',NDGDAY
+               WRITE(18,802)
+               WRITE(18,910)(I,DGT(I),DGTHETA(I),I=1,NDGDAY)
+               IF(IWQ.GT.1) THEN
+                 WRITE(18,200)'Pest. molar mass (dgMOL,g/mol)=',
      &               (DGMOL(JJ),JJ=1,IWQ)
-                WRITE(18,200)'Pesticide half-life (Ln2/Kref)=',
+                 WRITE(18,200)'Pesticide half-life (Ln2/Kref)=',
      &               (DGHALF(JJ),JJ=1,IWQ)
-                WRITE(18,*)'Molar transformation fractions of Compounds (dgFRACj)(-)='
-                WRITE(18,'(31x,A7,10I8)')'Compound',(JJ,JJ=1,IWQ)
-                DO 132 II=1,IWQ
-                  WRITE(18,805)II,(DGFRAC(II,JJ),JJ=1,IWQ)
- 132            CONTINUE
+                 WRITE(18,*)'Molar transformation fractions of compounds (dgFRACj)(-)='
+                 WRITE(18,'(31x,A8,10I8)')'Compound',(JJ,JJ=1,IWQ)
+                 DO 132 II=1,IWQ
+                   WRITE(18,805)II,(DGFRAC(II,JJ),JJ=1,IWQ)
+ 132             CONTINUE
+               ENDIF
             ENDIF                           
       ENDIF
 
@@ -844,7 +854,7 @@ c-----------Output all input values for Water Quality (if IWQ>0)--------
 208   FORMAT(2x,'KUNSAT curve in infiltration=',3x,A15)
 209   FORMAT(A31,I12)
 210   FORMAT(A31,A12)
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1 04/2025')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1.1 10/2025')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 350   FORMAT(A31,2F12.2)
 400   FORMAT(A31,2E12.4)

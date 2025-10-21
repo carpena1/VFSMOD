@@ -1,0 +1,36 @@
+1 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+1 147 30 120 130                      ; IKD (Kd or Koc) (%OC) (repeat Koc or Kd for j species)
+40			; %Clay content in field soil
+1 IDG
+3 27.995 0.26 6.097 2 0.05 0.58 30 7 0.02 0.4 20 8 0.07 0.6 ; ndgday dgHalf FC dgPin dgML dgLD dgmres0 (repeat {dgHalf,dgPIN,dgLD,dgmres0}_j for j species)
+9.5 8.6 6 (dgT(i),i=1,ndgday) (Celsius)
+0.265 0.264 0.265 (dgTheta(i),i=1,ndgday (-)
+1                                       ; IMOB
+100 200 100                             ; Mj molar mass of compounds (g/mol)
+-1 0.5 0.5                             ; fij molar formation fraction matrix {jxj}
+0 -1 0.7 
+0 0 -1 
+
+
+------------------------------------------------------------------
+IWQPRO    : Pesticide trapping: 1=Sabbagh;2= Sabbagh(refit);3=mech.mass bal.;4=Chen
+CSAB(I)   : Coefficients for refitted Sabbagh equation (used when IWQPRO=2)
+IKD       : Sorption type: 0, Kd(L/Kg); 1, Koc (L/Kg)
+Kd(j) Koc(j): Sorption coefficient (j species) as distribution Kd (IKD= 0) or Koc (IKD=1) (L/Kg)
+%OC       : Source soil organic carbon, only read when IKD=1 (Koc) (%)
+IDG       : Degradation type: 1: EU-FOCUS k=Kref.k(T).k(theta); 2: US-EPA k=Kref;
+            3: k=Kref.k(T);4: k=Kref.k(1theta; 0: No degradation
+ndgday    : no. of days (i) between events (d)
+dgHalf(j) : t0.5, pesticide half-life (d), kref=Ln2/t0.5
+FC        : top soil field capacity (m3/m3). This can be taken from FOCUS R1-R4 scenario
+            parameters used by the PRZM model
+dgPin(j)  : Pin, pesticide mass entering filter for event over source area (mg/m2)
+dgML      : Surface mixing layer thickness (cm, standard= 2cm PRZM)
+dgLD(j)   : lambda, dispersion length of chemical (m). This can be taken as  
+            0.05m from FOCUS-Pearl (Default)
+dgmres0(j): Pesticide residues (i species) on VFS surface (mixing layer) when event starts (mg/m2)
+dgT(i)    : T, daily air temperatures (C) for period between events, PRZM weather
+dgTheta(i): theta, Topsoil daily volumetric moisture (-) for period between events
+IMOB      : Residues remobilization: 1(or none): partial (recomm); 2:full; 3:no remob.
+Mj        : Molar mass of compounds (g/mol) (only read when number of compounds is j>1)
+fij       : matrix of molar formation fractions between compounds {jxj} (when number of compounds is j>1)

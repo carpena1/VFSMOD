@@ -1,4 +1,4 @@
-File: output/sampleWT.osp                             VFSMOD v4.5.2 02/2023
+File: output/sampleWT.osp                             VFSMOD v4.6.1.1 10/2025
  
  Files for this simulation
    File #=  1 code:ikw=inputs/sample.ikw                                                          
@@ -27,19 +27,19 @@ File: output/sampleWT.osp                             VFSMOD v4.5.2 02/2023
       25.46 %   = Ratio of Filter Length to Source Flow Length
      25.147 mm  = Total Rainfall
       0.842 m3  = Total Rainfall on Filter
-      9.743 mm  = Total Runoff from Source (mm depth over Source Area)
+      9.744 mm  = Total Runoff from Source (mm depth over Source Area)
       1.325 m3  = Total Runoff from Source
-      4.839 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
-      0.820 m3  = Total Runoff out from Filter
-      1.347 m3  = Total Infiltration in Filter
-      0.619     = Runoff Delivery Ratio
+      6.494 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
+      1.101 m3  = Total Runoff out from Filter
+      1.067 m3  = Total Infiltration in Filter
+      0.831     = Runoff Delivery Ratio
   
-      45.053 kg = Mass Sediment Input to Filter
-      34.000 g/L= Concentration Sediment in Runoff from source Area
-       0.628 kg = Mass Sediment Output from Filter
-       0.765 g/L= Concentration Sediment in Runoff exiting the Filter
-      44.425 kg = Mass Sediment retained in Filter
-       0.014    = Sediment Delivery Ratio
+      45.062 kg = Mass Sediment Input to Filter
+      34.006 g/L= Concentration Sediment in Runoff from source Area
+       1.119 kg = Mass Sediment Output from Filter
+       1.017 g/L= Concentration Sediment in Runoff exiting the Filter
+      43.943 kg = Mass Sediment retained in Filter
+       0.025    = Sediment Delivery Ratio
   
        8.65 m   = Effective Filter Length
        0.00 m   = Wedge Distance

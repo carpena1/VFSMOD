@@ -45,7 +45,7 @@ c-----Write welcome message ---------------------------------------
           WRITE(*,*)'   @     @ @    @     @@ @@  @  @  @  @'
           WRITE(*,*)'    @   @  @@@   @@@  @ @ @  @  @  @   @'
           WRITE(*,*)'     @ @   @        @ @   @  @  @  @  @'
-          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 04/2025 v4.6.1'
+          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 10/2025 v4.6.1.1'
           WRITE(*,160)
           WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
           WRITE(*,*)'       U. of FL - USA               NCSU - USA'
@@ -227,12 +227,13 @@ c*** in summary file, put the list of files for this run
      &    /,'Usage 2: vfsm projectname 1 (quiet execution)',
      &    /,'Usage 3: vfsm projectname 2 (quiet execution and convergence control)')
 C----Select unix/DOS versions for help message
-Cunix140   FORMAT('Version: v4.6.1 for Unix - 04/2025')
+Cunix
+140   FORMAT('Version: v4.6.1.1 for Unix - 10/2025')
 CDOS
-140   FORMAT('Version: v4.6.1 for Win64 - 04/2025')
+c140   FORMAT('Version: v4.6.1.1 for Win64 - 10/2025')
 150   FORMAT('Authors: R.Munoz-Carpena & J.E.Parsons (UFL & NCSU)')
 160   FORMAT(72('-'))
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1 04/2025')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1.1 10/2025')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 
       RETURN

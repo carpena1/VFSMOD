@@ -1,0 +1,13 @@
+ikw=inputs/sampleP.ikw  
+iso=inputs/sample.iso  
+igr=inputs/sample.igr  
+isd=inputs/sample.isd  
+irn=inputs/sample_norain.irn  
+iro=inputs/sample.iro  
+iwq=inputs/sampleP.iwq  
+og1=output/samplePnorain.og1  
+og2=output/samplePnorain.og2  
+ohy=output/samplePnorain.ohy  
+osm=output/samplePnorain.osm  
+osp=output/samplePnorain.osp  
+owq=output/samplePnorain.owq  
