@@ -1,1 +1,1 @@
-
+This folder contains distributions for Windows (vfsmod_gui_setup.exe) and macOS (vfsmod-gui.pkg).It also includes documentation on how to use the interface. 
