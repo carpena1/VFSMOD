@@ -14,7 +14,7 @@ C  PDSED(%) = sediment reduction in filter (dE= TTE*100)                       C
 C  DELTAP (%)= pesticide reduction in filter (dP)                              C
 C  PDQ(%) = flow reduction in filter (dQ)                                      C
 C  DGPIN(JJ)(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)     C
-C  DGLD(JJ)(m)= ambda, dispersion length of chemical (m). This can be taken    C
+C  DGLD(JJ)(m)= lambda, dispersion length of chemical (m). This can be taken    C
 C           as 0.05m from FOCUS-Pearl (Default)                                C
 C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)     C
 C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)    C
@@ -153,11 +153,15 @@ c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
              ENDIF
             DGMf(JJ)=DGMI(JJ)*DELTAP/100.d0
             DGMfSED(JJ)=DGSI*SMIN*PDSED/100.d0
-c---------Check approximation error on sediment bonded pesticide nad issue warning if >1%
-            DGMfF1=DGMf(JJ)-DGMfSED(JJ)-DGMfF(JJ)
-            IF(DABS(DGMfF1/DGMf(JJ)).gt.0.01) THEN
-c              print*,'Warning: DGMfSED estimation error >1%)'
-              DGMfSED(JJ)=DGMfSED(JJ)+DGMfF1
+c---------Check approximation error (%) on sediment bonded pesticide and issue warning if >1%
+            DGMfFb=DGMfF(JJ) - DGMml(JJ)
+            errp=100.D0*(DGMI(JJ)-(DGMml(JJ)+DGMfSED(JJ)+DGMfFb)-DGMO(JJ))/DGMI(JJ)
+            errm=DGMI(JJ)-(DGMml(JJ)+DGMfSED(JJ)+DGMfFb)-DGMO(JJ)
+c            if(JJ.eq.1) write(*,'(7A12,2A8)')'DGMI','DGMml','DGMfFb','DGMfSED','DGMO','errm','errp' 
+c            write(*,'(5f12.4,2F8.2,A2)') DGMI(JJ),DGMml(JJ),DGMfFb,DGMfSED(JJ),DGMO(JJ),errm,errp,'%'         
+            IF(errp.gt.DABS(1.d0)) THEN
+c              print*,'Warning: DGMfSED estimation error >1%)',errp,' % for compound ',JJ
+              DGMfSED(JJ)=DGMfSED(JJ)+errm
             ENDIF
 c---------Pesticide residues on the VFS surface at the end of the runoff event
             DGMRES(JJ)=DGMfSED(JJ)+DGMml(JJ)+DGMRES0P(JJ)

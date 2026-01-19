@@ -81,7 +81,7 @@ C-------check distribution of incoming pesticide mass ------
 
 c------A) Average infiltration resident concentration. The concentration is the
 c------ runin dissolved mass over total surface water, wat_in = runoff+rain (L).
-c------ The average residuent concentration is mass conservative and used here.
+c------ The average resident concentration is mass conservative (USED HERE!).
       DGCIN2=DGPINd*SAREA/WAT_INL
 c------B) Average infiltration flux concentration. The concentration is the mass
 c------trapped in filter (mf) less the mass in sediment (mfsed) over the water

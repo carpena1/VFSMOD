@@ -555,6 +555,11 @@ c-----------------------
                   STOP
             ENDIF
             IF(IDG.EQ.0) NDGDAY=1
+c-rmc01/2026--To ensure convergence of CDE solution, ensure minimum of dispersivity to 0.005<DGLD< 0.4 (0.5 to 40 cm)
+            DO 126 JJ=1,IWQ
+              IF(DGLD(JJ).LT.0.005D0) DGLD(JJ)=0.005D0
+              IF(DGLD(JJ).GT.0.4D0) DGLD(JJ)=0.4D0
+126         CONTINUE
 c-rmc10/2021--Add surface redidues from last event to incoming mass---
             DO 127 JJ=1,IWQ
               DGPIN(JJ)=DGPIN(JJ)+DGMRES0(JJ)

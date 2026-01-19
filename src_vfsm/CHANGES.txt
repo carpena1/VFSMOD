@@ -1,5 +1,8 @@
 Changes in 4.6.1.1
 ----------------
+(01/2026)
+- Added test for acceptable limits of dispersivity provided by user, 0.005<DGLD(JJ)<0.40 m (0.5-40 cm). If value exceeds limits the closest bound is taken to ensure correct program execution. Note that DGLD(JJ)=0.05 m is recommended for pesticide calculations (PRZM default).
+
 (10/2025)
 - Fixed mass balance error for sediment that gave mistakenly 100%.
 - Fixed the case with no degradation (IDG=0) that would not run. Note that because chemical leaching in the soil and remobilization are now required in all simulations, the IWQ inputs introduced in v4.6.1 are not compatible owith previous versions. These processes need new inputs that the program must have before running. However, The minimum IWQ now needed for no degradation (IDG=0) disregard lines after IMOB. Further, some inputs (ngday=1, dghalf=100., FC=0.25, dgLD= 0.05, dgT(i)=25., dgTheta(i)=0.25) although need to be provided in IWQ for reading, are not used as they are only needed for degradation. The values given above should be used in place (these would be repated when several compounds are selected (IWQ>1 in the IKW file), i.e. {dgHalf,dgPIN,dgLD,dgmres0}_j. Note also that the output in OWQ is also modified for the no degradation case, where the parts pertaining to degradation are not shown.

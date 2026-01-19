@@ -66,7 +66,7 @@ c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
       DO 10 I=1,NPRINT+1
             READ(11,*,END=16)TIME1,OUTF1,CUMFLOW,RAIN_E1,UPIN1,CUMIF,
      &             VF1
-            TIMEINCR=TIME1-TIME0
+           TIMEINCR=TIME1-TIME0
             AREA0=TIMEINCR*(UPIN1+UPIN0)/2.D0
             SUM0=SUM0 + AREA0
             AREA1=TIMEINCR*(OUTF1+OUTF0)/2.D0
