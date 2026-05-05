@@ -632,7 +632,7 @@ c-rmc04/2026--To ensure convergence of CDE solution, ensure minimum of dispersiv
 126         CONTINUE
 c-rmc10/2021--Add surface redidues from last event to incoming mass---
             DO 127 JJ=1,IWQ
-              DGPIN(JJ)=DGPIN(JJ)+DGMRES0(JJ)
+c              DGPIN(JJ)=DGPIN(JJ)+DGMRES0(JJ)
               DGKREF(JJ)=DLOG(2.D0)/DGHALF(JJ)
 127         continue
             IF(NDGDAY.LT.0.OR.NDGDAY.GT.365) THEN
