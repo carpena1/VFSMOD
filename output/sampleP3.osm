@@ -1,7 +1,7 @@
-File: output/sampleP3.osm                             VFSMOD v4.6.1.1 10/2025
+File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
  INPUTS
  ------
- File: output/sampleP3.ohy                             VFSMOD v4.6.1.1 10/20
+ File: output/sampleP3.ohy                             VFSMOD v4.6.2 04/2026
                                                                             
   Storm parameters                                                          
   ----------------                                                          
@@ -83,16 +83,16 @@ File: output/sampleP3.osm                             VFSMOD v4.6.1.1 10/2025
        Surface changes feedback=          NO                                
                                                                             
                                                                             
- File: output/sampleP3.og1                             VFSMOD v4.6.1.1 10/20
+ File: output/sampleP3.og1                             VFSMOD v4.6.2 04/2026
                                                                             
   Sediment parameters                                                       
   -----------------------------------------                                 
-  Sediment inflow concentration(Ci)=    0.034000      g/cm3                 
-                    Particle class =    (user) fine                         
-       Particle size (diameter, dp)=    0.001300         cm                 
-        Particle fall velocity (Vf)=    0.015141       cm/s                 
-  Particle weight density (gamma-s)=    2.650000      g/cm3                 
-  % of particles with dp>0.0037 cm =   50.000000          %                 
+  Sediment inflow concentration(Ci)=    0.025800      g/cm3                 
+                    Particle class =    Clay                                
+       Particle size (diameter, dp)=    0.000200         cm                 
+        Particle fall velocity (Vf)=    0.000400       cm/s                 
+  Particle weight density (gamma-s)=    2.600000      g/cm3                 
+  % of particles with dp>0.0037 cm =  100.000000          %                 
   Porosity of deposited sediment(P)=   43.400000          %                 
                                                                             
   Filter parameters for sediment transport                                  
@@ -120,15 +120,15 @@ Time to end runoff  =     0.2395E+04 s
   
  Sediment
  --------
-Sediment inflow     =     0.1164E+03 g/cm    0.4506E+05 g
-Sediment outflow    =     0.2955E+01 g/cm    0.1143E+04 g
-Trapping efficiency =       97.5 %
+Sediment inflow     =     0.8836E+02 g/cm    0.3419E+05 g
+Sediment outflow    =     0.3558E+02 g/cm    0.1377E+05 g
+Trapping efficiency =       59.7 %
                      ----------------
 Sediment deposition :
-        - Sediment wedge depth,   Y(t) =    0.03 cm
-        - Sediment wedge length,  X2(t)=    0.10 cm
-        - Effective filter length,L(t) =  865.40 cm
-        - Sediment tail at field, X1(t)=    0.48 cm
-        - Sediment depth in low section=    0.09 cm
+        - Sediment wedge depth,   Y(t) =    0.00 cm
+        - Sediment wedge length,  X2(t)=    0.00 cm
+        - Effective filter length,L(t) =  865.50 cm
+        - Sediment tail at field, X1(t)=    0.00 cm
+        - Sediment depth in low section=    0.04 cm
         - Rough sediment balance error =    0.01 %
         - Rough water balance error    =    0.00 % (adjusted)

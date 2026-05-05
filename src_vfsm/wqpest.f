@@ -14,11 +14,14 @@ C  PDSED(%) = sediment reduction in filter (dE= TTE*100)                       C
 C  DELTAP (%)= pesticide reduction in filter (dP)                              C
 C  PDQ(%) = flow reduction in filter (dQ)                                      C
 C  DGPIN(JJ)(mg/m2) = incoming pesticide in filter (per m2 of SOURCE area)     C
-C  DGLD(JJ)(m)= lambda, dispersion length of chemical (m). This can be taken    C
+C  DGLD(JJ)(m)= ambda, dispersion length of chemical (m). This can be taken    C
 C           as 0.05m from FOCUS-Pearl (Default)                                C
 C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)     C
 C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)    C
 C  DGMRES(mg)= pesticide surface residues at the next storm (after degradation)C
+C  NOTE: For nonlinear Freundlich runs, mf (event trapping) and mfF (CDE soil  C
+C  profile mass) are computed by two coupled approximations. A warning is       C
+C  written to .owq only when the closure metric |mf-(mfF+mfsed)|/mi exceeds 5%.C
 C                                                                              C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
@@ -26,31 +29,33 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
-      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
+      COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
+     &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
       
       DIMENSION DGMRES0P(10),DGMI(10),DGMO(10),DGMOD(10),DGMOP(10),DGMf(10),
      &      DGMfSED(10),DGMRES(10),DGMRESFSED(10),DGMRESMML(10),FPH(10),
-     &      DGMRESP(10),DGMRESD(10), DGMRESI(10),DGMSurf(10)
+     &      DGMRESP(10),DGMRESD(10), DGMRESI(10),DGMSurf(10), DGMLeach(10)
       DIMENSION DGMRES0PAREA(10),DGMIAREA(10),DGMOAREA(10),DGMODAREA(10),
      &      DGMOPAREA(10),DGMfAREA(10), DGMfSEDAREA(10),DGMRESAREA(10),
      &      DGMRESFSEDAREA(10),DGMRESMMLAREA(10),DGMRESPAREA(10),
-     &      DGMRESDAREA(10), DGMRESIAREA(10),DGMSurfAREA(10),DGMmlAREA(10)
+     &      DGMRESDAREA(10), DGMRESIAREA(10),DGMSurfAREA(10),DGMmlAREA(10),DGMLeachAREA(10)
       CHARACTER*200 LINE
       CHARACTER*3 SNDGDAY 
       CHARACTER*1 SIMOB 
-      CHARACTER*58 DESCR1(13)
-      DATA(DESCR1(I),I=1,13)/'Pesticide input (mi)',
+      CHARACTER*58 DESCR1(14)
+      DATA(DESCR1(I),I=1,14)/'Pesticide input (mi)',
      & 'Pesticide output (mo)',
      & 'Pesticide outflow in solid phase (mop)',
      & 'Pesticide outflow in liquid phase (mod)',
      & 'Pesticide trapped in VFS (mf)',
      & 'Pesticide trapped with sediment (mfsed)',
      & 'Pesticide trapped in mixing layer (mfml)',
+     & 'Pesticide leached from mixing layer (mfleach)',
      & 'Pesticide sorbed in mixing layer from last event (mfml0)',
-     & 'Total surface residue (mres1=mfml+mfsed+mfml0)',
+     & 'Total surface residue (mres1=mfml+mfsed+mfml0-mfleach)',
      & 'Total surface residue after degradation (',
      & 'Dissolved surface residue after degradation (',
      & 'Sorbed surface residue after degradation (',
@@ -85,10 +90,27 @@ C-------IWQPRO=3 - Based on Muñoz-Carpena et al. (2015) mechanistic eq. --
 C-------IWQPRO=4 - Chen et al. (2017) empirical eq. ----------------------
       WRITE(18,3400)'Outputs for Water Quality'
       DO JJ=1,IWQ
+c---------Phase distribution factor Fph: uses effective Kd at event concentration
+c---------For Freundlich, Kd_eff=Kf*C^(N-1) evaluated at estimated C (v4.6.2)
+c---------FPH uses effective Kd; for Freundlich evaluate at inlet conc
+            IF(VKN(JJ).EQ.1.D0) THEN
+               VKDEFF=VKD(JJ)
+            ELSE
+c-----------Approximate dissolved conc from incoming mass/volume
+               IF(VINL.GT.0.D0.AND.SMIN.GT.0.D0) THEN
+                  CGUESSL=DGPIN(JJ)*SAREA/
+     &               (VINL+VKF(JJ)*SMIN*(DGPIN(JJ)*SAREA/
+     &               (VINL+SMIN))**(VKN(JJ)-1.D0))
+                  IF(CGUESSL.LE.0.D0) CGUESSL=1.D-10
+                  VKDEFF=VKF(JJ)*CGUESSL**(VKN(JJ)-1.D0)
+               ELSE
+                  VKDEFF=VKF(JJ)
+               ENDIF
+            ENDIF
             IF (SMIN.EQ.0.D0) THEN
-                FPH(JJ)=WAT_INL/(VKD(JJ)*0.001D0)
+                FPH(JJ)=WAT_INL/(VKDEFF*0.001D0)
               ELSE
-                FPH(JJ)=WAT_INL/(VKD(JJ)*SMIN)
+                FPH(JJ)=WAT_INL/(VKDEFF*SMIN)
             ENDIF
             SELECT CASE (IWQPRO)
               CASE (1)
@@ -99,10 +121,11 @@ c-------------Original Sabbagh eq.
 c-------------Sabbagh refit eq.
                 DELTAP=CSAB(1)+CSAB(2)*PDQ+CSAB(3)*PDSED+CSAB(4)*
      &          DLOG(FPH(JJ)+1.D0)+CSAB(5)*CCP
+c-------------Mechanistic DELTAP uses effective Kd (linear or Freundlich) (v4.6.2)
               CASE (3)
-c-------------Mechanistic mass balance eq. - (DEFAULT)
-                DELTAP=100.D0*MIN(VINL+VKD(JJ)*SMIN,PDSED/100*SMIN*VKD(JJ)+
-     &          PDQ/100*VINL)/(VINL+VKD(JJ)*SMIN)
+c-------------Mechanistic mass balance eq. - uses effective Kd
+                DELTAP=100.D0*MIN(VINL+VKDEFF*SMIN,PDSED/100*SMIN*VKDEFF+
+     &          PDQ/100*VINL)/(VINL+VKDEFF*SMIN)
               CASE DEFAULT
 c-------------Chen eq. (California)
                 DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
@@ -111,7 +134,6 @@ c-------------Chen eq. (California)
             IF (DELTAP.GT.100.D0.OR.PDQ.GE.100.d0.OR.VOUT.LE.0.d0) DELTAP=100.D0
             IF (PDQ.EQ.0.d0.AND.PDSED.EQ.0.d0) DELTAP=0.D0
             IF (DELTAP.LT.0.d0) DELTAP=0.D0
-            IF (Vin.EQ.0.d0) DELTAP=100.D0
 C-------Print VFS efficiencies in .iwq file --------------
             IF(IWQ.GT.1) WRITE(18,3500)'COMPOUND',JJ,':'
             WRITE(18,4005)VIN
@@ -137,58 +159,128 @@ C-------Print VFS efficiencies in .iwq file --------------
             WRITE(18,4500)DELTAP            
 C-------Calculate pesticide mass balance and degradation (IDG=1-4)-----
 C-------based on Muñoz-Carpena et al. (2015) --------------------------
+c---------Sorbed residue from previous event:
+c---------Linear: direct Kd partitioning; Freundlich: linearized at estimated
+c---------porewater conc at field capacity (v4.6.2)
 c---------Carry-over sorbed in mixing layer from previous event--------
             IF(IMOB.EQ.2) then
-              DGMRES0P(JJ)=0.d0
+              DGMRES0P(JJ)=0
              ELSE
+            IF(VKN(JJ).EQ.1.D0) THEN
               DGMRES0P(JJ)=DGMRES0(JJ)*VKD(JJ)*SAREA*DGROB/OI
+            ELSE
+c-----------Approximate: use linearized Kd at estimated porewater conc
+              Vw0=DGML*VFSAREA*FC*10.D0
+              DGMsoil0=DGML*VFSAREA*DGROB*10.D0
+              CEST=DGMRES0(JJ)*SAREA/(Vw0+DGMsoil0*VKF(JJ))
+              IF(CEST.LE.0.D0) CEST=1.D-10
+              VKDEFF0=VKF(JJ)*CEST**(VKN(JJ)-1.D0)
+              DGMRES0P(JJ)=DGMRES0(JJ)*VKDEFF0*SAREA*DGROB/OI
+            ENDIF
             ENDIF
 c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
             DGMI(JJ)=DGPIN(JJ)*SAREA
             DGMO(JJ)=DGMI(JJ)*(1.d0-DELTAP/100.d0)
-            IF(VIN.le.0.d0.and.SMIN.le.0.d0) THEN
-              DGSI=0.d0
-             ELSE
-              DGSI=DGMI(JJ)*VKD(JJ)/(VINL+SMIN*VKD(JJ))
-             ENDIF
             DGMf(JJ)=DGMI(JJ)*DELTAP/100.d0
-            DGMfSED(JJ)=DGSI*SMIN*PDSED/100.d0
-c---------Check approximation error (%) on sediment bonded pesticide and issue warning if >1%
-            DGMfFb=DGMfF(JJ) - DGMml(JJ)
-            errp=100.D0*(DGMI(JJ)-(DGMml(JJ)+DGMfSED(JJ)+DGMfFb)-DGMO(JJ))/DGMI(JJ)
-            errm=DGMI(JJ)-(DGMml(JJ)+DGMfSED(JJ)+DGMfFb)-DGMO(JJ)
-c            if(JJ.eq.1) write(*,'(7A12,2A8)')'DGMI','DGMml','DGMfFb','DGMfSED','DGMO','errm','errp' 
-c            write(*,'(5f12.4,2F8.2,A2)') DGMI(JJ),DGMml(JJ),DGMfFb,DGMfSED(JJ),DGMO(JJ),errm,errp,'%'         
-            IF(errp.gt.DABS(1.d0)) THEN
-c              print*,'Warning: DGMfSED estimation error >1%)',errp,' % for compound ',JJ
-              DGMfSED(JJ)=DGMfSED(JJ)+errm
+            SMTRAP=SMIN*PDSED/100.d0
+c---------Estimate trapped sediment-sorbed mass from equilibrium on trapped sediment.
+c---------This is kept as a direct partitioning estimate; a warning on the final
+c---------closure |mf-(mfF+mfsed)|/mi is issued later only when it exceeds 5%.
+            IF(SMTRAP.LE.0.D0.OR.VINL.LE.0.D0) THEN
+              DGMfSED(JJ)=0.D0
+            ELSEIF(VKN(JJ).EQ.1.D0) THEN
+              CTRAP=DGMI(JJ)*VINL/(VINL+SMIN*VKD(JJ))/WAT_INL
+              IF(CTRAP.LE.0.D0) THEN
+                DGMfSED(JJ)=0.D0
+              ELSE
+                DGMfSED(JJ)=VKD(JJ)*CTRAP*SMTRAP
+              ENDIF
+            ELSE
+              IF(VINL.GT.0.D0.AND.SMIN.GT.0.D0) THEN
+                CDISS=DGMI(JJ)/(VINL+VKF(JJ)*SMIN)
+                IF(CDISS.LE.0.D0) CDISS=1.D-10
+                VKDEFFTR=VKF(JJ)*CDISS**(VKN(JJ)-1.D0)
+                MDI=DGMI(JJ)*VINL/(VINL+SMIN*VKDEFFTR)
+              ELSE
+                MDI=0.D0
+              ENDIF
+              CTRAP=MDI/WAT_INL
+              IF(CTRAP.LE.0.D0) THEN
+                DGMfSED(JJ)=0.D0
+              ELSE
+                DGMfSED(JJ)=VKF(JJ)*CTRAP**VKN(JJ)*SMTRAP
+              ENDIF
             ENDIF
+            IF(DGMfSED(JJ).LT.0.D0) DGMfSED(JJ)=0.D0
 c---------Pesticide residues on the VFS surface at the end of the runoff event
-            DGMRES(JJ)=DGMfSED(JJ)+DGMml(JJ)+DGMRES0P(JJ)
+			DGMLeach(JJ)=DGMmld(JJ)*(1-FC/OS) 
+            DGMRES(JJ)=DGMfSED(JJ)+DGMml(JJ)+DGMRES0P(JJ)-DGMLeach(JJ)
             DGMRESFSED(JJ)=DGMfSED(JJ)
             DGMRESMML(JJ)=DGMml(JJ)
       END DO
 c-----Pesticide degradation in days between runoff events for single compound 
-c-----and multiple species reactions (parent-metabolites)
-      IF(IDG.GT.0) CALL multspcalc(DGMRES)
+c-----and multiple species reactions (parent-metabolites)     
+      CALL multspcalc(DGMRES)   
 
 c---- Final mass balance and remobilization
       Vw=dgML*VFSAREA*DGTHETAN*10.d0
       DGMsoil=dgML*VFSAREA*DGROB*10.d0
       DO JJ=1,IWQ
+c---------Outflow solid/liquid partitioning: effective Kd at outflow conc
+c---------For Freundlich: Kd_eff=Kf*C_out^(N-1) (v4.6.2)
 c-------Solid/liquid phase partitioning between outgoing sediment (SMOUT)
 c-------and water (VOUT)assuming linear equilibrium based on Kd (VKD(JJ)).
         IF(VOUT.GT.0.D0) THEN
-            DGMOP(JJ)=(DGMO(JJ)*SMOUT*VKD(JJ))/(VOUT*1000.D0+SMOUT*VKD(JJ))
+c---------Outflow partitioning: Freundlich uses effective Kd at outflow conc
+            IF(VKN(JJ).EQ.1.D0) THEN
+               VKDOUT=VKD(JJ)
+            ELSE
+               IF(VOUT.GT.0.D0) THEN
+                  COUTG=DGMO(JJ)/(VOUT*1000.D0+SMOUT*VKF(JJ))
+                  IF(COUTG.LE.0.D0) COUTG=1.D-10
+                  VKDOUT=VKF(JJ)*COUTG**(VKN(JJ)-1.D0)
+               ELSE
+                  VKDOUT=VKF(JJ)
+               ENDIF
+            ENDIF
+            DGMOP(JJ)=(DGMO(JJ)*SMOUT*VKDOUT)/
+     &           (VOUT*1000.D0+SMOUT*VKDOUT)
             DGMOD(JJ)=DGMO(JJ)-DGMOP(JJ)
          ELSE
             DGMOP(JJ)=0.D0
             DGMOD(JJ)=0.D0
         ENDIF
+c---------Residue porewater/sorbed split for remobilization:
+c---------Linear: analytical; Freundlich: Newton-Raphson solve of
+c---------Cd*Vw + Kf*Cd^N*DGMsoil = DGMRES (v4.6.2)
 c-----Calculate surface residue mass in the porewater based sorption
 c-----equilibrium for the soil water content at the next event
-        DGMRESD(JJ)=DGMRES(JJ)*Vw/(Vw+DGMsoil*VKD(JJ))
-        DGMRESP(JJ)=DGMRESD(JJ)*VKD(JJ)*DGMsoil/Vw
+c-------Residue porewater/sorbed split: linear or Freundlich NR
+        IF(VKN(JJ).EQ.1.D0) THEN
+           DGMRESD(JJ)=DGMRES(JJ)*Vw/(Vw+DGMsoil*VKD(JJ))
+           DGMRESP(JJ)=DGMRESD(JJ)*VKD(JJ)*DGMsoil/Vw
+        ELSE
+c---------NR: solve Cd*Vw + Kf*Cd^N*DGMsoil = DGMRES(JJ)
+c---------f(Cd) = Cd*Vw + Kf*Cd^N*DGMsoil - DGMRES = 0
+c---------f'(Cd)= Vw + N*Kf*Cd^(N-1)*DGMsoil
+           CDGUESS=DGMRES(JJ)/(Vw+DGMsoil*VKF(JJ))
+           IF(CDGUESS.LE.0.D0) CDGUESS=1.D-12
+           DO 195 INRNR=1,200
+              CDOLD=CDGUESS
+              FVAL=CDGUESS*Vw+VKF(JJ)*CDGUESS**VKN(JJ)*DGMsoil
+     &             -DGMRES(JJ)
+              DFVAL=Vw+VKN(JJ)*VKF(JJ)*
+     &             CDGUESS**(VKN(JJ)-1.D0)*DGMsoil
+              IF(DABS(DFVAL).LT.1.D-30) GOTO 196
+              CDGUESS=CDOLD-FVAL/DFVAL
+              IF(CDGUESS.LE.0.D0) CDGUESS=CDOLD*0.5D0
+              IF(DABS(CDGUESS-CDOLD)/DMAX1(CDOLD,1.D-12).LT.1.D-8)
+     &           GOTO 196
+195        CONTINUE
+196        DGMRESD(JJ)=CDGUESS*Vw
+           DGMRESP(JJ)=DGMRES(JJ)-DGMRESD(JJ)
+           IF(DGMRESP(JJ).LT.0.D0) DGMRESP(JJ)=0.D0
+        ENDIF
 
 c-----Remobilization (IMOB) options. Calculate
         SELECT CASE (IMOB)
@@ -226,6 +318,8 @@ c------normalize values by area
             DGMfSEDAREA(JJ)=DGMfSED(JJ)/SAREA
             IF(DGMml(JJ).LT.ZEROPRT)DGMml(JJ)=0.d0
             DGMmlAREA(JJ)=DGMml(JJ)/SAREA
+			IF(DGMLeach(JJ).LT.ZEROPRT)DGMLeach(JJ)=0.d0
+            DGMLeachAREA(JJ)=DGMLeach(JJ)/SAREA
             IF(DGMRES0P(JJ).LT.ZEROPRT)DGMRES0P(JJ)=0.d0
             DGMRES0PAREA(JJ)=DGMRES0P(JJ)/SAREA
             DGMSurf(JJ)=DGMml(JJ)+DGMfSED(JJ)+DGMRES0P(JJ)
@@ -248,12 +342,13 @@ c-------Print mass balance for all compounds in .owq file
       CALL COMP_STRING(0,DGMf,DESCR1(5))
       CALL COMP_STRING(0,DGMfSED,DESCR1(6))
       CALL COMP_STRING(0,DGMml,DESCR1(7))
-      CALL COMP_STRING(0,DGMRES0P,DESCR1(8))
-      CALL COMP_STRING(0,DGMSurf,DESCR1(9))
-      CALL COMP_STRING(1,DGMRES,DESCR1(10))
-      CALL COMP_STRING(1,DGMRESD,DESCR1(11))
-      CALL COMP_STRING(1,DGMRESP,DESCR1(12))
-      CALL COMP_STRING(2,DGMRESI,DESCR1(13))
+	  CALL COMP_STRING(0,DGMLeach,DESCR1(8))
+      CALL COMP_STRING(0,DGMRES0P,DESCR1(9))
+      CALL COMP_STRING(0,DGMSurf,DESCR1(10))
+      CALL COMP_STRING(1,DGMRES,DESCR1(11))
+      CALL COMP_STRING(1,DGMRESD,DESCR1(12))
+      CALL COMP_STRING(1,DGMRESP,DESCR1(13))
+      CALL COMP_STRING(2,DGMRESI,DESCR1(14))
       WRITE(18,*)
       WRITE(18,*)'Normalized values by source area:'
       WRITE(18,*)
@@ -265,17 +360,35 @@ c-------Print mass balance for all compounds in .owq file
       CALL COMP_STRING(3,DGMfAREA,DESCR1(5))
       CALL COMP_STRING(3,DGMfSEDAREA,DESCR1(6))
       CALL COMP_STRING(3,DGMmlAREA,DESCR1(7))
-      CALL COMP_STRING(3,DGMRES0PAREA,DESCR1(8))
-      CALL COMP_STRING(3,DGMSurfAREA,DESCR1(9))
-      CALL COMP_STRING(4,DGMRESAREA,DESCR1(10))
-      CALL COMP_STRING(4,DGMRESDAREA,DESCR1(11))
-      CALL COMP_STRING(4,DGMRESPAREA,DESCR1(12))
-      CALL COMP_STRING(5,DGMRESIAREA,DESCR1(13))
+	  CALL COMP_STRING(3,DGMLeachAREA,DESCR1(8))
+      CALL COMP_STRING(3,DGMRES0PAREA,DESCR1(9))
+      CALL COMP_STRING(3,DGMSurfAREA,DESCR1(10))
+      CALL COMP_STRING(4,DGMRESAREA,DESCR1(11))
+      CALL COMP_STRING(4,DGMRESDAREA,DESCR1(12))
+      CALL COMP_STRING(4,DGMRESPAREA,DESCR1(13))
+      CALL COMP_STRING(5,DGMRESIAREA,DESCR1(14))
       WRITE(18,*)
+c------Warn only when trapped-mass closure error is materially large (>5% of mi)
+      NWARN=0
+      DO JJ=1,IWQ
+            IF(DGMIAREA(JJ).GT.ZEROPRT) THEN
+              DGMFFAREA=DGMfF(JJ)/SAREA
+              DGMFERR=DGMfAREA(JJ)-(DGMFFAREA+DGMfSEDAREA(JJ))
+              DGMFERRPCT=DABS(DGMFERR)/DGMIAREA(JJ)*100.D0
+              IF(DGMFERRPCT.GT.5.D0) THEN
+                IF(NWARN.EQ.0) THEN
+                  WRITE(18,5170)
+                ENDIF
+                NWARN=NWARN+1
+                WRITE(18,5180)JJ,DGMFERR,DGMFERRPCT
+              ENDIF
+            ENDIF
+      END DO
+      IF(NWARN.GT.0) WRITE(18,5190)
 
-3400  FORMAT(/,43('-'),/,A26,/,43('-'))
+3400  FORMAT(/,43('-'),/,A27,/,43('-'))
 3500  FORMAT(/,A8,I3,A1)
-3525  FORMAT(100('-'),/,1x,'Pesticide mass balance, degradation & remobilization',/,100('-'))
+3525  FORMAT(100('-'),/,4x,'Pesticide mass balance, degradation & remobilization',/,100('-'))
 3535   FORMAT(10(3x,A10,I2))
 4005  FORMAT(E10.3,' m3 = Runoff inflow')
 4105  FORMAT(E10.3,' Kg = Sediment inflow')
@@ -287,6 +400,11 @@ c-------Print mass balance for all compounds in .owq file
 4455  FORMAT(E10.3,' %  = Runoff inflow reduction')
 4500  FORMAT(F10.3,' %  = Pesticide reduction (dP)')
 5150  FORMAT(F15.2,' m^2  = Source Area (input)')
+ 5170  FORMAT(/,100('-'),/,4x,'WARNING: trapped-mass closure exceeds 5% of mi',/,100('-'))
+ 5180  FORMAT(4x,'Compound',I3,': residual mf-(mfF+mfsed)=',E12.4,' mg/m2; ',
+     &       'relative error=',F8.3,' %')
+ 5190  FORMAT(4x,'This warning reflects the approximate coupling between event trapping',
+     &       ' and CDE leaching in the current implementation.',/)
 
       RETURN
       END

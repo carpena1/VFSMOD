@@ -33,7 +33,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
-      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
+      COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
+     &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
       COMMON/CINT/XI(20,20),W(20,20)
@@ -61,20 +62,76 @@ c------Average chemical concentration (DGCIN2) of infiltrating water. The incomi
 c------mass is DGPIN plus remobilized residues from prev. event, DGPIN=DGPIN+DGM,FRES
 c------(see inputs.f). The mass is partitioned in dissolved (mdi)+sorbed mass (mpi)
       Ei=SMIN
+c---------Phase partitioning of incoming pesticide mass:
+c---------Linear (IKD=0,1): s=Kd*C; Freundlich (IKD=2): s=Kf*C^N
+c---------For Freundlich use effective linearized Kd at inlet conc (v4.6.2)
       IF(VinL.GT.0.d0) THEN
-           DGPINd=DGPIN(JJ)*VinL/(VinL+Ei*VKD(JJ))
-           DGPINp=DGPIN(JJ)*Ei*VKD(JJ)/(VinL+Ei*VKD(JJ))
-           DGCIN=DGPINd/VinL
-        ELSE
-            DGPINd=0.d0
-            DGPINp=0.d0
-            DGPIN=0.d0
+c--------Effective linear Kd at inlet concentration for phase partitioning
+c--------For Freundlich: Kd_eff = Kf*C^(N-1); for linear: Kd_eff = Kd
+            IF(VKN(JJ).EQ.1.D0) THEN
+               VKDEFF=VKD(JJ)
+               DGPINd=DGPIN(JJ)*VinL/(VinL+Ei*VKDEFF)
+               DGPINp=DGPIN(JJ)-DGPINd
+               DGCIN=DGPINd/VinL
+            ELSE
+               IF(DGPIN(JJ).LE.0.D0) THEN
+                  DGCIN=0.D0
+               ELSEIF(Ei.LE.0.D0) THEN
+                  DGCIN=DGPIN(JJ)/VinL
+               ELSE
+c-----------Solve exact Freundlich inlet partitioning: mi = C*Vi + Kf*C^N*Ei
+                  CLO=0.D0
+                  CHI=DMAX1(DGPIN(JJ)/VinL,1.D-10)
+                  DO 71 IBR=1,60
+                    FHI=CHI*VinL+VKF(JJ)*CHI**VKN(JJ)*Ei-DGPIN(JJ)
+                    IF(FHI.GE.0.D0) GOTO 72
+                    CHI=CHI*2.D0
+ 71               CONTINUE
+ 72               CONTINUE
+                  DO 73 IBR=1,80
+                    CMID=0.5D0*(CLO+CHI)
+                    FMID=CMID*VinL+VKF(JJ)*CMID**VKN(JJ)*Ei-DGPIN(JJ)
+                    IF(FMID.GT.0.D0) THEN
+                      CHI=CMID
+                    ELSE
+                      CLO=CMID
+                    ENDIF
+                    IF((CHI-CLO)/DMAX1(CHI,1.D-10).LT.1.D-10) GOTO 74
+ 73               CONTINUE
+ 74               CONTINUE
+                  DGCIN=0.5D0*(CLO+CHI)
+               ENDIF
+               IF(DGCIN.LE.0.D0) THEN
+                  VKDEFF=0.D0
+                  DGPINd=0.D0
+                  DGPINp=0.D0
+               ELSE
+                  VKDEFF=VKF(JJ)*DGCIN**(VKN(JJ)-1.D0)
+                  DGPINd=DGCIN*VinL
+                  DGPINp=DGPIN(JJ)-DGPINd
+               ENDIF
+            ENDIF
+         ELSE
+             DGPINd=0.d0
+             DGPINp=0.d0
+             DGPIN=0.d0
+            VKDEFF=VKD(JJ)
       ENDIF
-      DGSIN=VKD(JJ)*DGCIN
+c-----Sorbed concentration on incoming sediment: s = Kf*C^N (or Kd*C)
+      IF(VKN(JJ).EQ.1.D0) THEN
+         DGSIN=VKD(JJ)*DGCIN
+      ELSE
+         IF(DGCIN.GT.0.D0) THEN
+            DGSIN=VKF(JJ)*DGCIN**VKN(JJ)
+         ELSE
+            DGSIN=0.D0
+         ENDIF
+      ENDIF
 
 C-------check distribution of incoming pesticide mass ------
       DGPIN_check=DGCIN*VinL+DGSIN*Ei
-      IF(DGPIN_check-DGPIN(JJ).GT.0.000000000001d0) THEN
+      IF(DGPIN(JJ).GT.0.d0 .AND.
+     &   (DGPIN_check-DGPIN(JJ))/DGPIN(JJ).GT.0.0001d0) THEN
         print*,'WARNING: incoming mass distribution wrong:'
         print*,'         DGPIN_check,DGPIN=',DGPIN_check,DGPIN(JJ)
       ENDIF
@@ -127,9 +184,34 @@ C-------Prepare inputs for CDE transport solution ------
       C1=DGCIN2
       C2=0.d0
       DGROB=(1.d0-OS)*2.65d0
-      RF=1.d0+VKD(JJ)*DGROB/OS
       TT=F/OS
       TT0=F0/OS
+c---------Retardation factor R for CDE leaching solution (Eq. 3):
+c---------Linear:     R = 1 + Kd*rho_b/theta_s (constant)
+c---------Freundlich: R = 1 + N*Kf*C^(N-1)*rho_b/theta_s (concentration-
+c---------            dependent, linearized at C1 via fixed-point iteration)
+c---------            Munoz-Carpena et al. SETAC 2026 (v4.6.2)
+c-----Retardation factor R: linear or Freundlich fixed-point iteration
+c-----RF is in COMMON/WQ3 so CONC/AUX picks up each update automatically
+      IF(VKN(JJ).EQ.1.D0) THEN
+         RF=1.d0+VKD(JJ)*DGROB/OS
+      ELSE
+c--------Freundlich: R^(k+1) = 1 + N*Kf*[C1(R^k)]^(N-1)*rho_b/theta_s
+         IF(C1.LE.0.D0) THEN
+            RF=1.D0
+         ELSE
+            C1SURF=DMAX1(C1,1.D-10)
+            RF=1.d0+VKN(JJ)*VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
+            DO 135 INRNR=1,50
+               RFOLD=RF
+               C1SURF=CONC(JJ,C1,C2,TT,TT0,0.D0)
+               IF(C1SURF.LE.0.D0) C1SURF=1.D-10
+               RF=1.D0+VKN(JJ)*VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
+               IF(DABS(RF-RFOLD)/DMAX1(RFOLD,1.D-10).LT.1.D-6) GOTO 136
+135         CONTINUE
+136         CONTINUE
+         ENDIF
+      ENDIF
       Zf=Z1
       ZD=0.D0
       DGHALFJJ=DLOG(2.D0)/DGKREF(JJ)
@@ -151,30 +233,59 @@ C-------Output CDE transport inputs-------------------------------
       WRITE(18,800)'Incoming dissolved mass (mdi)=',DGPINd*SAREA,'mg'
       WRITE(18,800)'Incoming sed-sorbed mass (mpi)=',DGPINp*SAREA,'mg'
       WRITE(18,800)'Pulse concentration (C1)=',C1,'mg/L'
-      WRITE(18,800)'Partition coefficient (Kd)=',VKD(JJ),'L/Kg'
+      IF(VKN(JJ).EQ.1.D0) THEN
+c--------Linear isotherm echo (v4.6.2)
+         WRITE(18,800)'Linear sorption coeff. (Kd)=',VKD(JJ),'L/Kg'
+      ELSE
+c--------Non-linear Freundlich: print Kf and N on one line (v4.6.2)
+         WRITE(18,811)'Non-linear Freundlich (Kf,Nf)=',VKF(JJ),
+     &        '  L^N/Kg,',VKN(JJ),'  (-)'
+      ENDIF
       WRITE(18,800)'Dispersion length (l)=',DGLD(JJ),'m'
       WRITE(18,800)'Pesticide half-life (Ln2/Kref)=',DGHALFJJ,'days'
       WRITE(18,800)'Retardation factor (R)=',RF,'(-)'
       WRITE(18,800)'Transformed time (T)=',TT,'(-)'
       WRITE(18,*)
-      WRITE(18,*)'     Z(m)      C(mg/L)      S(mg/mg)'
+      IF(VKN(JJ).EQ.1.D0) THEN
+        WRITE(18,*)'     Z(m)   C_dis(mg/L)   S_lin(mg/mg)'
+      ELSE
+        WRITE(18,*)'     Z(m)   C_dis(mg/L)  S_Fre(mg/mg)'
+      ENDIF
       WRITE(18,*)'-------------------------------------'
 
+c---------Sorbed concentration output: s=Kd*C (linear) or s=Kf*C^N (Freundlich)
 c-------Huang and Van Genuchten (1995) CDE analytical solution
       do while (ZD.le.Zf)
         C=CONC(JJ,C1,C2,TT,TT0,ZD)
-        WRITE(18,500)ZD,C,VKD(JJ)*C
-c        WRITE(18,550)ZD,C,VKD(JJ)*C
+        IF(VKN(JJ).EQ.1.D0) THEN
+           WRITE(18,500)ZD,C,VKD(JJ)*C
+        ELSE
+           IF(C.GT.0.D0) THEN
+              WRITE(18,500)ZD,C,VKF(JJ)*C**VKN(JJ)
+           ELSE
+              WRITE(18,500)ZD,C,0.D0
+           ENDIF
+        ENDIF
         ZD=ZD+0.01D0
       end do
       C=0.d0
-      WRITE(18,500)ZD,C,VKD(JJ)*C
-c      WRITE(18,550)ZD,C,VKD(JJ)*C
+      WRITE(18,500)ZD,C,0.D0
 
+c---------Adsorbed mass in soil profile: integrate Kf*C^N*rho_b (Freundlich)
+c---------or Kd*C*rho_b (linear) over depth (v4.6.2)
 c-----Integrate mass in the soil profile for the event
       call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
       DGMfFd(JJ)=CONCINTG*OS*1000.d0*VFSAREA
-      DGMfFp(JJ)=CONCINTG*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      IF(VKN(JJ).EQ.1.D0) THEN
+         DGMfFp(JJ)=CONCINTG*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      ELSE
+         call qgausssorb(JJ,C1,C2,TT,TT0,0.d0,Zf,20,SORBINTG)
+         IF(SORBINTG.GT.0.D0) THEN
+            DGMfFp(JJ)=SORBINTG*VKF(JJ)*DGROB*1000.d0*VFSAREA
+         ELSE
+            DGMfFp(JJ)=0.D0
+         ENDIF
+      ENDIF
       DGMfF(JJ)=DGMfFd(JJ)+DGMfFp(JJ)
       IF(DGMfF(JJ).EQ.0.d0) THEN
           DGMfFdPCT= 0.d0
@@ -197,7 +308,17 @@ c-----Integrate mass in mixing layer for the event
       call qgausscde(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
       IF(CONCINTG1.GT.CONCINTG) CONCINTG1=CONCINTG
       DGMmld(JJ)=CONCINTG1*OS*1000.d0*VFSAREA
-      DGMmlp(JJ)=CONCINTG1*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      IF(VKN(JJ).EQ.1.D0) THEN
+         DGMmlp(JJ)=CONCINTG1*VKD(JJ)*DGROB*1000.d0*VFSAREA
+      ELSE
+         call qgausssorb(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,SORBINTG1)
+         IF(SORBINTG1.GT.SORBINTG) SORBINTG1=SORBINTG
+         IF(SORBINTG1.GT.0.D0) THEN
+            DGMmlp(JJ)=SORBINTG1*VKF(JJ)*DGROB*1000.d0*VFSAREA
+         ELSE
+            DGMmlp(JJ)=0.D0
+         ENDIF
+      ENDIF
       DGMml(JJ)= DGMmld(JJ)+DGMmlp(JJ)
       IF(DGMfF(JJ).EQ.0.d0) THEN
           DGMmldPCT= 0.d0
@@ -224,6 +345,7 @@ c-----Integrate mass in mixing layer for the event
 550   FORMAT(6E12.4)
 600   FORMAT(A40,2F12.4)
 800   FORMAT(A31,F12.4,A11)
+811   FORMAT(A31,F12.4,A9,F8.6,A6)
 c800   FORMAT(A31,F12.6,A20)
 
 
@@ -237,6 +359,11 @@ C  Auxiliary function of van Genuchten and Alves (1980) A(x,t)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 
+c---------Heaviside unit function U(T-T0) of Eq. 20 (Huang & van Genuchten,
+c---------1995): applies superposition for 2-pulse input. For single pulse
+c---------with C2=0 and T>T0 this gives C=C1*(A(z,T)-A(z,T-T0)).
+c---------Assumes zero initial pesticide concentration in the profile C(z,0)=0
+c---------so G_i and E_i terms of Eq. 22b,c vanish (v4.6.2)
       if(TT.le.TT0) THEN
           CONC=C2+(C1-C2)*AUX(JJ,ZD,TT)
         ELSE
@@ -261,6 +388,24 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       A2= -0.5d0*(1.d0+ZD/DGLD(JJ)+TTF/(DGLD(JJ)*RF))*dexp(ZD/DGLD(JJ))*erfcc(D2)
       A3= dsqrt(TTF/(PI*DGLD(JJ)*RF))*dexp(-D1**2)
       AUX= A1 + A2 + A3
+
+      return
+      END
+
+      FUNCTION SCONC(JJ,C1,C2,TT,TT0,ZD)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C  Auxiliary sorbed concentration integrand for Freundlich mass integration    C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
+     &           DGMOL(10),DGFRAC(10,10)
+
+      CVAL=CONC(JJ,C1,C2,TT,TT0,ZD)
+      IF(CVAL.GT.0.D0) THEN
+         SCONC=CVAL**VKN(JJ)
+      ELSE
+         SCONC=0.D0
+      ENDIF
 
       return
       END
@@ -313,6 +458,26 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         dx=xr*xi(j,ngl)
         sst=sst+w(j,ngl)*CONC(JJ,C1,C2,TT,TT0,xm+dx)
 11     continue
+      sst=xr*sst
+
+      return
+      end
+
+      subroutine qgausssorb(JJ,C1,C2,TT,TT0,a,b,ngl,sst)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C  Numerical integration of the Freundlich sorbed integrand C^N over depth     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit double precision (a-h,o-z)
+      COMMON/CINT/XI(20,20),W(20,20)
+      external SCONC
+
+      xm=0.5d0*(b+a)
+      xr=0.5d0*(b-a)
+      sst=0.d0
+      do 12 j=1,ngl
+        dx=xr*xi(j,ngl)
+        sst=sst+w(j,ngl)*SCONC(JJ,C1,C2,TT,TT0,xm+dx)
+ 12   continue
       sst=xr*sst
 
       return

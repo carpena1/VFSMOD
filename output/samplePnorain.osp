@@ -1,4 +1,4 @@
-File: output/samplePnorain.osp                        VFSMOD v4.6.1.1 10/2025
+File: output/samplePnorain.osp                        VFSMOD v4.6.2 04/2026
  
  Files for this simulation
    File #=  1 code:ikw=inputs/sampleP.ikw                                                         
@@ -34,12 +34,12 @@ File: output/samplePnorain.osp                        VFSMOD v4.6.1.1 10/2025
       0.854 m3  = Total Infiltration in Filter
       0.356     = Runoff Delivery Ratio
   
-      45.083 kg = Mass Sediment Input to Filter
-      34.004 g/L= Concentration Sediment in Runoff from source Area
-       0.876 kg = Mass Sediment Output from Filter
-       1.858 g/L= Concentration Sediment in Runoff exiting the Filter
-      44.207 kg = Mass Sediment retained in Filter
-       0.019    = Sediment Delivery Ratio
+      34.210 kg = Mass Sediment Input to Filter
+      25.803 g/L= Concentration Sediment in Runoff from source Area
+      11.392 kg = Mass Sediment Output from Filter
+      24.167 g/L= Concentration Sediment in Runoff exiting the Filter
+      22.818 kg = Mass Sediment retained in Filter
+       0.333    = Sediment Delivery Ratio
   
        8.65 m   = Effective Filter Length
        0.00 m   = Wedge Distance

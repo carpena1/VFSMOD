@@ -29,7 +29,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/PAR/QK(1001),R,THETAW,DX,DT,NDT,NELEM,MAXITER,NPOL,IOUT,NL
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
-      COMMON/WQ1/VKD(10),CCP,CSAB(5),DGMRES0(10),DGMOL(10),DGFRAC(10,10)
+      COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
+     &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF    
       
@@ -406,6 +407,10 @@ C----------IWQPRO=2 - Refitted Sabbagh et al. eq. w/user supplies coeff.
 C----------IWQPRO=3 - Based on Muñoz-Carpena et al. (2015) mechanistic eq.
 C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
          ICAT=0
+         DO 51 JJ=1,10
+           VKF(JJ)=0.D0
+           VKN(JJ)=1.D0
+51       CONTINUE
          CSAB(1)= 24.79D0
          CSAB(2)= 0.54D0
          CSAB(3)= 0.52D0
@@ -421,50 +426,107 @@ C----------IWQPRO=4 - Chen et al. (2017) empirical eq.
 50       IF(IWQPRO.GT.0.AND.IWQPRO.LE.4) THEN
            READ(17,*)IKD
            BACKSPACE(17)
-           IF(IKD.EQ.1.and.IWQ.eq.1) THEN
+c---------IKD=0,1: linear isotherm (Kd direct or via Koc*OCP)
+c---------IKD=2:   non-linear Freundlich isotherm s=Kf*C^N (v4.6.2)
+           IF(IKD.EQ.2.and.IWQ.eq.1) THEN
+c-----------Freundlich isotherm: read Kf and N for single compound
+              READ(17,*,iostat=ierr)IKD,VKF(1),VKN(1)
+              if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' both Kf and N must be provided.'
+                  write(*,199)
+                  stop
+               endif
+               IF(VKF(1).LE.0.D0) THEN
+                   write(*,199)
+                   print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' Kf must be > 0.'
+                   write(*,199)
+                   stop
+               ENDIF
+               IF(VKN(1).LE.0.D0.OR.VKN(1).GT.1.D0) THEN
+                   write(*,199)
+                   print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' Freundlich N must satisfy 0 < N <= 1.'
+                   write(*,199)
+                   stop
+               ENDIF
+           ELSEIF(IKD.EQ.2.and.IWQ.GT.1) THEN
+c-----------Freundlich isotherm: read Kf and N for multiple compounds
+              READ(17,*,iostat=ierr)IKD,VKF(1),VKN(1),
+     &             (VKF(JJ),VKN(JJ),JJ=2,IWQ)
+              if (ierr.ne.0) then
+                  write(*,199)
+                  print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' Kf and N required for all compounds.'
+                  write(*,199)
+                  stop
+               endif
+               DO 52 JJ=1,IWQ
+                 IF(VKF(JJ).LE.0.D0) THEN
+                   write(*,199)
+                   print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' Kf must be > 0 for all compounds.'
+                   write(*,199)
+                   stop
+                 ENDIF
+                 IF(VKN(JJ).LE.0.D0.OR.VKN(JJ).GT.1.D0) THEN
+                   write(*,199)
+                   print*,'ERROR: line 2 of .iwq file. With IKD=2,',
+     &               ' Freundlich N must satisfy 0 < N <= 1.'
+                   write(*,199)
+                   stop
+                 ENDIF
+ 52            CONTINUE
+           ELSEIF(IKD.EQ.1.and.IWQ.eq.1) THEN
+c-----------Linear isotherm via Koc x OCP: single compound
               READ(17,*,iostat=ierr)IKD,VKOC(1),OCP
               if (ierr.ne.0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. With IKD=1, both Koc',
-     &               '    and %OC must be provided. Please fix and rerun.'
+                  print*,'ERROR: line 2 of .iwq file. With IKD=1,',
+     &               ' both Koc and %OC must be provided.'
                   write(*,199)
-                 stop
-               endif
-            elseif(IKD.EQ.0.and.IWQ.eq.1) then
-               READ(17,*,iostat=ierr)IKD,VKD(1)
+                  stop
+              endif
+           elseif(IKD.EQ.0.and.IWQ.eq.1) then
+c-----------Linear isotherm via direct Kd: single compound
+              READ(17,*,iostat=ierr)IKD,VKD(1)
               if (ierr.ne.0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. Missing IKD and/or Kd',
-     &               '    for IWQ compounds set in .ikw. Please fix and rerun.'
+                  print*,'ERROR: line 2 of .iwq file. Missing Kd',
+     &               '    for IWQ compounds. Please fix and rerun.'
                   write(*,199)
                   stop
-               endif
-            elseif(IKD.EQ.1.and.IWQ.GT.1) then
-               READ(17,*,iostat=ierr)IKD,VKOC(1),OCP,(VKOC(JJ),JJ=2,IWQ)
-               if (ierr.ne.0) then
+              endif
+           elseif(IKD.EQ.1.and.IWQ.GT.1) then
+c-----------Linear isotherm via Koc x OCP: multiple compounds
+              READ(17,*,iostat=ierr)IKD,VKOC(1),OCP,(VKOC(JJ),JJ=2,IWQ)
+              if (ierr.ne.0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. Missing Koc for IWQ',
-     &               '    compounds set in .ikw. Please fix and rerun.'
+                  print*,'ERROR: line 2 of .iwq file. Missing Koc',
+     &               '    for IWQ compounds. Please fix and rerun.'
                   write(*,199)
                   stop
-               endif
-               if (OCP.GT.100.d0) then
+              endif
+              if (OCP.GT.100.d0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. %OC>100% not possible. ',
+                  print*,'ERROR: line 2 of .iwq file. %OC>100%.',
      &               '    Please fix and rerun.'
                   write(*,199)
                   stop
-               endif
-            else
-               READ(17,*,iostat=ierr)IKD,VKD(1),(VKD(JJ),JJ=2,IWQ)
-               if (ierr.ne.0) then
+              endif
+           else
+c-----------Linear isotherm via direct Kd: multiple compounds
+              READ(17,*,iostat=ierr)IKD,VKD(1),(VKD(JJ),JJ=2,IWQ)
+              if (ierr.ne.0) then
                   write(*,199)
-                  print*,'ERROR: line 2 of .iwq file. Missing Kd for IWQ',
-     &               '    compounds set in .ikw. Please fix and rerun.'
+                  print*,'ERROR: line 2 of .iwq file. Missing Kd',
+     &               '    for IWQ compounds. Please fix and rerun.'
                   write(*,199)
                   stop
-               endif
-         ENDIF            
+              endif
+         ENDIF
 c---------Check when Chen et al. eq. was selected that KOC is provided
            IF(IWQPRO.EQ.4.AND.IKD.EQ.0) THEN
                   WRITE(*,120)
@@ -479,6 +541,14 @@ c---------Check when Chen et al. eq. was selected that KOC is provided
                 VKD(JJ)=VKOC(JJ)*OCP*.01D0
                 IF(VKOC(JJ).GT.9000.D0) ICAT=1
 55           CONTINUE
+           ENDIF
+c---------For linear isotherms set VKF=VKD, VKN=1 so Freundlich
+c---------reduces exactly to linear throughout the code (v4.6.2)
+           IF(IKD.NE.2) THEN
+             DO 56 JJ=1,IWQ
+                VKF(JJ)=VKD(JJ)
+                VKN(JJ)=1.D0
+56           CONTINUE
            ENDIF
            READ(17,*)CCP
 c---------- check if pesticide degradation is requested (IDG=1 TO 4)
@@ -555,7 +625,7 @@ c-----------------------
                   STOP
             ENDIF
             IF(IDG.EQ.0) NDGDAY=1
-c-rmc01/2026--To ensure convergence of CDE solution, ensure minimum of dispersivity to 0.005<DGLD< 0.4 (0.5 to 40 cm)
+c-rmc04/2026--To ensure convergence of CDE solution, ensure minimum of dispersivity to 0.005<DGLD< 0.4 (0.5 to 40 cm)
             DO 126 JJ=1,IWQ
               IF(DGLD(JJ).LT.0.005D0) DGLD(JJ)=0.005D0
               IF(DGLD(JJ).GT.0.4D0) DGLD(JJ)=0.4D0
@@ -783,8 +853,17 @@ c--------Output all input values for Water Quality in OWQ (if IWQ>0)--------
                  WRITE(18,*)'Type of problem - ',
      &           'Pesticide trapping (Chen et al.,2017)'
             END SELECT
-            WRITE(18,800)'Partition coefficient (Kd)=',VKD(1),'L/Kg (Compound 1) '
-            WRITE(18,800)'% Clay in sediment (%CL)  =',CCP,'%                '
+            IF(IKD.EQ.2) THEN
+c-----------Non-linear Freundlich: print Kf and N on one line (v4.6.2)
+              WRITE(18,810)'Non-linear Freundlich (Kf,Nf)=',VKF(1),
+     &             '  L^N/Kg,',VKN(1),'  (-) (Compound 1)'
+            ELSE
+c-----------Linear isotherm: print Kd (v4.6.2)
+              WRITE(18,800)'Linear sorption coeff. (Kd)=',VKD(1),
+     &             'L/Kg (Compound 1) '
+            ENDIF
+            WRITE(18,800)'   % Clay in sediment (%CL)=',CCP,
+     &           '%                '
             WRITE(18,800)'Dispersion length (l)=',DGLD(1),'m (Compound 1)    '
             SELECT CASE (IMOB)
               CASE (2)
@@ -859,7 +938,7 @@ c--------Output all input values for Water Quality in OWQ (if IWQ>0)--------
 208   FORMAT(2x,'KUNSAT curve in infiltration=',3x,A15)
 209   FORMAT(A31,I12)
 210   FORMAT(A31,A12)
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.1.1 10/2025')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.2 04/2026')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 350   FORMAT(A31,2F12.2)
 400   FORMAT(A31,2E12.4)
@@ -883,6 +962,7 @@ c--------Output all input values for Water Quality in OWQ (if IWQ>0)--------
 700   FORMAT(A31,10F9.5)
 799   FORMAT(A18,A34,5F7.3,')')
 800   FORMAT(A31,F12.6,A20)
+810   FORMAT(A31,F12.6,A9,F10.6,A20)
 801   FORMAT(A31,I5)
 802   FORMAT(40x,'day    T(C)  theta(-)')
 803   FORMAT(51('-'),/,A45,I4,/,51('-'))

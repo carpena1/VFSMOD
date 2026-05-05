@@ -1,0 +1,25 @@
+7    .5    0.034  .434  'Npart, COARSE, CI, Por
+0.0013    2.65			'{DP,SG (NPART=7)} or {silt_frac,itillage (NPART=8)}
+------------------------------------------------------------------
+NPART     (integer) incoming sediment characteristics (1-6:USDA/kineros; 
+          7:user-reads values on last line as {DP,SG}; 8:dynamic d50-reads 
+		  values on last line {silt_frac,itillage}), Default 8
+COARSE    % incoming sediment particles with diameter > 0.0037 cm (coarse 
+          fraction routed through wedge) (unit fraction, i.e. 100%=1.0).
+CI        Incoming flow sediment concentration (g/cm3).
+POR       Porosity of deposited sediment (unit fraction, i.e. 43.4%=0.434).
+DP        Sediment particle size, diameter, d50 (cm), read when NPART=7.
+SG        Sediment particle density, (g/cm3), read when NPART=7, Default 2.65g/cm3
+silt_frac (when NPART =7) USDA silt fraction (0-1) of the field (source) soil. 
+          Can be taken from PRZM soil.
+itillage  (when NPART =7)(integer) field tillage (0:conventional; 1:no_tillage),
+          Default 0
+
+-----------------------------
+Example NPART=7 (user)
+7    .5    0.034  .434  'Npart, COARSE, CI, Por
+0.0013    2.65			'{DP,SG (NPART=7)}
+
+Example NPART=8 (storm d50)
+8    .5    0.034  .434	'Npart, COARSE, CI, Por
+.32    0				'{silt_frac,itillage (NPART=8)}

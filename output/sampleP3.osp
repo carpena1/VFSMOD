@@ -1,4 +1,4 @@
-File: output/sampleP3.osp                             VFSMOD v4.6.1.1 10/2025
+File: output/sampleP3.osp                             VFSMOD v4.6.2 04/2026
  
  Files for this simulation
    File #=  1 code:ikw=inputs/sampleP3.ikw                                                        
@@ -34,12 +34,12 @@ File: output/sampleP3.osp                             VFSMOD v4.6.1.1 10/2025
       1.435 m3  = Total Infiltration in Filter
       0.553     = Runoff Delivery Ratio
   
-      45.062 kg = Mass Sediment Input to Filter
-      34.006 g/L= Concentration Sediment in Runoff from source Area
-       1.143 kg = Mass Sediment Output from Filter
-       1.561 g/L= Concentration Sediment in Runoff exiting the Filter
-      43.919 kg = Mass Sediment retained in Filter
-       0.025    = Sediment Delivery Ratio
+      34.194 kg = Mass Sediment Input to Filter
+      25.805 g/L= Concentration Sediment in Runoff from source Area
+      13.769 kg = Mass Sediment Output from Filter
+      18.800 g/L= Concentration Sediment in Runoff exiting the Filter
+      20.425 kg = Mass Sediment retained in Filter
+       0.403    = Sediment Delivery Ratio
   
        8.65 m   = Effective Filter Length
        0.00 m   = Wedge Distance

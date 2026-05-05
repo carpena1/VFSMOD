@@ -1,4 +1,4 @@
-File: output/sampleWTP.og2                            VFSMOD v4.6.1.1 10/2025
+File: output/sampleWTP.og2                            VFSMOD v4.6.2 04/2026
  
    Time      qin      q1       Rs1       Vm1        df1       q2       Rs2       Vm2       df2      q3        Rs3        Vm3       df3      qout
     (s)  (cm3/s/cm)(cm3/s/cm)  (cm)     (cm/s)     (cm)    (cm3/s/cm)  (cm)     (cm/s)     (cm)   (cm3/s/cm)  (cm)      (cm/s)      (cm) (cm3/s/cm)

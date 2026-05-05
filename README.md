@@ -10,6 +10,7 @@ VFSMOD, the core of the modeling system, is a computer simulation model created 
 - Green-Ampt infiltration method for unsteady rainfall.
 - University of Kentucky grass sediment deposition and filtration.
 - Contaminant transport component (first implemented for pesticide reduction within the risk massessment and management regulatory process).
+Please see the latest branch src_vfsm/CHANGES.txt for recent updates to thge program_
 
 INSTALLATION INSTRUCTIONS FOR VFSmod v4.x.x
 (See latest version changes in CHANGES.txt files in source code directories src_vfsm and scr_uh)
