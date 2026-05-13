@@ -1,0 +1,84 @@
+3 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+2  8.13  0.85                          ; IKD=2 Freundlich: Kf(L^N/Kg) N(-)
+40.                                     ; %Clay content in field soil
+1                                       ; IDG
+11 30 0.28 100. 2. 0.05 0.582368E+00     ; ndgday dgHalf FC dgPin dgML dgLD dgmres0
+11.1 13.4 14.9 14.1 16.9 18.9 20.4 17.4 16.1 14.8 14.1           ; dgT(i)
+0.274 0.272 0.272 0.276 0.267 0.257 0.247 0.238 0.23 0.226 0.223 ; dgTheta(i)
+1                                       ; IMOB
+
+------------------------------------------------------------------
+IWQ INPUT FILE — VFSMOD v4.6.2+ Water Quality Parameters
+------------------------------------------------------------------
+Line 1: IWQPRO [CSAB(1..5)]
+  IWQPRO : Pesticide trapping equation:
+           1 = Sabbagh et al. (2009) semi-empirical
+           2 = Sabbagh et al. refitted (user supplies CSAB coefficients)
+           3 = Munoz-Carpena et al. (2015) mechanistic mass balance (DEFAULT)
+           4 = Chen et al. (2017) empirical (California)
+  CSAB(I): 5 coefficients, only read when IWQPRO=2 (on same line)
+
+Line 2: IKD [sorption parameters]
+  IKD=0  : Linear isotherm, direct Kd input
+           Format: 0  Kd                   (Kd in L/Kg)
+  IKD=1  : Linear isotherm, Koc + %OC input
+           Format: 1  Koc  %OC             (Koc in L/Kg, %OC in %)
+  IKD=2  : Freundlich isotherm (NEW in v4.6.2)
+           Format: 2  Kf  N                (Kf in L^N/Kg, N dimensionless)
+           Sorption: s = Kf * C^N
+           Retardation: R = 1 + (rho_b/theta_s) * N * Kf * C^(N-1)
+           Note: Kf and N are evaluated at average event flux concentration C1
+           For multiple compounds: 2  Kf1 N1  Kf2 N2  ...
+
+Line 3: %Clay content in field soil (CCP, %)
+
+Line 4: IDG — Degradation type between events:
+           0 = No degradation
+           1 = EU-FOCUS: k = Kref * f(T) * f(theta)  (RECOMMENDED)
+           2 = US-EPA:   k = Kref
+           3 = k = Kref * f(T)
+           4 = k = Kref * f(theta)
+
+Line 5 (only if IDG > 0): ndgday  dgHalf  FC  dgPin  dgML  dgLD  dgmres0
+  ndgday  : Number of days between runoff events (d), max 365
+  dgHalf  : Pesticide half-life t1/2 (d) at reference T=20C, theta=FC
+            Note: Kref = Ln(2)/dgHalf
+  FC      : VFS topsoil field capacity (m3/m3), e.g. from FOCUS PRZM scenario
+  dgPin   : Total pesticide mass entering VFS per source area (mg/m2)
+            Note: dgmres0 from previous event is added automatically
+  dgML    : Surface mixing layer thickness (cm), standard = 2 cm (PRZM)
+  dgLD    : Longitudinal dispersivity lambda (m), default = 0.05 m (FOCUS-Pearl)
+            Constrained internally to 0.005 <= dgLD <= 0.40 m
+  dgmres0 : Pesticide surface residue (dissolved in porewater) at event start
+            (mg/m2); use OWQ output from previous event in a series; = 0 for
+            first event
+
+Line 6 (only if IDG > 0): dgT(i), i=1..ndgday
+  Daily air temperatures (C) for inter-event period (e.g. from PRZM MET file)
+
+Line 7 (only if IDG > 0): dgTheta(i), i=1..ndgday
+  Daily topsoil volumetric water content (-) for inter-event period
+
+Line 8 (optional): IMOB — Residue remobilization scheme:
+           1 = Partial: only dissolved porewater fraction remobilized (DEFAULT)
+           2 = Full: all surface residues remobilized
+           3 = None: no remobilization
+
+For multiple compounds (IWQ > 1 in .IKW file), Line 5 format is:
+  ndgday  dgHalf1 FC dgPin1 dgML dgLD dgmres01  dgHalf2 dgPin2 dgLD2 dgmres02 ...
+
+------------------------------------------------------------------
+Example — Linear isotherm via Kd (IKD=0):
+  0  10.0                    ; IKD=0, Kd=10 L/Kg
+
+Example — Linear isotherm via Koc (IKD=1):
+  1  1000.  1.               ; IKD=1, Koc=1000 L/Kg, %OC=1%
+  -> Kd = Koc * %OC/100 = 10 L/Kg
+
+Example — Freundlich isotherm (IKD=2):
+  2  8.13  0.85              ; IKD=2, Kf=8.13 L^0.85/Kg, N=0.85
+  -> s = 8.13 * C^0.85 (C in mg/L, s in mg/Kg)
+  -> At C=1 mg/L: Kd_eff = Kf = 8.13 L/Kg
+  -> At C<1 mg/L: Kd_eff > Kf (more sorption than linear)
+  -> At C>1 mg/L: Kd_eff < Kf (less sorption than linear)
+------------------------------------------------------------------

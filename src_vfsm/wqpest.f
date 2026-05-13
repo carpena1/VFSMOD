@@ -169,12 +169,11 @@ c---------Carry-over sorbed in mixing layer from previous event--------
             IF(VKN(JJ).EQ.1.D0) THEN
               DGMRES0P(JJ)=DGMRES0(JJ)*VKD(JJ)*SAREA*DGROB/OI
             ELSE
-c-----------Approximate: use linearized Kd at estimated porewater conc
-              Vw0=DGML*VFSAREA*FC*10.D0
-              DGMsoil0=DGML*VFSAREA*DGROB*10.D0
-              CEST=DGMRES0(JJ)*SAREA/(Vw0+DGMsoil0*VKF(JJ))
-              IF(CEST.LE.0.D0) CEST=1.D-10
-              VKDEFF0=VKF(JJ)*CEST**(VKN(JJ)-1.D0)
+c-----------Exact Freundlich partitioning at actual porewater concentration
+              Vw0=DGML*VFSAREA*OI*10.D0
+              C_PORE=DGMRES0(JJ)*SAREA/Vw0
+              IF(C_PORE.LE.0.D0) C_PORE=1.D-10
+              VKDEFF0=VKF(JJ)*C_PORE**(VKN(JJ)-1.D0)
               DGMRES0P(JJ)=DGMRES0(JJ)*VKDEFF0*SAREA*DGROB/OI
             ENDIF
             ENDIF
