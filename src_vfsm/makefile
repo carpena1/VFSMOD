@@ -130,6 +130,14 @@ OBJS= $(SRCS:.f=.o)
 vfsm : $(OBJS)
 	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBRARIES)
 
+# ── Portable release build (gfortran) ─────────────────────────────────────────
+# Links the gfortran runtime statically so the binary depends only on the system
+# libc (libSystem on macOS) and needs no Homebrew/gcc runtime at the destination.
+# This is the recipe used to produce executables/vfsm4621.   Usage:  make release
+STATIC= -static-libgfortran -static-libquadmath -static-libgcc
+release : $(OBJS)
+	$(LD) -o vfsm $(LDFLAGS) $(STATIC) $(OBJS) $(LIBRARIES)
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(INCLUDES) $<
 
