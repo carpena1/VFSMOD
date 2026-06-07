@@ -39,9 +39,25 @@ c-----rmc03/2011-new surface ponding forcing scheme (NPFORCE=1) when overland fl
 c-----sustains infiltration capacity regardless of point excess rainfall calculation
 
       IF(NPFORCE.EQ.1.and.NPOND.EQ.0) NPOND=1
+C------- Bug fix (v4.6.2.1, rmc 05/2026): When the end-of-runoff flag is set
+C------- (NEND=1), reset NPOND=0 and NPFORCE=0 to stop forcing ponded-capacity
+C------- infiltration. NPFORCE must also be cleared here: after the one NEND=1
+C------- timestep, NEND reverts to 0 (vfsmod.f reset), so without resetting
+C------- NPFORCE the line above (IF NPFORCE=1 AND NPOND=0 -> NPOND=1) would
+C------- immediately restore NPOND=1 in every subsequent call, keeping the
+C------- model in Case 2 (ponded GA capacity) with no water available. This
+C------- mirrors the NPFORCE=0 reset already present in GASUBWT (line 90).
+C------- CU is NOT overwritten. Previously CU=-1 was set here, which
+C------- permanently forced Case 1b (no ponding, FPI=RAIN, R=0) for all
+C------- subsequent timesteps in the same rainfall period (L=LO branch),
+C------- because CU is only recomputed when L changes (L<>LO). Preserving CU
+C------- allows the correct Case 1a (CU>0) or 1b (CU<0) branch to resume
+C------- based on the ponding check calculated at the start of the period.
       IF(NEND.EQ.1)THEN
             NPOND=0
-            CU=-1.D0
+            NPFORCE=0
+c           CU=-1.D0 (removed v4.6.2.1: permanently disables ponding;
+c                     CU retains its value from the L<>LO block above)
       ENDIF
 
 c------Check if time step belongs to the same rainfall period as before (L=LO)-
@@ -175,9 +191,9 @@ c-----cummulative rain to the one just calculated in this time step
       TRAI=PS
 
 c--for debug--gasub-----
-c      write(19,100)time,tw,z,F,PS,RO,FPI,RAIN(L,2),tp,tpp,NPFORCE,
+c      write(19,100)time,z,F,PS,RO,FPI,RAIN(L,2),tp,tpp,NPFORCE,
 c     &             NPOND,NEND,fcase,CU
-c100   format(2f10.1,6e11.3,2f12.4,3i2,f5.2,3f10.4)
+c100   format(f10.1,6e11.3,2f12.4,3i2,f5.2,3f10.4)
 c--for debug--gasub-----
 
       RETURN

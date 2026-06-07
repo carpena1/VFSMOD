@@ -17,13 +17,15 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       DO 10 I = 1,M
          NA  = NMAX
          IF(N -I .LT. NA) NA  = N -I
-         DO 10 J = 1,NA
+         DO 11 J = 1,NA
             NEQN  = I+J
             A(NEQN ,NDIAG-J) = -A(NEQN ,NDIAG-J)/A(I,NDIAG)
             NLOW = NDIAG-J+1
             NHIGH = NLOW+NA-1
-            DO 10 K = NLOW,NHIGH
+            DO 12 K = NLOW,NHIGH
                A(NEQN,K) =A(NEQN,K)+A(NEQN,NDIAG-J)*A(I,NDIAG+1-NLOW+K)
+   12       CONTINUE
+   11    CONTINUE
    10 CONTINUE
 
       RETURN

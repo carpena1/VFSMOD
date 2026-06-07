@@ -27,8 +27,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C----------Inizialize element arrays-----------
 
       DO 10 I=1,NPOL
-          DO 10 J=1,NPOL
+          DO 11 J=1,NPOL
             EK(I,J) = 0.D0
+11        CONTINUE
 10    CONTINUE
 
 C----------Begin integration point loop---------
@@ -36,9 +37,11 @@ C----------Begin integration point loop---------
       DX1=DX*(NPOL-1)
       DO 20 L=1,NL
           CALL SHAPEF(XI(L,NL),PSI,DPSI,WF,PGPAR)
-            DO 20 J=1,NPOL
-              DO 20 I=1,NPOL
+            DO 21 J=1,NPOL
+              DO 22 I=1,NPOL
                   EK(I,J)=EK(I,J)+(DX1*0.5D0*WF(I)*PSI(J))*W(L,NL)
+22            CONTINUE
+21          CONTINUE
 20    CONTINUE
 
        RETURN

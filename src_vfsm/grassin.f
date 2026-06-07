@@ -9,6 +9,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
+      DOUBLE PRECISION XTMP_ICO   ! temporary for reading ICO (see below)
       DIMENSION PARTC(6,3)
       CHARACTER*19 PARTLBL(6),PARTLB
       CHARACTER*75 LISFIL(13)
@@ -27,7 +28,11 @@ c-----(.IGR file) Read vegetation inputs -----------------------------
       IF(ISCR.EQ.0) THEN
         WRITE(*,'(" ... Reading inputs from: ",A45)')LISFIL(7)
       ENDIF
-      READ(12,*)SS, VN, H, VN2,ICO
+c     gfortran compat: read ICO via real tmp; ifort silently truncated 0.0→0,
+c     gfortran is strict (rejects real token into integer variable).
+c     Many .igr files store ICO as 0.0 or 1.0 — NINT handles both forms.
+      READ(12,*)SS, VN, H, VN2, XTMP_ICO
+      ICO = NINT(XTMP_ICO)
 
 c------(.ISD file) Read sediment inputs -----------------------------
 

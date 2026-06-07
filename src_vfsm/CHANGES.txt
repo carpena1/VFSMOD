@@ -1,5 +1,55 @@
+Changes in 4.6.2.1
+------------------
+(05/2026)
+- For the very small buffer sizes for SPOTMOD use, five inter-related fixes to the Green-Ampt infiltration and overland-flow ponding logic (gasub.f, vfsmod.f). These bugs were silent — producing zero outflow from the first segment in multi-segment SPOTMOD runs with moderate Ks values — and were diagnosed by tracing Green-Ampt state variables (NPOND, CU, NPFORCE, NEND) through debug output in GASUB and fixed as follows:
+     - NEND reset per timestep (vfsmod.f). The end-of-runoff flag NEND was only ever set to 1 (never reset to 0). Once the condition (BCRO=0, XSCHK<= PZERO, NSTART=1) fired, NEND=1 was passed to every subsequent GASUB call. In GASUB the NEND=1 branch was setting NPOND=0 AND CU=-1 unconditionally, permanently forcing Case 1b (no ponding, R=0) for the remainder of the event. Fixed by resetting NEND=0 at the top of the timestep loop in vfsmod.f, so the flag only affects the single timestep when it is actually detected.
+     - CU not overwritten in NEND block (gasub.f). Removed CU=-1 from the NEND=1 branch in GASUB. CU is only recomputed when the rainfall period changes (L<>LO). Forcing CU=-1 during the same period (L=LO) prevented the correct Case 1a (CU>0) branch from resuming after the NEND step, even though the soil remained genuinely ponded. With CU preserved, the ponding state is correctly re-evaluated from the value set at the start of the current rainfall period.
+     - NPFORCE not reset at end-of-runoff (gasub.f). With NEND now reset to 0 every timestep, the one-timestep NEND=1 signal only cleared NPOND=0 but left NPFORCE=1 active. On every subsequent call, the line IF(NPFORCE.EQ.1.AND.NPOND.EQ.0) NPOND=1 immediately restored NPOND=1, keeping GASUB in Case 2 (ponded GA capacity) with no water available — causing infiltration and wetting-front depth to grow without bound after the storm ended. Fixed by adding NPFORCE=0 inside the NEND=1 block in GASUB, mirroring the reset already present in GASUBWT (line 90).
+     - XSCHK spatial-average loop index (vfsmod.f). For the average-check mode (NCHK=-1), the accumulation loop used X(N) at every iteration instead of X(I), so XSCHK equalled N*X(N) regardless of conditions at upslope nodes. Because X(N) (downstream node) is the last to receive surface water, this biased XSCHK toward lower values and could delay the NPFORCE=1 trigger. Fixed by using X(I) to compute the true spatial average.
+     - NPFORCE gated by TIME>=TP (vfsmod.f). After correcting the XSCHK average, the upstream BC node X(1)~BCRO>0 immediately raised XSCHK above PZERO at timestep 2, setting NPFORCE=1 before the soil reached its Green-Ampt ponding time TP. This prematurely switched GASUB to Case 2, where C1 = AGA*(TIME-TP+TPP) is negative for TIME<TP-TPP, causing RNEWTON to diverge and producing NaN in the overland-flow solution vector Q0. Fixed by adding the condition TIME>=TP to the NPFORCE trigger so that forced-ponding infiltration is only activated after the soil has reached its rainfall-driven ponding time.
+- Updated Petrov-Galerkin (PG) stabilization parameters (inputs.f). For N>=15 nodes the old quartic polynomials in CRR (Munoz-Carpena et al. 1993) are replaced by improved bivariate fits f(CRR,N) selected from 16 candidate model forms using adjusted-R2 and BIC, calibrated from 120 digitized data points per parameter (Figs. 6-9, doi:10.1029/93WR00610):
+    PGPAR(1)=alpha_c: P3(CRR)+Q3(CRR)/N+R3(CRR)/N^2  R2=0.988  adjR2=0.987
+    PGPAR(2)=alpha_m: P2(CRR)+Q3(CRR)/N+R3(CRR)/N^2  R2=0.996  adjR2=0.996
+    PGPAR(3)=beta_c:  P3(CRR)+Q3(CRR)/N+R2(CRR)/N^2  R2=0.996  adjR2=0.995
+    PGPAR(4)=beta_m:  P2(CRR)+Q3(CRR)/N+R3(CRR)/N^2  R2=0.997  adjR2=0.997
+These improve on the initial bivariate fits (R2 0.975-0.997 with 7-9 parameters) by using richer model forms (11-12 parameters) that better capture the nonlinear N-dependence at large CRR. The previous fits were constrained to Models B/F (Px+Qy/N or Px+Qy/N+Ry/N^2 with P2/Q2); the new search also considers P3 for f-infinity and Q3/R3 for all terms. For N<15 the original 1993 quartic fallback in CRR is retained unchanged.
+- Bug fix: hydfilter divide-by-zero for near-step-function inflows (inputs.f). After the low-pass filter pass in hydfilter, if only a single non-zero inflow point survives, the triangular hydrograph width (Ttrend-Ttrini) collapses to zero, causing Qtrpeak = 2*QSUM1/(Ttrend-Ttrini) = Inf. This wrote Inf into BCROFF and silently zeroed all field inflow volume in the restarted simulation (output showed "Volume from up-field = 0"). Fixed by adding a guard that skips the triangular reconstruction (GOTO 65) when Ttrend-Ttrini<=0 or QSUM1<=0, preserving the already-filtered BCROFF.
+- Input correction: sample.igr modified Manning n for sediment transport (VN) corrected from 0.02 to 0.012 s/cm^1/3 to match the intended sample scenario.
+- Corrected option IDG=0 when several pesticides are used (IWQ>1 in .ikw file). Now it bypasses the degradation (multispc call) for all pesticides selected.
+- Changes for gfortran compatibility (benchmarked 2026-06-03: gfortran -O3 -march=native is 7%
+  faster than ifort -O3 -fp-model precise on Intel i7; both produce bit-identical output).
+  Four non-standard ifort extensions removed from the source:
+    finput.f  line  70: READ(…,'(I)',…) bare-I format (no width) → list-directed *
+    inputs.f  line 653: ((a,b,c,d),j=2,n) nested implied-DO (ifort ext.) → flat (a,b,c,d,j=2,n)
+    wqpest.f  line 222: 'd' in column 1 (debug-line ifort ext.) → 'c' (standard comment)
+    wqpest.f  line 456: WRITE(18,'(A)'), LINE trailing comma (ifort ext.) → no comma
+  One additional runtime compatibility fix:
+    grassin.f line  30: ICO (implicit integer) was read directly from list-directed input
+    where many .igr files write it as 0.0/1.0 (real). ifort silently truncates; gfortran
+    rejects the token. Fixed by reading into DOUBLE PRECISION XTMP_ICO then ICO=NINT(XTMP_ICO).
+  Runtime note suppressed:
+    gfortran prints "IEEE_UNDERFLOW_FLAG" at exit when any underflow-to-zero occurred
+    during the run (harmless; ifort is silent). Suppressed with -ffpe-summary=none in
+    the recommended gfortran LDFLAGS (see makefile).
+  Shared DO-loop termination labels removed (2026-06-06, gfortran 15 warning on M5 Pro):
+    gfortran warns "Fortran 2018 deleted feature: Shared DO termination label" when two or
+    more nested DO loops share the same label on a single CONTINUE. Fixed in 5 files by
+    giving each inner loop its own unique label and an explicit CONTINUE statement:
+      assm.f:   DO 10/DO 10 → DO 10/DO 11
+      elem.f:   DO 10/DO 10 → DO 10/DO 11  (zeroing loop)
+                DO 20/DO 20/DO 20 → DO 20/DO 21/DO 22  (integration loop)
+      factor.f: DO 10/DO 10/DO 10 → DO 10/DO 11/DO 12
+      ini.f:    DO 10/DO 10 → DO 10/DO 11
+      solve.f:  DO 10/DO 10 → DO 10/DO 11
+    Build is now warning-free with gfortran 15 on Apple M5 Pro (ARM64).
+- Sediment-trapped pesticide mass mfsed reformulated (wqpest.f, 2026-06). For the mechanistic mass-balance trapping (IWQPRO=3) the trapped mass is the phase split mf = dQ.mdi + dE.mpi, so the sediment-sorbed pool is now computed directly as the deposited sorbed fraction mfsed = dE.mpi = PDSED/100*DGMPI(JJ)*SAREA (clamped >=0), replacing the previous equilibrium re-partitioning estimate (Kd*Ctrap*SMtrap and its Freundlich analogue). The old estimator used a different physical model than the dP it was meant to decompose and under-counted the sorbed mass deposited with the trapped sediment for strongly sorbed compounds, triggering the >5% trapped-mass closure warning (e.g. sampleP3 compound 2, Kd=100: residual 16.2% -> 0.0%). The closure warning is retained as an honest CDE/trapping consistency diagnostic.
+- CDE secant (chord) retardation for Freundlich isotherms (cde.f, 2026-06). The retardation factor R in the Huang & van Genuchten (1995) analytical leaching solution is now the secant slope of the isotherm, R = 1 + (rho/theta)*Kf*C^(N-1), instead of the tangent slope R = 1 + (rho/theta)*N*Kf*C^(N-1). For a self-sharpening loading front (favorable isotherm, N<1) the front travels at the chord slope by the Rankine-Hugoniot mass-balance shock condition, so the secant is the physically correct, mass-conserving retardation; it reduces exactly to the linear Kd at N=1 (bit-identical results for all linear-isotherm inputs). The fixed-point iteration on R/C1 is unchanged apart from dropping the N factor in both the initial estimate and the loop.
+- Consistent sorbed-mass accounting in the CDE profile and mixing layer (cde.f, 2026-06). The nonlinear quadrature (qgausssorb) over the leaching profile is replaced by mfFp = (R-1)*mfFd for the soil profile and mfmlp = (R-1)*mfmld for the mixing layer, using the same secant R that governs transport. This makes the total infiltrated mass exact, mfF = R*mfFd = dQ.mdi, removing the +33% mfF over-count and the associated -6% to -15% closure error that the tangent R produced for samplePF (Freundlich, N=0.85); single-event closure for samplePF is now +0.82% (the irreducible residual from the linear-Kd split used by the dP trapping step). For Freundlich the two changes above must ship together: b1 mfsed with the tangent R would worsen closure; b1 mfsed with the secant R restores it.
+- COMMON/WQ3/ extended with the array DGMPI(10), which carries the incoming sediment-sorbed mass mpi (DGPINp, mg/m2) from cde.f to wqpest.f for the mfsed = dE.mpi computation. The block declaration was made identical across all program units that use it (cde.f [declared twice], wqpest.f, multspcalc.f, inputs.f, outmass.f, vfsmod.f) to prevent block misalignment in future edits.
+- Reference documentation added under docs/: mfsed_computation_approaches.docx (mfsed approaches, Freundlich secant retardation, three-state A/B/C comparison) with the two supporting figures secant_vs_tangent.png and leaching_profiles.png; the reproducible generator scripts are in docs/scripts/ (Python: secant_vs_tangent.py, leaching_profiles.py, make_mfsed_doc.py).
+
 Changes in 4.6.2
-----------------
+------------------
 (04/2026)
 - Added non-linear Freundlich sorption isotherm option (IKD=2) as an  alternative to the existing linear isotherms (IKD=0 direct Kd; IKD=1  via Koc and %OC). The Freundlich isotherm s=Kf*C^N is implemented  consistently across all sorption-dependent processes in the pesticide  component: 
  (a) soil leaching CDE analytical solution (cde.f): the  concentration-dependent retardation factor R=1+N*Kf*C^(N-1)*rho_b/theta_s  is linearized at the average event flux concentration C1 via a  fixed-point iteration ensuring self-consistent R and C1; 
@@ -7,7 +57,7 @@ Changes in 4.6.2
  (c) outflow solid/liquid phase partitioning uses  Kd_eff at the estimated outflow concentration;
  (d) inter-event surface  residue porewater/sorbed split is solved via Newton-Raphson iteration  on the implicit equation Cd*Vw+Kf*Cd^N*DGMsoil=DGMRES, with the  linear solution as initial guess ensuring rapid convergence; 
  (e) all  other partitioning uses linearized Kd_eff at the relevant local  concentration. For linear isotherms (IKD=0,1) VKF=VKD and VKN=1 are  set internally so all Freundlich branches reduce exactly to the  original linear code (backwards compatible). New input format for  IKD=2 in .iwq file: "2  Kf  N" where Kf is in L^N/kg and N is the  dimensionless Freundlich exponent (0<N<=1 for favorable isotherms).  New COMMON/WQ1/ variables VKF(10) and VKN(10) added to all 5 files  that declare this block (vfsmod.f, inputs.f, cde.f, wqpest.f,  outmass.f). 
-Reference: Munoz-Carpena, R., S. Reichenberger, R. Sur.  2026. Effect of linear and Freundlich isotherms in the prediction with  VFSMOD of pesticide residue remobilization from vegetative filter  strips. SETAC Europe 2026, Maastrich, Netherlands.
+Reference: Muñoz-Carpena, R., S. Reichenberger, R. Sur.  2026. Effect of linear and Freundlich isotherms in the prediction with  VFSMOD of pesticide residue remobilization from vegetative filter  strips. SETAC Europe 2026, Maastrich, Netherlands.
 - Minor update to outmass.f: expanded COMMON/WQ1 declaration to include  the new VKF(10) and VKN(10) arrays for Freundlich parameters.
 - Updated output format for sorption coefficients in .owq and CDE  output: linear isotherm now labelled "Linear sorption coeff. (Kd)";  Freundlich now printed as single line  "Non-linear Freundlich (Kf,Nf)= Kf L^N/Kg, N (-)".
 - Bug fix: added VKF(10) and VKN(10) to COMMON/WQ1 in multspcalc.f (was missing from the initial v4.6.2 update, making this file inconsistent with the other 5 files that declare this block).
@@ -129,7 +179,7 @@ IMPORTANT� Recommended input values
 4 4.2593E-06 'Nrain, Rpeak (m/s)
 0 4.2593E-06
 10800 4.2593E-06 '(3 * 3600s)
-10801 0          ' (next two lines set length of simulation to 25% longer than rain)
+10801 0    ' (next two lines set length of simulation to 25% longer than rain)
 13500 0
 
 Changes in 4.2.4

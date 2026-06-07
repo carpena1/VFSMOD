@@ -20,8 +20,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       DO 10 I = 1,M
          NA = NMAX
          IF(NA .GT. N  -I) NA = N  -I
-         DO 10 J = 1,NA
+         DO 11 J = 1,NA
             B(I+J) = B(I+J)+A(I+J,NDIAG-J)*B(I)
+11        CONTINUE
 10    CONTINUE
       X(N) = B(N)/A(N,NDIAG)
       DO 20 J = M,1,-1

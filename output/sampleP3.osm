@@ -1,7 +1,7 @@
-File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
+File: output/sampleP3.osm                             VFSMOD v4.6.2.1 05/2026
  INPUTS
  ------
- File: output/sampleP3.ohy                             VFSMOD v4.6.2 04/2026
+ File: output/sampleP3.ohy                             VFSMOD v4.6.2.1 05/20
                                                                             
   Storm parameters                                                          
   ----------------                                                          
@@ -36,20 +36,20 @@ File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
                      +---------------------+---------+---------+            
                      |    x(m) interval    |    n    |    So   |            
                      +---------------------+---------+---------+            
-                     |  0.0000  to  0.7212 |  0.4000 |  0.0528 |            
-                     |  0.7212  to  1.4425 |  0.4000 |  0.0326 |            
-                     |  1.4425  to  2.1637 |  0.4000 |  0.0715 |            
-                     |  2.1637  to  2.8850 |  0.4000 |  0.0750 |            
-                     |  2.8850  to  3.6062 |  0.4000 |  0.0319 |            
-                     |  3.6062  to  4.3275 |  0.4000 |  0.0194 |            
-                     |  4.3275  to  5.0488 |  0.4000 |  0.0299 |            
-                     |  5.0488  to  5.0488 |  0.4000 |  0.0289 |            
-                     |  5.0488  to  5.7700 |  0.4000 |  0.0417 |            
-                     |  5.7700  to  6.4912 |  0.4000 |  0.1340 |            
-                     |  6.4912  to  7.2125 |  0.4000 |  0.0792 |            
-                     |  7.2125  to  7.9337 |  0.4000 |  0.0743 |            
-                     |  7.9337  to -0.7212 |  0.4000 |  0.0410 |            
-                     | -0.7212  to  8.6550 |  0.4000 |  0.0623 |            
+                     |  0.0000  to  0.9617 |  0.4000 |  0.0528 |            
+                     |  0.9617  to  1.4425 |  0.4000 |  0.0326 |            
+                     |  1.4425  to  1.9233 |  0.4000 |  0.0715 |            
+                     |  1.9233  to  2.8850 |  0.4000 |  0.0750 |            
+                     |  2.8850  to  3.3658 |  0.4000 |  0.0319 |            
+                     |  3.3658  to  3.8467 |  0.4000 |  0.0194 |            
+                     |  3.8467  to  4.8083 |  0.4000 |  0.0299 |            
+                     |  4.8083  to  5.2892 |  0.4000 |  0.0289 |            
+                     |  5.2892  to  5.7700 |  0.4000 |  0.0417 |            
+                     |  5.7700  to  6.2508 |  0.4000 |  0.1340 |            
+                     |  6.2508  to  7.2125 |  0.4000 |  0.0792 |            
+                     |  7.2125  to  7.6933 |  0.4000 |  0.0743 |            
+                     |  7.6933  to  8.1742 |  0.4000 |  0.0410 |            
+                     |  8.1742  to  8.6550 |  0.4000 |  0.0623 |            
                      +---------------------+---------+---------+            
                                                                             
   Soil parameters                                                           
@@ -60,30 +60,30 @@ File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
  Initial soil-water deficit (M)=    0.186000                                
  Avg. suction at wet front(Sav)=    0.379040                                
     Green-Ampt parameters (A,B)=  0.1330E-04  0.9377E-06                    
- Node number for flood checking=          13                                
+ Node number for flood checking=          19                                
                                                                             
   Simulation parameters                                                     
   ---------------------                                                     
        Length of simulation (s)=  0.4000E+04                                
    Order of the basis functions=           2                                
-     Petrov-Galerkin parameters=  0.04332 -0.00308 -0.31645  0.14512        
+     Petrov-Galerkin parameters=  0.14526 -0.01120 -0.19034  0.18270        
        Time weighting parameter=    0.500000                                
-             Space step, dx(m) =    0.721250                                
-             Time step, dt (s) =    6.544977                                
-  Number of nodes in system    =          13                                
-  Number of elements in system =           6                                
-  Number of time steps        =         611                                 
+             Space step, dx(m) =    0.480833                                
+             Time step, dt (s) =    4.363318                                
+  Number of nodes in system    =          19                                
+  Number of elements in system =           9                                
+  Number of time steps        =         916                                 
   Maximum number of iterations =         350                                
     Maximum flow rate and depth=    0.000735    0.013894                    
            Celerity of the wave=    0.088159                                
-              Courant time step=    6.544977                                
+              Courant time step=    4.363318                                
                   Froude number=    0.143276                                
           Kinematic wave number=     1891.94                                
                  Courant number=    0.800000                                
        Surface changes feedback=          NO                                
                                                                             
                                                                             
- File: output/sampleP3.og1                             VFSMOD v4.6.2 04/2026
+ File: output/sampleP3.og1                             VFSMOD v4.6.2.1 05/20
                                                                             
   Sediment parameters                                                       
   -----------------------------------------                                 
@@ -97,7 +97,7 @@ File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
                                                                             
   Filter parameters for sediment transport                                  
   -----------------------------------------                                 
-             Filter main slope (Sc)=    0.058270                            
+             Filter main slope (Sc)=    0.056014                            
           Filter media spacing (Ss)=    2.200000         cm                 
    Modified Manning coefficient (n)=    0.012000  s.cm^-.33                 
   Manning coeff. for bare soil (n2)=    0.040000   s.m^-.33                 
@@ -109,20 +109,20 @@ File: output/sampleP3.osm                             VFSMOD v4.6.2 04/2026
  -------------
 Volume from rainfall=     0.8423E+00 m3
 Volume from up-field=     0.1325E+01 m3
-Volume from outflow =     0.7324E+00 m3
-Volume infiltrated  =     0.1435E+01 m3
+Volume from outflow =     0.7299E+00 m3
+Volume infiltrated  =     0.1438E+01 m3
   
  Hydrology
  -----------
-Time to beginning   =     0.1492E+04 s
-Time and q at peak  =     0.1767E+04 s     0.1849E-02 m3/s
-Time to end runoff  =     0.2395E+04 s
+Time to beginning   =     0.1532E+04 s
+Time and q at peak  =     0.1767E+04 s     0.1791E-02 m3/s
+Time to end runoff  =     0.2435E+04 s
   
  Sediment
  --------
 Sediment inflow     =     0.8836E+02 g/cm    0.3419E+05 g
-Sediment outflow    =     0.3558E+02 g/cm    0.1377E+05 g
-Trapping efficiency =       59.7 %
+Sediment outflow    =     0.3246E+02 g/cm    0.1256E+05 g
+Trapping efficiency =       63.3 %
                      ----------------
 Sediment deposition :
         - Sediment wedge depth,   Y(t) =    0.00 cm

@@ -1,7 +1,7 @@
-File: output/samplePnorain.osm                        VFSMOD v4.6.2 04/2026
+File: output/samplePnorain.osm                        VFSMOD v4.6.2.1 05/2026
  INPUTS
  ------
- File: output/samplePnorain.ohy                        VFSMOD v4.6.2 04/2026
+ File: output/samplePnorain.ohy                        VFSMOD v4.6.2.1 05/20
                                                                             
   Storm parameters                                                          
   ----------------                                                          
@@ -56,7 +56,7 @@ File: output/samplePnorain.osm                        VFSMOD v4.6.2 04/2026
   ---------------------                                                     
        Length of simulation (s)=  0.4000E+04                                
    Order of the basis functions=           2                                
-     Petrov-Galerkin parameters=  0.04332 -0.00308 -0.31645  0.14512        
+     Petrov-Galerkin parameters=  0.06054 -0.00232 -0.27403  0.13490        
        Time weighting parameter=    0.500000                                
              Space step, dx(m) =    0.154554                                
              Time step, dt (s) =    1.556488                                
@@ -73,7 +73,7 @@ File: output/samplePnorain.osm                        VFSMOD v4.6.2 04/2026
        Surface changes feedback=          NO                                
                                                                             
                                                                             
- File: output/samplePnorain.og1                        VFSMOD v4.6.2 04/2026
+ File: output/samplePnorain.og1                        VFSMOD v4.6.2.1 05/20
                                                                             
   Sediment parameters                                                       
   -----------------------------------------                                 
@@ -105,14 +105,14 @@ Volume infiltrated  =     0.8544E+00 m3
  Hydrology
  -----------
 Time to beginning   =     0.1556E+04 s
-Time and q at peak  =     0.1790E+04 s     0.1301E-02 m3/s
+Time and q at peak  =     0.1790E+04 s     0.1303E-02 m3/s
 Time to end runoff  =     0.2374E+04 s
   
  Sediment
  --------
 Sediment inflow     =     0.8840E+02 g/cm    0.3421E+05 g
-Sediment outflow    =     0.2944E+02 g/cm    0.1139E+05 g
-Trapping efficiency =       66.7 %
+Sediment outflow    =     0.2691E+02 g/cm    0.1041E+05 g
+Trapping efficiency =       69.6 %
                      ----------------
 Sediment deposition :
         - Sediment wedge depth,   Y(t) =    0.02 cm

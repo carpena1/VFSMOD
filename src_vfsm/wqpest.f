@@ -20,7 +20,7 @@ C  DGMfFd,DGMfFp,DGMfF(mg)= leached pesticide (dissolved, adsorbed, total)     C
 C  DGMmld,DGMmlp,DGMml(mg)= mixing layer pest. (dissolved, adsorbed, total)    C
 C  DGMRES(mg)= pesticide surface residues at the next storm (after degradation)C
 C  NOTE: For nonlinear Freundlich runs, mf (event trapping) and mfF (CDE soil  C
-C  profile mass) are computed by two coupled approximations. A warning is       C
+C  profile mass) are computed by two coupled approximations. A warning is      C
 C  written to .owq only when the closure metric |mf-(mfF+mfsed)|/mi exceeds 5%.C
 C                                                                              C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -32,7 +32,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
      &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
       
       DIMENSION DGMRES0P(10),DGMI(10),DGMO(10),DGMOD(10),DGMOP(10),DGMf(10),
@@ -181,35 +181,12 @@ c---------IN/OUT/SED/MIXING LAYER fractions----------------------------
             DGMI(JJ)=DGPIN(JJ)*SAREA
             DGMO(JJ)=DGMI(JJ)*(1.d0-DELTAP/100.d0)
             DGMf(JJ)=DGMI(JJ)*DELTAP/100.d0
-            SMTRAP=SMIN*PDSED/100.d0
-c---------Estimate trapped sediment-sorbed mass from equilibrium on trapped sediment.
-c---------This is kept as a direct partitioning estimate; a warning on the final
-c---------closure |mf-(mfF+mfsed)|/mi is issued later only when it exceeds 5%.
-            IF(SMTRAP.LE.0.D0.OR.VINL.LE.0.D0) THEN
-              DGMfSED(JJ)=0.D0
-            ELSEIF(VKN(JJ).EQ.1.D0) THEN
-              CTRAP=DGMI(JJ)*VINL/(VINL+SMIN*VKD(JJ))/WAT_INL
-              IF(CTRAP.LE.0.D0) THEN
-                DGMfSED(JJ)=0.D0
-              ELSE
-                DGMfSED(JJ)=VKD(JJ)*CTRAP*SMTRAP
-              ENDIF
-            ELSE
-              IF(VINL.GT.0.D0.AND.SMIN.GT.0.D0) THEN
-                CDISS=DGMI(JJ)/(VINL+VKF(JJ)*SMIN)
-                IF(CDISS.LE.0.D0) CDISS=1.D-10
-                VKDEFFTR=VKF(JJ)*CDISS**(VKN(JJ)-1.D0)
-                MDI=DGMI(JJ)*VINL/(VINL+SMIN*VKDEFFTR)
-              ELSE
-                MDI=0.D0
-              ENDIF
-              CTRAP=MDI/WAT_INL
-              IF(CTRAP.LE.0.D0) THEN
-                DGMfSED(JJ)=0.D0
-              ELSE
-                DGMfSED(JJ)=VKF(JJ)*CTRAP**VKN(JJ)*SMTRAP
-              ENDIF
-            ENDIF
+c---------Sediment-trapped mass = sorbed fraction physically deposited with the
+c---------trapped sediment, i.e. (sediment reduction dE) x (incoming sorbed mass mpi).
+c---------This is the dE.mpi term of the mass-balance trapping mf = dQ.mdi + dE.mpi,
+c---------so it decomposes mf consistently with how mf is defined (dissolved part
+c---------dQ.mdi is captured separately by the CDE as mfF). mpi=DGMPI from CDE.
+            DGMfSED(JJ)=PDSED/100.D0*DGMPI(JJ)*SAREA
             IF(DGMfSED(JJ).LT.0.D0) DGMfSED(JJ)=0.D0
 c---------Pesticide residues on the VFS surface at the end of the runoff event
 			DGMLeach(JJ)=DGMmld(JJ)*(1-FC/OS) 
@@ -218,8 +195,11 @@ c---------Pesticide residues on the VFS surface at the end of the runoff event
             DGMRESMML(JJ)=DGMml(JJ)
       END DO
 c-----Pesticide degradation in days between runoff events for single compound 
-c-----and multiple species reactions (parent-metabolites)     
-      CALL multspcalc(DGMRES)   
+c-----and multiple species reactions (parent-metabolites). Only call if degradation
+c-----is selected (IDG>0)                ! gfortran compat: was 'd' in col.1 (debug line, ifort ext.)
+      IF (IDG.GT.0) THEN
+        CALL multspcalc(DGMRES)
+      ENDIF
 
 c---- Final mass balance and remobilization
       Vw=dgML*VFSAREA*DGTHETAN*10.d0
@@ -321,7 +301,7 @@ c------normalize values by area
             DGMLeachAREA(JJ)=DGMLeach(JJ)/SAREA
             IF(DGMRES0P(JJ).LT.ZEROPRT)DGMRES0P(JJ)=0.d0
             DGMRES0PAREA(JJ)=DGMRES0P(JJ)/SAREA
-            DGMSurf(JJ)=DGMml(JJ)+DGMfSED(JJ)+DGMRES0P(JJ)
+            DGMSurf(JJ)=DGMml(JJ)+DGMfSED(JJ)+DGMRES0P(JJ)-DGMLeach(JJ)
             DGMSurfAREA(JJ)=DGMSurf(JJ)/SAREA
             IF(DGMRES(JJ).LT.ZEROPRT)DGMRES(JJ)=0.d0
             DGMRESAREA(JJ)=DGMRES(JJ)/SAREA
@@ -399,10 +379,10 @@ c------Warn only when trapped-mass closure error is materially large (>5% of mi)
 4455  FORMAT(E10.3,' %  = Runoff inflow reduction')
 4500  FORMAT(F10.3,' %  = Pesticide reduction (dP)')
 5150  FORMAT(F15.2,' m^2  = Source Area (input)')
- 5170  FORMAT(/,100('-'),/,4x,'WARNING: trapped-mass closure exceeds 5% of mi',/,100('-'))
- 5180  FORMAT(4x,'Compound',I3,': residual mf-(mfF+mfsed)=',E12.4,' mg/m2; ',
+5170  FORMAT(/,100('-'),/,4x,'WARNING: trapped-mass closure exceeds 5% of mi',/,100('-'))
+5180  FORMAT(4x,'Compound',I3,': residual mf-(mfF+mfsed)=',E12.4,' mg/m2; ',
      &       'relative error=',F8.3,' %')
- 5190  FORMAT(4x,'This warning reflects the approximate coupling between event trapping',
+5190  FORMAT(4x,'This warning reflects the approximate coupling between event trapping',
      &       ' and CDE leaching in the current implementation.',/)
 
       RETURN
@@ -450,7 +430,7 @@ c-----      4,5 for NDGDAY and IMOB (mg/m2),
       END SELECT
 
       LINE=TRIM(LINE)
-      WRITE(18,'(A)'), LINE
+      WRITE(18,'(A)') LINE               ! gfortran compat: was WRITE(...), LINE (trailing comma, ifort ext.)
 
       return
       END

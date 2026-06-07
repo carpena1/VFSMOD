@@ -22,7 +22,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CHARACTER*1 CWQ
       CHARACTER*10 CWTD,CIDG,CIMOB
       CHARACTER*200 line
-
+      CHARACTER*75 IPGNAM
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
       COMMON/WTGA2/ITHETATYPE,IKUNSTYPE,ITWBC
@@ -32,8 +32,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
      &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF    
-      
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
+      COMMON/OXT/IELOUT
+
       DIMENSION BCROFF(200,2),RAIN(200,2)
       DIMENSION NODEP(MAXEQN),RNA(MAXEQN),SOA(MAXEQN),SX(MAXEQN)
       DIMENSION PGPAR(4),CSAB2(5),VKOC(10),DGHALF(10),test_array(100)
@@ -49,10 +50,28 @@ C-----(.IKW file) Read in main parameters of the program--------------
         WRITE(*,'(" ... Reading inputs from: ",A45)')LISFIL(1)
       ENDIF
 
-c-----When N=-1 calculate N based on VL so that 11>=N>=101 for VL=1-100m
+c-----When N=-1 calculate the number of nodes from the Courant number CR.
+c     [2026] MOC-based study (Munoz-Carpena et al.) vs the analytical method of
+c     characteristics, scoring the runoff depth across the mesh (Eq.37) over the
+c     rising + recession limbs: the mesh that simultaneously minimises spatial
+c     error AND Petrov-Galerkin output oscillation is N~=26*CRR, essentially
+c     independent of VL and of the physics (n,So,r).  Fit: N=23*CR+2.4 (rounded
+c     to the nearest odd, clamped 5..101).  The Jaber-Mohtar dynamic time step
+c     (below) never binds for N<=101, so CRR=CR here.  NOTE: over-refining
+c     (N>>26*CR) makes BOTH the error and the oscillation worse, not better.
+c     Short-strip cap: for VL<~5m, N~26*CR over-refines and the Petrov-Galerkin
+c     scheme oscillates; cap N at 2*VL+1 (odd) so short strips stay coarse.  The
+c     overall 5..101 clamp means VL<=2m -> N=5 (e.g. VL=0.25m -> N=5, dx=0.06m;
+c     the cap is a node limit, NOT a fixed dx), so very short strips still run.
+c     Previous VL-based formulas (kept for reference):
 c      IF(N.EQ.-1) N=2*nint(0.5d0*((90.d0/99.d0*(VL-1.d0)+11.d0)+1.d0))-1
-c-----When N=-1 calculate N based on VL so that 11>=N>=101 for VL=1-100m
-      IF(N.EQ.-1) N=2*nint(0.5d0*((96.d0/99.5d0*(VL-0.d5)+5.d0)+1.d0))-1
+c      IF(N.EQ.-1) N=2*nint(0.5d0*((96.d0/99.5d0*(VL-0.5d0)+5.d0)+1.d0))-1
+c      IF(N.EQ.-1) N=min(101,2*nint(0.5d0*(1.5d0*(VL-0.5d0)+6.d0))-1)
+      IF(N.EQ.-1)THEN
+        N=2*nint((23.d0*CR+1.4d0)/2.d0)+1
+        N=min(N,2*nint(VL)+1)
+        N=max(5,min(101,N))
+      ENDIF
  
 C--[EVR-1998]-Check if N is compatible with type of shape funcion -----
       L=N-1
@@ -362,9 +381,64 @@ c-----choose conservative time step
       CRR=C*DT/DX
 c-- Find number of time steps in problem
       NDT=IDINT(DR/DT)
-C-------Calculate the PG Parameters (n=50) (Muñoz-Carpena et al., 1993)-
+C-------Calculate the PG Parameters f(CRR,N) (Munoz-Carpena et al.,1993,2026)
 c-09/15 Use new CRR calculated from dynamic time step
+c-05/26 New bivariate fits f(CRR,N): valid 15<=N<=201, 0<CRR<=1
+c-      Digitized from Figs.6-9 doi:10.1029/93WR00610; fit by R.Munoz-Carpena
+c-      Selected by max adjusted-R2 over 16 candidate model forms:
+c-        PGPAR(1)=alpha_c: P3(CRR)+Q3(CRR)/NN+R3(CRR)/NN^2  R2=0.988 adjR2=0.987
+c-        PGPAR(2)=alpha_m: P2(CRR)+Q3(CRR)/NN+R3(CRR)/NN^2  R2=0.996 adjR2=0.996
+c-        PGPAR(3)=beta_c:  P3(CRR)+Q3(CRR)/NN+R2(CRR)/NN^2  R2=0.996 adjR2=0.995
+c-        PGPAR(4)=beta_m:  P2(CRR)+Q3(CRR)/NN+R3(CRR)/NN^2  R2=0.997 adjR2=0.997
+c-      NN=N if N>=15; NN=15 if N<15 (clamp at lower calibration bound)
+c-      Clamp NN to [15,201] to avoid extrapolation outside calibration range.
+c-      PGPAR(4)=beta_m calibration starts at N=25 (Fig.9 has no N=15 curve).
+c-      Its 1/NN^2 term has large coefficients that invert the physical trend for
+c-      NN<25, so NFIT4 is separately clamped to [25,201] for that parameter.
       IF(KPG.EQ.1)THEN
+        IF(N.GE.15)THEN
+          NN=N
+        ELSE
+          NN=15
+        ENDIF
+        CRR2=CRR*CRR
+        CRR3=CRR2*CRR
+        NFIT=MIN(NN,201)
+        FN=DBLE(NFIT)
+        NFIT4=MAX(NFIT,25)
+        FN4=DBLE(NFIT4)
+c---- PGPAR(1) = alpha_c  [P3+Q3/NN+R3/NN^2, R2=0.988, adjR2=0.987] ---------
+        PGPAR(1)=(-0.026505D0+0.244253D0*CRR-0.664299D0*CRR2
+     &        +0.528117D0*CRR3)
+     &       +(1.710193D0-22.102433D0*CRR+63.837126D0*CRR2
+     &        -43.286033D0*CRR3)/FN
+     &       +(-13.757372D0+391.555426D0*CRR-1098.042349D0*CRR2
+     &        +779.069630D0*CRR3)/(FN*FN)
+c---- PGPAR(2) = alpha_m  [P2+Q3/NN+R3/NN^2, R2=0.996, adjR2=0.996] ---------
+        PGPAR(2)=(0.022334D0-0.050613D0*CRR+0.026527D0*CRR2)
+     &       +(1.749516D0+4.721237D0*CRR-16.360485D0*CRR2
+     &        +9.652762D0*CRR3)/FN
+     &       +(-10.937407D0-91.647196D0*CRR+306.241549D0*CRR2
+     &        -225.233612D0*CRR3)/(FN*FN)
+c---- PGPAR(3) = beta_c   [P3+Q3/NN+R2/NN^2, R2=0.996, adjR2=0.995] ---------
+        PGPAR(3)=(-0.017630D0+0.332135D0*CRR-1.081987D0*CRR2
+     &        +0.113910D0*CRR3)
+     &       +(3.376451D0-10.330430D0*CRR+33.558912D0*CRR2
+     &        -17.322948D0*CRR3)/FN
+     &       +(-24.998971D0+26.108586D0*CRR-112.369510D0*CRR2)/(FN*FN)
+c---- PGPAR(4) = beta_m   [P2+Q3/NN+R3/NN^2, R2=0.997, adjR2=0.997] ---------
+c     Uses FN4=MAX(NN,25) — no extrapolation below lowest calibration N
+        PGPAR(4)=(-0.062253D0+0.199021D0*CRR-0.146351D0*CRR2)
+     &       +(1.141398D0-14.217593D0*CRR+46.856245D0*CRR2
+     &        -19.330784D0*CRR3)/FN4
+     &       +(-22.107911D0+216.133619D0*CRR-810.336276D0*CRR2
+     &        +456.039169D0*CRR3)/(FN4*FN4)
+      ENDIF
+
+c---- KPG=3: original quartic PGPAR (CRR only, Munoz-Carpena et al. 1993) ----
+c     Used as comparison baseline against the new bivariate f(CRR,NN).
+c     Valid for any N; N-dependence is NOT modelled.
+      IF(KPG.EQ.3)THEN
         PGPAR(1)=0.0215873D0 - 0.345217D0*CRR + 1.33259D0*CRR**2.D0 -
      &               1.62016D0*CRR**3.D0 + 0.670333D0*CRR**4.D0
         PGPAR(2)= 0.0592655D0 - 0.107237D0*CRR + 0.235216D0*CRR**2.D0 -
@@ -373,6 +447,28 @@ c-09/15 Use new CRR calculated from dynamic time step
      &               0.149698D0*CRR**3.D0 - 0.0704731D0*CRR**4.D0
         PGPAR(4)= -0.0456247D0 +0.00112745D0*CRR +0.420433D0*CRR**2.D0 -
      &               0.0935913D0*CRR**3.D0 - 0.0764558D0*CRR**4.D0
+      ENDIF
+
+c---- KPG=2: read user/optimizer-supplied PGPAR(1..4) from inputs/<base>.ipg --
+c     Research/optimization hook (used by the PGPAR-fitting driver). The file
+c     name is derived from the .ikw path LISFIL(1) by swapping .ikw -> .ipg.
+c     Production runs (KPG=0/1/3) never enter this branch, so default behaviour
+c     is unchanged.
+      IF(KPG.EQ.2)THEN
+        IPGNAM=LISFIL(1)
+        IPG=INDEX(IPGNAM,'.ikw')
+        IF(IPG.GT.0) IPGNAM(IPG:IPG+3)='.ipg'
+        OPEN(22,FILE=IPGNAM,STATUS='OLD',IOSTAT=IOS)
+        IF(IOS.NE.0)THEN
+          WRITE(*,*)'ERROR: KPG=2 but cannot open .ipg file: ',IPGNAM
+          STOP
+        ENDIF
+        READ(22,*,IOSTAT=IOS)(PGPAR(I),I=1,4)
+        CLOSE(22)
+        IF(IOS.NE.0)THEN
+          WRITE(*,*)'ERROR: KPG=2 cannot read 4 PGPAR from: ',IPGNAM
+          STOP
+        ENDIF
       ENDIF
 
 C-------Set the order of the integration rule-------------------
@@ -594,7 +690,7 @@ c-----------------------
             BACKSPACE(17)
             IF(nexpect.EQ.ncount) then
                   READ(17,*,iostat=ierr)NDGDAY,DGHALF(1),FC,DGPIN(1),DGML,DGLD(1),
-     &             DGMRES0(1),((dgHalf(JJ),dgPIN(JJ),dgLD(JJ),dgmres0(JJ)),JJ=2,IWQ)
+     &             DGMRES0(1),(dgHalf(JJ),dgPIN(JJ),dgLD(JJ),dgmres0(JJ),JJ=2,IWQ) ! gfortran compat: was ((...),JJ=) nested implied-DO (ifort ext.)
                 ELSEIF(IWQ.GT.1) THEN
                   write(*,199)
                   write(*,121)
@@ -624,7 +720,6 @@ c-----------------------
                   write(*,199)
                   STOP
             ENDIF
-            IF(IDG.EQ.0) NDGDAY=1
 c-rmc04/2026--To ensure convergence of CDE solution, ensure minimum of dispersivity to 0.005<DGLD< 0.4 (0.5 to 40 cm)
             DO 126 JJ=1,IWQ
               IF(DGLD(JJ).LT.0.005D0) DGLD(JJ)=0.005D0
@@ -938,7 +1033,7 @@ c-----------Linear isotherm: print Kd (v4.6.2)
 208   FORMAT(2x,'KUNSAT curve in infiltration=',3x,A15)
 209   FORMAT(A31,I12)
 210   FORMAT(A31,A12)
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.2 04/2026')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.2.1 05/2026')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 350   FORMAT(A31,2F12.2)
 400   FORMAT(A31,2E12.4)
@@ -1083,11 +1178,18 @@ c         write(*,*)(BCROFF(I,J), J=1,2),BCROFFN(I)
 c-----Percentsge difference in hydrograph mass after lofilter pass
       percmass=100.d0*(QSUM0-QSUM1)/QSUM0
 c      write(*,*)Ttrini,Ttrend,QSUM0,QSUM1,percmass
-      
+
+c-----Bug fix (v4.6.2.1, rmc 05/2026): guard against degenerate case where
+c-----the low-pass filter leaves only a single non-zero point (Ttrend=Ttrini),
+c-----which would cause a divide-by-zero in the triangular reconstruction.
+c-----When the reconstructed hydrograph width is zero (or QSUM1=0), skip the
+c-----triangular smoothing and keep the original (already filtered) BCROFF.
+      IF((Ttrend-Ttrini).LE.0.D0.OR.QSUM1.LE.0.D0) GOTO 65
+
 c     Calculate triangular hydrograph
       Qtrpeak=2.d0*QSUM1/(Ttrend-Ttrini)
       Ttrpeak=Ttrini+(Ttrend-Ttrini)/2.67d0
-      
+
 c     Clean up old BCROFF before converting to triangular hydrograph
       DO 60 I=1,NBCROFF
 	    DO 50 J=1,2
@@ -1119,8 +1221,10 @@ c     Update the BROFF array by triangular shape---
           BCROFF(4,1)=Ttrend
           BCROFF(4,2)=0.d0
           BCROFF(5,1)= DR2
-          BCROFF(5,2)=0.d0 
+          BCROFF(5,2)=0.d0
       ENDIF
+
+65    CONTINUE
       
 c     Write new BCROFF before returning to the problem
 c      Write(*,*)

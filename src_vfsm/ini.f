@@ -18,8 +18,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             XM(I)=0.D0
             QM(I)= 0.D0
             Q0(I)=0.D0
-            DO 10 J=1,MAXBND
+            DO 11 J=1,MAXBND
                 A(I,J)= 0.D0
+11          CONTINUE
 10    CONTINUE
             SSE=0.D0
       DO 20 I=1,4

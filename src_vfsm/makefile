@@ -1,50 +1,78 @@
-# Fortran compiler given below
-FC=ifort
+# ─────────────────────────────────────────────────────────────────────────────
+# Fortran compiler
+# ─────────────────────────────────────────────────────────────────────────────
+# RECOMMENDED: gfortran (macOS Apple Silicon / any Linux) — see LDFLAGS below
+FC=gfortran
+# ALTERNATIVE: ifort (Intel macOS/Linux only) — activate with matching LDFLAGS
+#FC=ifort
 #FC=f77
 #FC=g77
 #FC=xlf_r
 #FC=xlf
-#FC=gfortran
 #FC=nagfor
 
 # LIBRARY NAMES GIVEN BELOW
 LIBRARIES=
 
-# LINKER GIVEN BELOW
-LD=ifort
+# ─────────────────────────────────────────────────────────────────────────────
+# Linker  (keep in sync with FC above)
+# ─────────────────────────────────────────────────────────────────────────────
+LD=gfortran
+#LD=ifort
 #LD=f77
 #LD=g77
 #LD=xlf_r
 #LD=xlf
-#LD=gfortran
 #LD=nagfor
 
-# LINKER FLAGS GIVEN BELOW
-#This is to supress warnings in ifort after Sonoma
-#LDFLAGS= -O3 -Wl,-ld_classic -extend-source 132 
-#LDFLAGS= -O3 -fp-model precise -ftree-vectorize -Wl,-ld_classic -extend-source 132
-LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
-#LDFLAGS= -O4 -fp-model precise -Wl,-ld_classic -extend-source 132
-#LDFLAGS= -O5 -fp-model=precise -ftree-vectorize -extend-source 132#LDFLAGS= -fast
-# This is for regular gfortran compilation
-#LDFLAGS= -O -ffixed-line-length-132
-# NAG fortran compiler
-#LDFLAGS= -gline -ieee=stop -w=obs -132
-#LDFLAGS= -gline -ieee=stop -132
-#LDFLAGS= -O -ieee=stop -132
-# Intel Compiler: optimization with vectorization
-#LDFLAGS= -O -fp-model precise
-#LDFLAGS= -O3 -fp-model precise
-#LDFLAGS= -fast -fp-model precise
-#LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
-#LDFLAGS= -O0 -fp-model precise
-#LDFLAGS= -qthreaded -O5 -qtune=auto -qarch=auto -qunroll=auto
-#LDFLAGS= -qsmp -qthreaded -O5 -qtune=auto -qarch=auto -qunroll=auto
-#LDFLAGS= -O -qmaxmem=-1 -fp-model precise
-# ifort debug
+# ─────────────────────────────────────────────────────────────────────────────
+# Compiler / linker flags
+#
+# BENCHMARKED: VFSMOD CR=0.6, KPG=1, optimal N, 11 L values [2-50 m]
+#   2026-06-03  Intel Core i7-8569U @ 2.80 GHz  macOS Sonoma  (ifort 2021.10 / gfortran 15.2)
+#   2026-06-06  Apple M5 Pro  ARM64  macOS Sequoia              (gfortran 15.2)
+#
+#   Machine             Build       Flags                                 med ms/run  Speedup
+#   ─────────────────────────────────────────────────────────────────────────────────────────
+#   Intel i7-8569U      ifort  -O3  -O3 -fp-model precise                  12.51 ms   1.00x  (ref)
+#   Intel i7-8569U      ifort +xHst -O3 -xHost -fp-model precise           12.43 ms   1.01x
+#   Intel i7-8569U      gfort  -O3  -O3 -march=native                      11.70 ms   1.07x  ← fastest on Intel
+#   Intel i7-8569U      gfort +fmath -O3 -march=native -ffast-math         12.03 ms   1.04x
+#   Apple M5 Pro        gfort  -O3  -O3 -march=native                      14.18 ms   0.88x  ← use on M5 Pro
+#   Apple M5 Pro        gfort +fmath -O3 -march=native -ffast-math         14.19 ms   0.88x
+#
+# Note: at optimal N (5-13 nodes), wall time is dominated by process launch and
+# file I/O (~13-15 ms); actual compute is <1 ms. The M5 Pro advantage will be
+# much larger for compute-bound runs (large N, many iterations).
+# All builds produce bit-identical output (max|Δq| = 0.00 m³/s) vs ifort ref.
+# -ffast-math adds no benefit on either platform and is not recommended.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── gfortran (Apple Silicon M-series / Linux) ─────────────────────────────────
+# RECOMMENDED: -O3 -march=native  (safe, portable; fastest on Apple Silicon)
+# -ffpe-summary=none  suppresses the end-of-run "IEEE_UNDERFLOW_FLAG" note that
+#   gfortran's runtime prints when an underflow-to-zero occurred during the run.
+#   The underflow itself is harmless (result == 0.0); ifort is silent about it.
+LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
+# With loop unrolling (marginal benefit, no accuracy risk):
+#LDFLAGS= -O3 -march=native -ffpe-summary=none -funroll-loops -ffixed-line-length-132
+# Debug build (show ALL FPE signals for diagnostics):
+#LDFLAGS= -g -fcheck=all -ffpe-summary=all -ffixed-line-length-132
+
+# ── ifort (Intel macOS/Linux only — not available on Apple Silicon) ────────────
+# RECOMMENDED: -O3 -fp-model precise  (accurate, safe, production)
+# -Wl,-ld_classic  suppresses deprecation warnings on macOS Sonoma/Sequoia
+#LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
+# With CPU-native vectorisation (+1% speed, same accuracy):
+#LDFLAGS= -O3 -xHost -fp-model precise -Wl,-ld_classic -extend-source 132
+# Debug build:
 #LDFLAGS= -g -traceback -check -fp-model precise -Wl,-ld_classic -extend-source 132
-# gfortran: optimization with vectorization
-#LDFLAGS= -O3 -ftree-vectorize -ffixed-form -ffixed-line-length-none
+
+# ── Other compilers (legacy) ──────────────────────────────────────────────────
+# NAG fortran:
+#LDFLAGS= -O -ieee=stop -132
+# IBM xlf:
+#LDFLAGS= -O -qmaxmem=-1 -fp-model precise
 
 # DEFINES
 AR=ar

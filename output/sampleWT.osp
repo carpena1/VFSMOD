@@ -1,5 +1,5 @@
-File: output/sampleWT.osp                             VFSMOD v4.6.2 04/2026
- 
+File: output/sampleWT.osp                             VFSMOD v4.6.2.1 05/2026
+
  Files for this simulation
    File #=  1 code:ikw=inputs/sample.ikw                                                          
    File #=  2 code:irn=inputs/sample.irn                                                          
@@ -12,8 +12,8 @@ File: output/sampleWT.osp                             VFSMOD v4.6.2 04/2026
    File #=  9 code:og2=output/sampleWT.og2                                                        
    File #= 10 code:osp=output/sampleWT.osp                                                        
    File #= 11 code:isd=inputs/sample.isd                                                          
- 
- 
+
+
   
        Summary of Buffer Performance Indicators:
   
@@ -29,17 +29,17 @@ File: output/sampleWT.osp                             VFSMOD v4.6.2 04/2026
       0.842 m3  = Total Rainfall on Filter
       9.744 mm  = Total Runoff from Source (mm depth over Source Area)
       1.325 m3  = Total Runoff from Source
-      6.494 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
-      1.101 m3  = Total Runoff out from Filter
-      1.067 m3  = Total Infiltration in Filter
-      0.831     = Runoff Delivery Ratio
+      7.832 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
+      1.328 m3  = Total Runoff out from Filter
+      0.842 m3  = Total Infiltration in Filter
+      1.002     = Runoff Delivery Ratio
   
       34.194 kg = Mass Sediment Input to Filter
       25.805 g/L= Concentration Sediment in Runoff from source Area
-      11.723 kg = Mass Sediment Output from Filter
-      10.651 g/L= Concentration Sediment in Runoff exiting the Filter
-      22.471 kg = Mass Sediment retained in Filter
-       0.343    = Sediment Delivery Ratio
+      16.382 kg = Mass Sediment Output from Filter
+      12.340 g/L= Concentration Sediment in Runoff exiting the Filter
+      17.812 kg = Mass Sediment retained in Filter
+       0.479    = Sediment Delivery Ratio
   
        8.65 m   = Effective Filter Length
        0.00 m   = Wedge Distance

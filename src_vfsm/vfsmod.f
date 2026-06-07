@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                            C
 C     WRITTEN FOR: Ph.D.dissertation and later modified for distribution     C
 C     RE-WRITTEN : combined version, July 1993                               C
-C     Last Updated: 04/2026 v4.6.2                                           C
+C     Last Updated: 05/2026 v4.6.2.1                                           C
 C     Written by: Rafael Munoz-Carpena         John E. Parsons               C
 C                 ABE-University of Florida    BAE, NC State University      C
 C                 Gainesville, FL 32611        Raleigh, NC 27695-7625 (USA)  C
@@ -108,7 +108,7 @@ C                 SUBROUTINES BY ORDER OF APPAREANCE                         C
 C                                                                            C
 C     INI, INPUTS,QUAD, FORMA, SHAPEF, ASSM, BCA, FORMB, MODIFY, FACTOR,     C
 C     SOLVE, FLOW, UPDATE, CONVER, KWWRITE, GASUB, OUTMASS, GRASSED,         C
-C     GRASSIN, OCF, EINSTEIN, STEP3, POINTS, WQSUB, OUTMASS, WQPEST          C
+C     GRASSIN, OCF, EINSTEIN, STEP3, POINTS, WQSUB, OUTMASS, CDE, WQPEST     C
 C                                                                            C
 C          DEFINITION OF GLOBAL VARIABLES FOR OVERLAND FLOW SOLUTION         C
 C                                                                            C
@@ -252,14 +252,16 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
      &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
+      COMMON/OXT/IELOUT
 
       DIMENSION A(MAXEQN,MAXBND),B(MAXEQN),B0(MAXEQN)
       DIMENSION X(MAXEQN),X0(MAXEQN),XM(MAXEQN),Q0(MAXEQN),QM(MAXEQN)
       DIMENSION PGPAR(4)
       DIMENSION BCROFF(200,2),RAIN(200,2),NODEX(4)
       CHARACTER*75 LISFIL(13)
+      CHARACTER*75 OXTNAM
 
 C------Print banner, get I/O filenames and open them -----------
 
@@ -293,6 +295,19 @@ C-------Assemble the system matrix A -------------
 C-------Perform LU decomposition over A -----------
 
       CALL FACTOR(A,N,NBAND)
+
+C------ Optional per-node depth time-series (.oxt) when IELOUT=1 -------------
+C       Research/optimization hook: writes the nodal water depths X(1..N) at
+C       every print step for comparison with the analytical MOC (Eq.37).
+C       File name derived from the .og1 path LISFIL(8) by swapping .og1 -> .oxt.
+C       Header line: N  DX.  Production runs typically use IELOUT=0 (no file).
+      IF(IELOUT.EQ.1)THEN
+        OXTNAM=LISFIL(8)
+        IOX=INDEX(OXTNAM,'.og1')
+        IF(IOX.GT.0) OXTNAM(IOX:IOX+3)='.oxt'
+        OPEN(21,FILE=OXTNAM,STATUS='UNKNOWN')
+        WRITE(21,*)N,DX
+      ENDIF
 
 C-------Start time loop for numerical time dependent solution-----------
 
@@ -328,6 +343,15 @@ C-------Start time loop for numerical time dependent solution-----------
 5     CONTINUE
       DO 40 LCOUNT=1,NDT
             TIME=DT*LCOUNT
+C------- Bug fix (v4.6.2.1, rmc 05/2026): Reset the end-of-runoff flag at the
+C------- start of every timestep. Previously NEND was only set to 1 (never back
+C------- to 0), so once the NEND condition fired (BCRO=0, XSCHK<=PZERO,
+C------- NSTART=1) it propagated into every subsequent GASUB call. In GASUB,
+C------- NEND=1 was used to reset NPOND=0 AND CU=-1, which permanently forced
+C------- Case 1b (no ponding) for the rest of the event even when the soil was
+C------- genuinely ponded. Resetting NEND=0 here confines its effect to the
+C------- single timestep when the end-of-runoff condition is actually detected.
+            NEND=0
 C------- For each time step select the rainfall intensity period (L)
             R=0.D0
             DO 10 I=1,NRAIN-1
@@ -352,16 +376,31 @@ C------- Xavg (schk= -1), the VFS is assumed flooded (NPFORCE=1,rmc3/11)and ---
 C------- and the GA infiltration capacity (with ponding) is selected. However,-
 C------- to conserve mass balance, infiltration cannot exceed the ponded -----
 C------- depth at the surface Xavg/dt.
+C------- Bug fix (v4.6.2.1, rmc 05/2026): For NCHK=-1 (spatial-average check),
+C------- the loop previously accumulated X(N) at every iteration instead of
+C------- X(I), so XSCHK always equalled N*X(N) regardless of upslope nodes.
+C------- Because X(N) is the slowest node to receive water, this caused XSCHK
+C------- to under-represent actual surface wetness and delayed NPFORCE trigger.
+C------- Fixed by using X(I) in the loop (standard spatial average).
             IF ( NCHK.GE.1 ) THEN
               XSCHK=X(NCHK)
              ELSE
               XSCHK=0.d0
               DO 17 I=1,N
-                XSCHK=XSCHK+X(N)
+                XSCHK=XSCHK+X(I)
 17            CONTINUE
               XSCHK=XSCHK/N
             END IF
-            IF(XSCHK.GT.PZERO) NPFORCE=1
+C------- Bug fix (v4.6.2.1, rmc 05/2026): Gate the NPFORCE=1 trigger on
+C------- TIME >= TP (Green-Ampt ponding time). Without this guard the corrected
+C------- XSCHK average detects surface water at the upstream BC node as early
+C------- as the second timestep (X(1)~BCRO>0), setting NPFORCE=1 before the
+C------- soil has reached natural ponding. This prematurely forces GASUB into
+C------- Case 2 with a negative C1 argument (AGA*(TIME-TP+TPP)<0 when TIME<TP),
+C------- causing RNEWTON to diverge and produce NaN in Q0. Conditioning on
+C------- TIME>=TP ensures ponding-capacity infiltration is only forced when
+C------- rainfall has already driven the soil to its ponding threshold.
+            IF(XSCHK.GT.PZERO.AND.TIME.GE.TP) NPFORCE=1
             IF(BCRO.EQ.0.D0.AND.XSCHK.LE.PZERO.AND.NSTART.EQ.1) NEND=1
 C-----------rmc-05/2003 consider infiltration for infiltrating plane
 c-----------(mod for thetai>porosity) ---
@@ -475,6 +514,7 @@ c                     IF(IWQ.GT.5) CALL WQSUB(IWQ,TIME,N)
 c                   ENDIF
                   TOLD=TIME
                   CALL KWWRITE(N,LCOUNT,M,QTEMP,X,BCROQ,FWIDTH)
+                  IF(IELOUT.EQ.1) WRITE(21,*)TIME,(X(IXN),IXN=1,N)
                   QTEMP=0.D0
                   DO 28 J=1,4
                         QSED(J)=0.D0
@@ -482,6 +522,8 @@ c                   ENDIF
                 ENDIF
 30          CONTINUE
 40     CONTINUE
+
+      IF(IELOUT.EQ.1) CLOSE(21)
 
 C----- Write hydrology/sediment summary at the end of the run ----------------
 
@@ -501,7 +543,7 @@ c-------Output message at end of program -----------------
 
       IF(ISCR.EQ.0) THEN
         WRITE(*,*)
-        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.2 04/2026'
+        WRITE(*,*)'...FINISHED...','VFSMOD v4.6.2.1 05/2026'
         WRITE(*,*)
       ENDIF
 
@@ -520,10 +562,6 @@ c-------Output message at end of program -----------------
       CLOSE(16)
       CLOSE(17)
       CLOSE(18)
-
-c--for debug--gasubwt-----
-c      close(19)
-c--for debug--gasubwt-----
 
       STOP
       END

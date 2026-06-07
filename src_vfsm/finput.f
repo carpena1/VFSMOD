@@ -45,7 +45,7 @@ c-----Write welcome message ---------------------------------------
           WRITE(*,*)'   @     @ @    @     @@ @@  @  @  @  @'
           WRITE(*,*)'    @   @  @@@   @@@  @ @ @  @  @  @   @'
           WRITE(*,*)'     @ @   @        @ @   @  @  @  @  @'
-          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 04/2026 v4.6.2'
+          WRITE(*,*)'      @    @     @@@  @   @  @@@@  @@ 05/2026 v4.6.2.1'
           WRITE(*,160)
           WRITE(*,*)'       R.Munoz-Carpena              J.E. Parsons'
           WRITE(*,*)'       U. of FL - USA               NCSU - USA'
@@ -67,7 +67,7 @@ c-----Write welcome message ---------------------------------------
        ELSEIF (IARGS.EQ.2) THEN
           CALL get_command_argument(1, FILENM1)
           CALL get_command_argument(2, SISCR)
-          READ(SISCR, '(I)', IOSTAT=IOERR) ISCR
+          READ(SISCR, *, IOSTAT=IOERR) ISCR  ! gfortran compat: was '(I)' (no width, ifort ext.)
            IF (IOERR .NE. 0) THEN
             write(*,'(/,A50,/)')'ERROR: The second command argument is not a valid number'
             STOP
@@ -228,12 +228,12 @@ c*** in summary file, put the list of files for this run
      &    /,'Usage 3: vfsm projectname 2 (quiet execution and convergence control)')
 C----Select unix/DOS versions for help message
 Cunix
-140   FORMAT('Version: v4.6.2 for Unix - 04/2026')
+140   FORMAT('Version: v4.6.2.1 for Unix - 05/2026')
 CDOS
-c140   FORMAT('Version: v4.6.2 for Win64 - 04/2026')
+c140   FORMAT('Version: v4.6.2.1 for Win64 - 05/2026')
 150   FORMAT('Authors: R.Munoz-Carpena & J.E.Parsons (UFL & NCSU)')
 160   FORMAT(72('-'))
-220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.2 04/2026')
+220   FORMAT('File: ',A40,8x,'VFSMOD v4.6.2.1 05/2026')
 225   format(3x,'File #=',i3,' code:',a3,'=',a)
 
       RETURN

@@ -36,7 +36,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
      &           DGMOL(10),DGFRAC(10,10)
       COMMON/IWQ2/NDGDAY,IDG,IWQ,IWQPRO,ICAT,IMOB
-      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
       COMMON/CINT/XI(20,20),W(20,20)
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
 
@@ -117,6 +117,8 @@ c-----------Solve exact Freundlich inlet partitioning: mi = C*Vi + Kf*C^N*Ei
              DGPIN=0.d0
             VKDEFF=VKD(JJ)
       ENDIF
+c-----Incoming sediment-sorbed mass (mpi, mg/m2): used by WQPEST sediment trapping
+      DGMPI(JJ)=DGPINp
 c-----Sorbed concentration on incoming sediment: s = Kf*C^N (or Kd*C)
       IF(VKN(JJ).EQ.1.D0) THEN
          DGSIN=VKD(JJ)*DGCIN
@@ -200,13 +202,18 @@ c--------Freundlich: R^(k+1) = 1 + N*Kf*[C1(R^k)]^(N-1)*rho_b/theta_s
          IF(C1.LE.0.D0) THEN
             RF=1.D0
          ELSE
+c-----------Secant (chord) retardation for the loading shock front:
+c-----------R = 1 + (rho/theta)*[q(C)/C] = 1 + (rho/theta)*Kf*C^(N-1).
+c-----------The secant slope (no N factor) places the self-sharpening front by
+c-----------mass balance and equals the equilibrium partition coeff, so transport
+c-----------and sorbed-mass use one consistent coefficient (reduces to Kd at N=1).
             C1SURF=DMAX1(C1,1.D-10)
-            RF=1.d0+VKN(JJ)*VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
+            RF=1.d0+VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
             DO 135 INRNR=1,50
                RFOLD=RF
                C1SURF=CONC(JJ,C1,C2,TT,TT0,0.D0)
                IF(C1SURF.LE.0.D0) C1SURF=1.D-10
-               RF=1.D0+VKN(JJ)*VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
+               RF=1.D0+VKF(JJ)*C1SURF**(VKN(JJ)-1.D0)*DGROB/OS
                IF(DABS(RF-RFOLD)/DMAX1(RFOLD,1.D-10).LT.1.D-6) GOTO 136
 135         CONTINUE
 136         CONTINUE
@@ -276,16 +283,10 @@ c---------or Kd*C*rho_b (linear) over depth (v4.6.2)
 c-----Integrate mass in the soil profile for the event
       call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
       DGMfFd(JJ)=CONCINTG*OS*1000.d0*VFSAREA
-      IF(VKN(JJ).EQ.1.D0) THEN
-         DGMfFp(JJ)=CONCINTG*VKD(JJ)*DGROB*1000.d0*VFSAREA
-      ELSE
-         call qgausssorb(JJ,C1,C2,TT,TT0,0.d0,Zf,20,SORBINTG)
-         IF(SORBINTG.GT.0.D0) THEN
-            DGMfFp(JJ)=SORBINTG*VKF(JJ)*DGROB*1000.d0*VFSAREA
-         ELSE
-            DGMfFp(JJ)=0.D0
-         ENDIF
-      ENDIF
+c-----Sorbed profile mass consistent with the (secant) retardation used in
+c-----transport: mfFp=(R-1)*mfFd. This conserves mass (mfF=R*mfFd=infiltrated
+c-----dissolved mass) for any isotherm and equals CONCINTG*Kd*rho_b when N=1.
+      DGMfFp(JJ)=(RF-1.D0)*DGMfFd(JJ)
       DGMfF(JJ)=DGMfFd(JJ)+DGMfFp(JJ)
       IF(DGMfF(JJ).EQ.0.d0) THEN
           DGMfFdPCT= 0.d0
@@ -308,17 +309,8 @@ c-----Integrate mass in mixing layer for the event
       call qgausscde(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
       IF(CONCINTG1.GT.CONCINTG) CONCINTG1=CONCINTG
       DGMmld(JJ)=CONCINTG1*OS*1000.d0*VFSAREA
-      IF(VKN(JJ).EQ.1.D0) THEN
-         DGMmlp(JJ)=CONCINTG1*VKD(JJ)*DGROB*1000.d0*VFSAREA
-      ELSE
-         call qgausssorb(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,SORBINTG1)
-         IF(SORBINTG1.GT.SORBINTG) SORBINTG1=SORBINTG
-         IF(SORBINTG1.GT.0.D0) THEN
-            DGMmlp(JJ)=SORBINTG1*VKF(JJ)*DGROB*1000.d0*VFSAREA
-         ELSE
-            DGMmlp(JJ)=0.D0
-         ENDIF
-      ENDIF
+c-----Mixing-layer sorbed mass, same (R-1)*dissolved consistency as the profile.
+      DGMmlp(JJ)=(RF-1.D0)*DGMmld(JJ)
       DGMml(JJ)= DGMmld(JJ)+DGMmlp(JJ)
       IF(DGMfF(JJ).EQ.0.d0) THEN
           DGMmldPCT= 0.d0
@@ -379,7 +371,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Auxiliary function of van Genuchten and Alves (1980) A(x,t)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF
+      COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
 
       PI=3.14159265358979323846264338327950288419716939937510582d0
       D1=(RF*ZD-TTF)/(2.d0*dsqrt(RF*DGLD(JJ)*TTF))

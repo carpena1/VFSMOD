@@ -19,9 +19,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             M=0
             K=K+1
             NCOL=NCOL-1
-            DO 10 J=NCOL,NCOL+NPOL-1
+            DO 11 J=NCOL,NCOL+NPOL-1
                 M=M+1
                 A(I,J) = A(I,J) + EK(K,M)
+11          CONTINUE
 10    CONTINUE
 
       RETURN
