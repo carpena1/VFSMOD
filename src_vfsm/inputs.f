@@ -22,7 +22,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CHARACTER*1 CWQ
       CHARACTER*10 CWTD,CIDG,CIMOB
       CHARACTER*200 line
-      CHARACTER*75 IPGNAM
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
       COMMON/WTGA2/ITHETATYPE,IKUNSTYPE,ITWBC
@@ -449,28 +448,6 @@ c     Valid for any N; N-dependence is NOT modelled.
      &               0.0935913D0*CRR**3.D0 - 0.0764558D0*CRR**4.D0
       ENDIF
 
-c---- KPG=2: read user/optimizer-supplied PGPAR(1..4) from inputs/<base>.ipg --
-c     Research/optimization hook (used by the PGPAR-fitting driver). The file
-c     name is derived from the .ikw path LISFIL(1) by swapping .ikw -> .ipg.
-c     Production runs (KPG=0/1/3) never enter this branch, so default behaviour
-c     is unchanged.
-      IF(KPG.EQ.2)THEN
-        IPGNAM=LISFIL(1)
-        IPG=INDEX(IPGNAM,'.ikw')
-        IF(IPG.GT.0) IPGNAM(IPG:IPG+3)='.ipg'
-        OPEN(22,FILE=IPGNAM,STATUS='OLD',IOSTAT=IOS)
-        IF(IOS.NE.0)THEN
-          WRITE(*,*)'ERROR: KPG=2 but cannot open .ipg file: ',IPGNAM
-          STOP
-        ENDIF
-        READ(22,*,IOSTAT=IOS)(PGPAR(I),I=1,4)
-        CLOSE(22)
-        IF(IOS.NE.0)THEN
-          WRITE(*,*)'ERROR: KPG=2 cannot read 4 PGPAR from: ',IPGNAM
-          STOP
-        ENDIF
-      ENDIF
-
 C-------Set the order of the integration rule-------------------
 
       IF(KPG.EQ.0.OR.(PGPAR(4).EQ.0.D0.AND.PGPAR(3).EQ.0.D0))THEN
@@ -825,9 +802,9 @@ C-------Output all the parameters-------------------------------
 40    CONTINUE
       WRITE(11,525)
       WRITE(11,*)
-C-------Output nodal information if desired (ielout=1)----------------
-      IF(IELOUT.EQ.1)THEN
-        WRITE(11,*)' Elemental information follows (IELOUT=1):'
+C-------Output nodal information if desired (ielout=1 or 2)-----------
+      IF(IELOUT.GE.1)THEN
+        WRITE(11,*)' Elemental information follows (IELOUT=1 or 2):'
         WRITE(11,185)
         WRITE(11,186)
         WRITE(11,185)

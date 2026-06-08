@@ -255,6 +255,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
       COMMON/CDE1/DGMfFd(10),DGMfFp(10),DGMfF(10),DGMmld(10),DGMmlp(10),DGMml(10)
       COMMON/OXT/IELOUT
+      COMMON/OHYBUF/OHB(9,200),NKWB
 
       DIMENSION A(MAXEQN,MAXBND),B(MAXEQN),B0(MAXEQN)
       DIMENSION X(MAXEQN),X0(MAXEQN),XM(MAXEQN),Q0(MAXEQN),QM(MAXEQN)
@@ -296,12 +297,13 @@ C-------Perform LU decomposition over A -----------
 
       CALL FACTOR(A,N,NBAND)
 
-C------ Optional per-node depth time-series (.oxt) when IELOUT=1 -------------
-C       Research/optimization hook: writes the nodal water depths X(1..N) at
-C       every print step for comparison with the analytical MOC (Eq.37).
-C       File name derived from the .og1 path LISFIL(8) by swapping .og1 -> .oxt.
-C       Header line: N  DX.  Production runs typically use IELOUT=0 (no file).
-      IF(IELOUT.EQ.1)THEN
+C------ Optional per-node depth time-series (.oxt) — RESEARCH ONLY, IELOUT=2 --
+C       Writes the nodal water depths X(1..N) at every print step for comparison
+C       with the analytical MOC (Eq.37).  Gated on IELOUT=2 (not 0 or 1) so that
+C       production runs never create this file, which can be large for fine
+C       meshes (N x print-steps).  File name from LISFIL(8) (.og1 -> .oxt);
+C       header line: N  DX.
+      IF(IELOUT.EQ.2)THEN
         OXTNAM=LISFIL(8)
         IOX=INDEX(OXTNAM,'.og1')
         IF(IOX.GT.0) OXTNAM(IOX:IOX+3)='.oxt'
@@ -341,6 +343,7 @@ C-------Start time loop for numerical time dependent solution-----------
       DO 5 I=1,4
             QSED(I)=0.D0
 5     CONTINUE
+      NKWB=0
       DO 40 LCOUNT=1,NDT
             TIME=DT*LCOUNT
 C------- Bug fix (v4.6.2.1, rmc 05/2026): Reset the end-of-runoff flag at the
@@ -514,7 +517,7 @@ c                     IF(IWQ.GT.5) CALL WQSUB(IWQ,TIME,N)
 c                   ENDIF
                   TOLD=TIME
                   CALL KWWRITE(N,LCOUNT,M,QTEMP,X,BCROQ,FWIDTH)
-                  IF(IELOUT.EQ.1) WRITE(21,*)TIME,(X(IXN),IXN=1,N)
+                  IF(IELOUT.EQ.2) WRITE(21,*)TIME,(X(IXN),IXN=1,N)
                   QTEMP=0.D0
                   DO 28 J=1,4
                         QSED(J)=0.D0
@@ -523,7 +526,11 @@ c                   ENDIF
 30          CONTINUE
 40     CONTINUE
 
-      IF(IELOUT.EQ.1) CLOSE(21)
+      IF(IELOUT.EQ.2) CLOSE(21)
+
+C----- Write the .ohy hydrograph table with the OUTFLOW smoothing filter -----
+
+      CALL OHYFLUSH
 
 C----- Write hydrology/sediment summary at the end of the run ----------------
 
