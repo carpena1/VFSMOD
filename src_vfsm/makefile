@@ -54,6 +54,8 @@ LD=gfortran
 #   gfortran's runtime prints when an underflow-to-zero occurred during the run.
 #   The underflow itself is harmless (result == 0.0); ifort is silent about it.
 LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
+# With static libraries for distribution to other machines with no gfortran.
+#LDFLAGS="-O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc"
 # With loop unrolling (marginal benefit, no accuracy risk):
 #LDFLAGS= -O3 -march=native -ffpe-summary=none -funroll-loops -ffixed-line-length-132
 # Debug build (show ALL FPE signals for diagnostics):
@@ -61,7 +63,7 @@ LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
 
 # ── ifort (Intel macOS/Linux only — not available on Apple Silicon) ────────────
 # RECOMMENDED: -O3 -fp-model precise  (accurate, safe, production)
-# -Wl,-ld_classic  suppresses deprecation warnings on macOS Sonoma/Sequoia
+#              -Wl,-ld_classic  suppresses deprecation warnings on macOS Sonoma/Sequoia
 #LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
 # With CPU-native vectorisation (+1% speed, same accuracy):
 #LDFLAGS= -O3 -xHost -fp-model precise -Wl,-ld_classic -extend-source 132

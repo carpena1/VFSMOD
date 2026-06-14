@@ -102,10 +102,11 @@ C---------------------------------------------------------------
       ck=3.77d0
       t=0.d0
 c----Initialize u vector
-      do 5 i=1,208
+      do 6 i=1,208
             do 5 j=1,2
-            u(i,j)=0.d0
-5     continue
+               u(i,j)=0.d0
+5           continue
+6     continue
 
 c----rmc 09/30/11 obsolete from uh v2.x, scaling unit hydrograph now
 c----uh v3.x hydrograph by convolution from synthetic excess hyetograph

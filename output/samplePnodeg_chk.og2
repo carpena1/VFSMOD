@@ -1,4 +1,4 @@
-File: output/sampleP2.og2                             VFSMOD v4.6.2.1 05/2026
+File: output/samplePnodeg.og2                         VFSMOD v4.6.2.1 05/2026
 
    Time      qin      q1       Rs1       Vm1        df1       q2       Rs2       Vm2       df2      q3        Rs3        Vm3       df3      qout
     (s)  (cm3/s/cm)(cm3/s/cm)  (cm)     (cm/s)     (cm)    (cm3/s/cm)  (cm)     (cm/s)     (cm)   (cm3/s/cm)  (cm)      (cm/s)      (cm) (cm3/s/cm)

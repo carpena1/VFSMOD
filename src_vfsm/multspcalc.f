@@ -25,10 +25,9 @@ c------EPA/PMRA PRZM Guidance v.1.0 (2012) (Appendix A, page 5)
       DGC3=49.5d0/(8.314d0/1000.d0)
       DGC4=1.d0/298.15d0
 c------Print section header in OWQ file (don't print with IWQ=1 for version  compatibility)
-      IF(IWQ.GT.1) THEN
-        WRITE(18,160)'Compound degradation between runoff events (mg)'
-        WRITE(18,170)'Time(d)   ',('Compound',II,II=1,IWQ)
-      ENDIF
+      WRITE(18,160)'Compound degradation between runoff events (mg)'
+      WRITE(18,170)'Time(d)   ',('Compound',II,II=1,IWQ)
+      WRITE(18,210)0.d0,(DGMRES(II),II=1,IWQ)
 c-----A) Single species (IWQ=1) degradation (compatible ith previous version)
       IF(IWQ.EQ.1) THEN
         JJ=1
@@ -55,7 +54,7 @@ c-------------- EPA/PMRA PRZM Guidance v.1.0 (2012) (Appendix A, page 5)
             DGMRES(JJ)=DGMRES(JJ)*DEXP(-DGKI)
 c           check for NaN
             IF(DGMRES(JJ).NE.DGMRES(JJ)) DGMRES(JJ)=0.d0
-c            WRITE(18,180)I,DGMRES(JJ)       
+            WRITE(18,210)DFLOAT(I),DGMRES(JJ)       
 5         CONTINUE
         ENDIF   
        ELSE
@@ -115,7 +114,6 @@ c-----Prepare temperature and moisture modifiers for first day based on IDG opti
 c-----A) Multispecies case (IWQ>1): start time loop to calculate degradation along
 C-----the NDGDAY days beteen runoff events. Get the daily temperature 
 c-----and soil moisture modifiers, update [A] and solve daily---
-        WRITE(18,210)0.d0,(DGDMASS(1,II),II=1,IWQ)
         DO 100 K=2,INT(NDGDAY/DGDT)+1
               TIME = (K-1) * DGDT
               DO 90 II=1,IWQ
