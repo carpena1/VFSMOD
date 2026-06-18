@@ -472,18 +472,17 @@ c--------------Check output instability (non-convergence, NaN) and if so restart
             DO 22 I = 1, N
               IF (Q0(I) .NE. Q0(I)) THEN
                 IF(ISCR.NE.2) THEN
-                    write(*,'(/,A32,f8.2,I4,E12.4,/)')'ERROR: NaN in Q0. Time(s)= ',
-     &                    TIME,I, Q0(I)
-                    STOP
+c                    write(*,'(/,A35,f8.2,A41/)')'WARNING: Q0=NaN at time= ',TIME,
+c     &                    ', CR adaptive convergence (PASS1) applied' 
                   ELSE
-c                    write(*,'(/,2A29,f8.2,/)')'WARNING: Convergence mods ',
-c     &                    'applied for NaN in Q0, time= ',TIME
-                    CALL hydfilter(NBCROFF,BCROFF,PGPAR,NCHK,ISCR,
+                    write(*,'(/,A35,f8.2,A41/)')'WARNING: Q0=NaN at time= ',TIME,
+     &                    ', CR adaptive convergence (PASS2) applied' 
+                ENDIF
+                CALL hydfilter(N,NBCROFF,BCROFF,PGPAR,NCHK,ISCR,
      &                    QSUM0,BCROPEAK,RPEAK,CRR,DR1)
-                    CALL INI(A,B,X,XM,X0,Q0,QM,SSE,NODEX)
-                    GOTO 1
-c                    STOP 999
-                  ENDIF
+                CALL INI(A,B,X,XM,X0,Q0,QM,SSE,NODEX)
+                GOTO 1
+c                 STOP 999
               ENDIF
 22          CONTINUE
 

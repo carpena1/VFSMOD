@@ -184,6 +184,10 @@ C      DGCIN2=(DGPIN*DELTAP/100.d0*SAREA-DGSIN*Ei*PDSED/100.d0)/VFL
 
 C-------Prepare inputs for CDE transport solution ------
       C1=DGCIN2
+c--- rmc 06/26 -- No infiltration (F=0, e.g. VKS=0 in .iso): no water enters the
+c--- soil, so there is no leaching pulse. Force C1=0 (DGCIN2 is 0/0=NaN when
+c--- there is neither runoff inflow nor rain ponding on the filter).
+      IF(F.LE.0.D0) C1=0.d0
       C2=0.d0
       DGROB=(1.d0-OS)*2.65d0
       TT=F/OS
@@ -261,7 +265,10 @@ c--------Non-linear Freundlich: print Kf and N on one line (v4.6.2)
       WRITE(18,*)'-------------------------------------'
 
 c---------Sorbed concentration output: s=Kd*C (linear) or s=Kf*C^N (Freundlich)
-c-------Huang and Van Genuchten (1995) CDE analytical solution
+c-------Huang and Van Genuchten (1995) CDE analytical solution.
+c-------Skip the depth profile entirely when there is no infiltration (F=0):
+c-------the transport solution divides by T=F/OS=0 and would write NaN rows.
+      IF(F.GT.0.D0) THEN
       do while (ZD.le.Zf)
         C=CONC(JJ,C1,C2,TT,TT0,ZD)
         IF(VKN(JJ).EQ.1.D0) THEN
@@ -277,12 +284,20 @@ c-------Huang and Van Genuchten (1995) CDE analytical solution
       end do
       C=0.d0
       WRITE(18,500)ZD,C,0.D0
+      ENDIF
 
 c---------Adsorbed mass in soil profile: integrate Kf*C^N*rho_b (Freundlich)
 c---------or Kd*C*rho_b (linear) over depth (v4.6.2)
-c-----Integrate mass in the soil profile for the event
-      call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
-      DGMfFd(JJ)=CONCINTG*OS*1000.d0*VFSAREA
+c-----Integrate mass in the soil profile for the event. With no infiltration
+c-----(F=0) there is no leaching: the integrand is NaN (T=0) and the limits are
+c-----[0,0], so set the leached mass to 0 directly instead of integrating.
+      IF(F.GT.0.D0) THEN
+        call qgausscde(JJ,C1,C2,TT,TT0,0.d0,Zf,20,CONCINTG)
+        DGMfFd(JJ)=CONCINTG*OS*1000.d0*VFSAREA
+      ELSE
+        CONCINTG=0.d0
+        DGMfFd(JJ)=0.d0
+      ENDIF
 c-----Sorbed profile mass consistent with the (secant) retardation used in
 c-----transport: mfFp=(R-1)*mfFd. This conserves mass (mfF=R*mfFd=infiltrated
 c-----dissolved mass) for any isotherm and equals CONCINTG*Kd*rho_b when N=1.
@@ -305,10 +320,14 @@ c-----dissolved mass) for any isotherm and equals CONCINTG*Kd*rho_b when N=1.
       WRITE(18,475)'Soil profile sorbed mass (mfFp mg)=',DGMfFp(JJ),
      &  DGMfFpPCT
 
-c-----Integrate mass in mixing layer for the event
-      call qgausscde(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
-      IF(CONCINTG1.GT.CONCINTG) CONCINTG1=CONCINTG
-      DGMmld(JJ)=CONCINTG1*OS*1000.d0*VFSAREA
+c-----Integrate mass in mixing layer for the event (skip when no infiltration)
+      IF(F.GT.0.D0) THEN
+        call qgausscde(JJ,C1,C2,TT,TT0,0.d0,DGML/100.d0,20,CONCINTG1)
+        IF(CONCINTG1.GT.CONCINTG) CONCINTG1=CONCINTG
+        DGMmld(JJ)=CONCINTG1*OS*1000.d0*VFSAREA
+      ELSE
+        DGMmld(JJ)=0.d0
+      ENDIF
 c-----Mixing-layer sorbed mass, same (R-1)*dissolved consistency as the profile.
       DGMmlp(JJ)=(RF-1.D0)*DGMmld(JJ)
       DGMml(JJ)= DGMmld(JJ)+DGMmlp(JJ)

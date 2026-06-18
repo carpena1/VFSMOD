@@ -261,7 +261,14 @@ c--- rmc 04/20/03 --Fix for Vin(Q)=0 or Vout~0
        else
             WRITE(15,3000)GSOMASS*FWID/(Vout*1000.d0)
             WRITE(15,3050)(GSIMASS-GSOMASS)*FWID/1000.d0
-            WRITE(15,3075)SMOUT/SMIN
+c--- rmc 06/26 -- Guard SDR against SMIN=0 (no incoming sediment, e.g. no
+c--- inflow into the segment): SMOUT/SMIN would be 0/0=NaN. With no sediment
+c--- in, none is delivered, so report 0 (same convention as the Vout<=0 case).
+            if(SMIN.le.0.d0) then
+              WRITE(15,3075)0.d0
+            else
+              WRITE(15,3075)SMOUT/SMIN
+            endif
       endif
 c--- rmc 04/20/03 --end of fix
 

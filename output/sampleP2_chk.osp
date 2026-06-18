@@ -36,10 +36,10 @@ File: output/sampleP2.osp                             VFSMOD v4.6.2.1 05/2026
   
       36.447 kg = Mass Sediment Input to Filter
       27.505 g/L= Concentration Sediment in Runoff from source Area
-       0.773 kg = Mass Sediment Output from Filter
-       1.023 g/L= Concentration Sediment in Runoff exiting the Filter
-      35.674 kg = Mass Sediment retained in Filter
-       0.021    = Sediment Delivery Ratio
+       0.790 kg = Mass Sediment Output from Filter
+       1.045 g/L= Concentration Sediment in Runoff exiting the Filter
+      35.657 kg = Mass Sediment retained in Filter
+       0.022    = Sediment Delivery Ratio
   
        8.65 m   = Effective Filter Length
        0.00 m   = Wedge Distance

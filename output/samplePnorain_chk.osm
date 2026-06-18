@@ -62,7 +62,7 @@ File: output/samplePnorain.osm                        VFSMOD v4.6.2.1 05/2026
              Time step, dt (s) =    1.556488                                
   Number of nodes in system    =          57                                
   Number of elements in system =          28                                
-  Number of time steps        =        2569                                 
+  Number of time steps         =        2569                                
   Maximum number of iterations =         350                                
     Maximum flow rate and depth=    0.000566    0.011884                    
            Celerity of the wave=    0.079437                                
@@ -99,26 +99,26 @@ File: output/samplePnorain.osm                        VFSMOD v4.6.2.1 05/2026
  -------------
 Volume from rainfall=     0.0000E+00 m3
 Volume from up-field=     0.1326E+01 m3
-Volume from outflow =     0.4713E+00 m3
-Volume infiltrated  =     0.8545E+00 m3
+Volume from outflow =     0.4714E+00 m3
+Volume infiltrated  =     0.8544E+00 m3
   
  Hydrology
  -----------
-Time to beginning   =     0.1556E+04 s
+Time to beginning   =     0.8561E+03 s
 Time and q at peak  =     0.1829E+04 s     0.1199E-02 m3/s
-Time to end runoff  =     0.2374E+04 s
+Time to end runoff  =     0.2335E+04 s
   
  Sediment
  --------
 Sediment inflow     =     0.8840E+02 g/cm    0.3421E+05 g
-Sediment outflow    =     0.2691E+02 g/cm    0.1041E+05 g
-Trapping efficiency =       69.6 %
+Sediment outflow    =     0.2716E+02 g/cm    0.1051E+05 g
+Trapping efficiency =       69.3 %
                      ----------------
 Sediment deposition :
-        - Sediment wedge depth,   Y(t) =    0.02 cm
-        - Sediment wedge length,  X2(t)=    0.10 cm
-        - Effective filter length,L(t) =  865.40 cm
-        - Sediment tail at field, X1(t)=    0.37 cm
+        - Sediment wedge depth,   Y(t) =    0.01 cm
+        - Sediment wedge length,  X2(t)=    0.01 cm
+        - Effective filter length,L(t) =  865.49 cm
+        - Sediment tail at field, X1(t)=    0.14 cm
         - Sediment depth in low section=    0.05 cm
-        - Rough sediment balance error =    0.00 %
+        - Rough sediment balance error =   -0.00 %
         - Rough water balance error    =    0.00 % (adjusted)

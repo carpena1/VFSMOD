@@ -8,12 +8,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       COMMON/PAR/QK(MAXEQN),R,THETAW,DX,DT,NDT,NELEM,MAXITER,NPOL,IOUT,NL
       DIMENSION XT(MAXEQN), QT(MAXEQN)
-      fnoise=1.00D-06
 
       DO 10 I=1,N
             QT(I)=QK(I)*XT(I)**(5.D0/3.D0)
-c---rmc 05/07/03 filter numerical oscillations
-            if(qt(i).lt.fnoise) qt(i)=0.d0
 10      CONTINUE
 
       RETURN

@@ -72,7 +72,7 @@ File: output/samplePnodeg.osm                         VFSMOD v4.6.2.1 05/2026
              Time step, dt (s) =    1.402495                                
   Number of nodes in system    =          57                                
   Number of elements in system =          28                                
-  Number of time steps        =        2852                                 
+  Number of time steps         =        2852                                
   Maximum number of iterations =         350                                
     Maximum flow rate and depth=    0.000735    0.013894                    
            Celerity of the wave=    0.088159                                
@@ -109,26 +109,26 @@ File: output/samplePnodeg.osm                         VFSMOD v4.6.2.1 05/2026
  -------------
 Volume from rainfall=     0.8423E+00 m3
 Volume from up-field=     0.1325E+01 m3
-Volume from outflow =     0.7564E+00 m3
+Volume from outflow =     0.7563E+00 m3
 Volume infiltrated  =     0.1411E+01 m3
   
  Hydrology
  -----------
-Time to beginning   =     0.1492E+04 s
+Time to beginning   =     0.8639E+03 s
 Time and q at peak  =     0.1806E+04 s     0.1665E-02 m3/s
 Time to end runoff  =     0.2435E+04 s
   
  Sediment
  --------
 Sediment inflow     =     0.8836E+02 g/cm    0.3419E+05 g
-Sediment outflow    =     0.3720E+02 g/cm    0.1439E+05 g
-Trapping efficiency =       57.9 %
+Sediment outflow    =     0.3835E+02 g/cm    0.1484E+05 g
+Trapping efficiency =       56.6 %
                      ----------------
 Sediment deposition :
-        - Sediment wedge depth,   Y(t) =    0.02 cm
-        - Sediment wedge length,  X2(t)=    0.05 cm
-        - Effective filter length,L(t) =  865.45 cm
-        - Sediment tail at field, X1(t)=    0.32 cm
+        - Sediment wedge depth,   Y(t) =    0.01 cm
+        - Sediment wedge length,  X2(t)=    0.04 cm
+        - Effective filter length,L(t) =  865.46 cm
+        - Sediment tail at field, X1(t)=    0.25 cm
         - Sediment depth in low section=    0.04 cm
-        - Rough sediment balance error =    0.01 %
+        - Rough sediment balance error =   -0.00 %
         - Rough water balance error    =    0.00 % (adjusted)

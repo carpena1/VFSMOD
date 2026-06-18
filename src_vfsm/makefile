@@ -1,3 +1,25 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# BUILD TARGETS  (run `make clean` first whenever you switch compiler or flavor)
+# ─────────────────────────────────────────────────────────────────────────────
+#   make                  default build using the FC / LDFLAGS set below
+#
+#   make release-gfortran  gfortran + STATIC runtime  -> portable, for DISTRIBUTION
+#   make release-ifort     ifort    + STATIC runtime  -> portable, for DISTRIBUTION
+#   make local-gfortran    gfortran + DYNAMIC runtime -> smaller, THIS machine only
+#   make local-ifort       ifort    + DYNAMIC runtime -> smaller, THIS machine only
+#   make release           alias for release-gfortran
+#   make clean             remove the .o objects and the vfsm executable
+#
+# STATIC  runtime  = self-contained binary (only the OS libc stays dynamic); runs on
+#                    machines with no gfortran / Intel oneAPI installed. For DISTRIBUTION.
+# DYNAMIC runtime  = links the locally-installed gfortran/Intel runtime, which must be
+#                    present at run time (fine on THIS machine). Smaller, faster to link.
+# Each target sets its own FC/LD/LDFLAGS, so it works regardless of the defaults below.
+# Check a binary's linkage with:   otool -L vfsm   (macOS)   /   ldd vfsm   (Linux)
+# NOTE: gfortran's -march=native makes the binary CPU-specific; for distribution to
+#       older/other hardware set a baseline -march/-mcpu instead.
+# ═════════════════════════════════════════════════════════════════════════════
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Fortran compiler
 # ─────────────────────────────────────────────────────────────────────────────
@@ -53,9 +75,9 @@ LD=gfortran
 # -ffpe-summary=none  suppresses the end-of-run "IEEE_UNDERFLOW_FLAG" note that
 #   gfortran's runtime prints when an underflow-to-zero occurred during the run.
 #   The underflow itself is harmless (result == 0.0); ifort is silent about it.
-LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
+#LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
 # With static libraries for distribution to other machines with no gfortran.
-#LDFLAGS="-O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc"
+LDFLAGS=-O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc
 # With loop unrolling (marginal benefit, no accuracy risk):
 #LDFLAGS= -O3 -march=native -ffpe-summary=none -funroll-loops -ffixed-line-length-132
 # Debug build (show ALL FPE signals for diagnostics):
@@ -67,6 +89,11 @@ LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
 #LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132
 # With CPU-native vectorisation (+1% speed, same accuracy):
 #LDFLAGS= -O3 -xHost -fp-model precise -Wl,-ld_classic -extend-source 132
+# Portable release: statically link the Intel runtime (libifcore/libimf/libsvml/...)
+#   so the binary needs no Intel oneAPI runtime at the destination. -static-intel is
+#   the ifort analogue of gfortran's -static-libgfortran (the OS libc stays dynamic;
+#   do NOT use plain -static on macOS — there is no static libSystem). Or: make release-ifort
+#LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132 -static-intel
 # Debug build:
 #LDFLAGS= -g -traceback -check -fp-model precise -Wl,-ld_classic -extend-source 132
 
@@ -133,12 +160,57 @@ vfsm : $(OBJS)
 	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBRARIES)
 
 # ── Portable release build (gfortran) ─────────────────────────────────────────
-# Links the gfortran runtime statically so the binary depends only on the system
-# libc (libSystem on macOS) and needs no Homebrew/gcc runtime at the destination.
-# This is the recipe used to produce executables/vfsm4621.   Usage:  make release
-STATIC= -static-libgfortran -static-libquadmath -static-libgcc
-release : $(OBJS)
-	$(LD) -o vfsm $(LDFLAGS) $(STATIC) $(OBJS) $(LIBRARIES)
+# Statically links the gfortran runtime (-static-libgfortran/-quadmath/-libgcc) so
+# the binary depends only on the system libc (libSystem on macOS) and needs no
+# Homebrew/gcc runtime at the destination. Self-contained (sets its own FC/LD/LDFLAGS)
+# so it works whatever the active compiler is, mirroring release-ifort. Objects built
+# earlier with another compiler are NOT rebuilt automatically, so clean first.
+# Note: -march=native makes the binary CPU-specific; replace with a baseline (e.g.
+# -mtune=generic, or -march=x86-64-v2 / -mcpu=apple-m1) to target older/other CPUs.
+# This is the recipe used to produce executables/vfsm4621.
+#   Usage:  make clean && make release-gfortran     (`make release` is an alias)
+release-gfortran : FC=gfortran
+release-gfortran : LD=gfortran
+release-gfortran : LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc
+release-gfortran : $(OBJS)
+	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
+
+release : release-gfortran
+
+# ── Portable release build (ifort) ────────────────────────────────────────────
+# Builds with ifort and statically links the Intel Fortran runtime (-static-intel)
+# so the binary runs where Intel oneAPI is not installed (the OS libc stays dynamic).
+# The target-specific FC/LD/LDFLAGS propagate to the $(OBJS) prerequisites, so the
+# objects are also compiled with ifort. Objects built earlier with gfortran are NOT
+# rebuilt automatically, so clean first.   Usage:  make clean && make release-ifort
+release-ifort : FC=ifort
+release-ifort : LD=ifort
+release-ifort : LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132 -static-intel
+release-ifort : $(OBJS)
+	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
+
+# ── Local build (gfortran, DYNAMIC runtime) ───────────────────────────────────
+# Links the locally-installed gfortran runtime dynamically (no -static-* flags):
+# smaller binary, faster link, but needs gfortran's runtime present to run (fine on
+# this machine). Not for distribution.   Usage:  make clean && make local-gfortran
+local-gfortran : FC=gfortran
+local-gfortran : LD=gfortran
+local-gfortran : LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132
+local-gfortran : $(OBJS)
+	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
+
+# ── Local build (ifort, DYNAMIC runtime) ──────────────────────────────────────
+# -shared-intel forces dynamic linking of the Intel Fortran runtime. NOTE: on macOS
+# ifort links its runtime STATICALLY by default, so -shared-intel (not merely the
+# absence of -static-intel) is required to get a dynamic binary. The Intel dylibs
+# live under /opt/intel/oneapi/.../lib, so this binary must be run with the oneAPI
+# environment loaded (source .../setvars.sh) or with DYLD_LIBRARY_PATH set. Smaller
+# binary; not for distribution.   Usage:  make clean && make local-ifort
+local-ifort : FC=ifort
+local-ifort : LD=ifort
+local-ifort : LDFLAGS= -O3 -fp-model precise -Wl,-ld_classic -extend-source 132 -shared-intel
+local-ifort : $(OBJS)
+	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(INCLUDES) $<
