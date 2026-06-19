@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                            C
 C     WRITTEN FOR: Ph.D.dissertation and later modified for distribution     C
 C     RE-WRITTEN : combined version, July 1993                               C
-C     Last Updated: 05/2026 v4.6.2.1                                           C
+C     Last Updated: 06/2026 v4.6.2.1                                         C
 C     Written by: Rafael Munoz-Carpena         John E. Parsons               C
 C                 ABE-University of Florida    BAE, NC State University      C
 C                 Gainesville, FL 32611        Raleigh, NC 27695-7625 (USA)  C
@@ -471,10 +471,10 @@ c--------------Check output instability (non-convergence, NaN) and if so restart
 
             DO 22 I = 1, N
               IF (Q0(I) .NE. Q0(I)) THEN
-                IF(ISCR.NE.2) THEN
-c                    write(*,'(/,A35,f8.2,A41/)')'WARNING: Q0=NaN at time= ',TIME,
-c     &                    ', CR adaptive convergence (PASS1) applied' 
-                  ELSE
+                IF(ISCR.EQ.0) THEN
+                    write(*,'(/,A35,f8.2,A41/)')'WARNING: Q0=NaN at time= ',TIME,
+     &                    ', CR adaptive convergence (PASS1) applied' 
+                  ELSEIF(ISCR.EQ.2) THEN
                     write(*,'(/,A35,f8.2,A41/)')'WARNING: Q0=NaN at time= ',TIME,
      &                    ', CR adaptive convergence (PASS2) applied' 
                 ENDIF

@@ -103,6 +103,25 @@ c------- end of US units en conversion to CGS----
       VM(1)=QSED(1)/DF(1)
       Se=Set-Sc
 
+c----- (06/2026) With a vanishingly small incoming sediment load (Ci~0) the
+c----- Einstein equilibrium slope Set falls below the bed slope Sc, so Se<=0.
+c----- No depositional wedge can form and the wedge-growth term
+c----- 2/gammasb*fi*GSI_C*Se*DTG (and the 1/Se in Xt) goes negative, making
+c----- dsqrt return NaN that propagates to the .og1/.osp/.owq output. Route all
+c----- sediment through the wedge to the lower filter, as in the NTRCAP=1 case.
+      IF(Se.LE.0.D0) THEN
+            SE=SEOLD
+            F=0.D0
+            FI=0.D0
+            XT=XTOLD
+            YT=YTOLD
+            X1=YT/SC
+            GSSI=GSI
+            GS2=GSI
+            GS1=GSI
+            GOTO 130
+      ENDIF
+
 C ---- Modify fraction of sediment trapped to account for upstream
 c ---- deposition (After App. 9C in Haan et al, 1994)
       f=(GSI_C-GS2)/GSI_C

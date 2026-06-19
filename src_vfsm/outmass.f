@@ -19,6 +19,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       COMMON/WQ3/DGKREF(10),FC,DGPIN(10),DGML,DGT(366),DGTHETA(366),DGLD(10),RF,DGMPI(10)
       CHARACTER*75 DUMMY,DUMMY1
       CHARACTER*75 LISFIL(13)
+c-----[2026] OUTFLOW print-series buffer for peak-relative hydrograph start/end
+c-----timing (NPRINT+1 print points; NPRINT=100 in the solver, well under 1001).
+      DIMENSION QSER(1001),TSER(1001)
 
 C-------------- Summarize results in .osp from filename.ohy file -------------
       WRITE(10,*)'INPUTS'
@@ -64,9 +67,13 @@ c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
       VF0=0.D0
       TINI=0.D0
       TEND=0.D0
+      NP=0
       DO 10 I=1,NPRINT+1
             READ(11,*,END=16)TIME1,OUTF1,CUMFLOW,RAIN_E1,UPIN1,CUMIF,
      &             VF1
+            NP=NP+1
+            TSER(NP)=TIME1
+            QSER(NP)=OUTF1
            TIMEINCR=TIME1-TIME0
             AREA0=TIMEINCR*(UPIN1+UPIN0)/2.D0
             SUM0=SUM0 + AREA0
@@ -87,15 +94,6 @@ c-----Echo hydrological inputs from .OHY and write into summary file .OSM-----
                   TBIG=TIME1
                   QBIG=C1
             ENDIF
-            IF(NZERO.EQ.1.AND.C1.GT.0.D0.AND.INI.EQ.0) THEN
-                  TINI=TIME1
-                  NZERO=0
-                  INI=1
-               ELSEIF(NZERO.EQ.0.AND.C1.EQ.0.D0) THEN
-                  NZERO=1
-                  TEND=TIME1
-            ENDIF
-            IF(C1.GT.0.D0)TEND=TIME1
 10      CONTINUE
 c-----Echo sediment inputs from .OG1 and write into summary file .OSM---------
 12    READ(13,'(A)')DUMMY
@@ -104,6 +102,25 @@ c-----Echo sediment inputs from .OG1 and write into summary file .OSM---------
       WRITE(10,*)DUMMY
       GOTO 12
 16    CONTINUE
+
+c-----[2026] Hydrograph start (TINI) and end (TEND) detected against a peak-
+c-----relative floor (0.001% of peak outflow BIG1), so the reported times track
+c-----the physical rise/recession and are NOT set by sub-noise Petrov-Galerkin
+c-----dust (the unfiltered outflow can be ~1e-45 long before the real onset).
+c-----Peak-relative (not an absolute floor) so it also works for very-low-flow
+c-----cases (Qpeak ~ 1e-7). Reporting only: TINI/TEND are written to .osm and are
+c-----used in no other calculation.
+      QFLOOR=1.0D-5*BIG1
+      IFND=0
+      DO 11 K=1,NP
+         IF(QSER(K).GT.QFLOOR) THEN
+            IF(IFND.EQ.0) THEN
+               TINI=TSER(K)
+               IFND=1
+            ENDIF
+            TEND=TSER(K)
+         ENDIF
+11    CONTINUE
 
 c-----Write summary outputs into summary file .OSM---------
 
