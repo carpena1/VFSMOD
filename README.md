@@ -17,7 +17,7 @@ The model is provided to you as an educational, research, and general applicatio
 
 ## Changes
 
-See latest version changes in CHANGES.txt files in the source code directories /src_vfsm and /scr_uh
+See the consolidated changelog in [CHANGES.md](CHANGES.md), or the per-component CHANGES.txt files in the source code directories /src_vfsm and /src_uh
 
 ## VFSMOD-GUI 
 
