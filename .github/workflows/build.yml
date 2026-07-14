@@ -1,69 +1,42 @@
 # .github/workflows/build.yml
-#
-# Triggered by pushing a version tag: git tag v0.1.0 && git push --tags
-
 name: Build
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"        # e.g. v1.2.3
-
-permissions:
-  contents: write
 
 jobs:
   build:
     name: Build
-    needs: test
     runs-on: ${{ vfsmod.os }}
 
     strategy:
       fail-fast: false
       vfsmod:
-        include:
-
-          - os: ubuntu-24.04
-            target: linux-x86_64
-            gfortran: 13
-            binary: vfsmod
-            archive_ext: tar.gz
-
-          - os: macos-14
-            target: macos-arm64
-            gfortran: 13
-            binary: vfsmod
-            archive_ext: tar.gz
-
-          - os: macos-13
-            target: macos-x86_64
-            gfortran: 13
-            binary: vfsmod
-            archive_ext: tar.gz
-
-          - os: windows-latest
-            target: windows-x86_64
-            gfortran: 13
-            binary: vfsmod.exe
-            archive_ext: zip
+        os: [ubuntu-24.04, macos-14, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set artifact name
+        shell: bash
+        run: |
+          SAFE_REF="${{ github.ref_name }}"
+          SAFE_REF="${SAFE_REF//\//-}"
+          echo "ARTIFACT_NAME=vfsmod-${SAFE_REF}-${{ vfsmod.os }}" >> "$GITHUB_ENV"
 
       - name: Install gfortran (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y gfortran-${{ vfsmod.gfortran }}
+          sudo apt-get install -y gfortran-13
           sudo update-alternatives --install /usr/bin/gfortran gfortran \
-            /usr/bin/gfortran-${{ vfsmod.gfortran }} 100
+            /usr/bin/gfortran-13 100
 
       - name: Install gfortran (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install gcc@${{ vfsmod.gfortran }}
-          ln -sf "$(brew --prefix gcc@${{ vfsmod.gfortran }})/bin/gfortran-${{ vfsmod.gfortran }}" \
-            /usr/local/bin/gfortran
+          brew install gcc@13
+          ln -sf "$(brew --prefix gcc@13)/bin/gfortran-13" /usr/local/bin/gfortran
 
       - name: Install gfortran (Windows)
         if: runner.os == 'Windows'
@@ -74,48 +47,19 @@ jobs:
           install: >-
             mingw-w64-x86_64-gcc-fortran
             make
-            zip
 
       - name: Build (Linux / macOS)
         if: runner.os != 'Windows'
         run: ./setup
-
+ 
       - name: Build (Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: ./setup
 
-      - name: Package (tar.gz - Linux / macOS)
-        if: vfsmod.archive_ext == 'tar.gz'
-        run: |
-          VERSION="${{ github.ref_name }}"
-          ARCHIVE="vfsmod-${VERSION}-${{ vfsmod.target }}.tar.gz"
-          tar -czf "${ARCHIVE}" -C build ${{ vfsmod.binary }}
-          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
-
-      - name: Package (zip - Windows)
-        if: vfsmod.archive_ext == 'zip'
-        shell: msys2 {0}
-        run: |
-          VERSION="${{ github.ref_name }}"
-          ARCHIVE="vfsmod-${VERSION}-${{ vfsmod.target }}.zip"
-          cd build && zip "../${ARCHIVE}" ${{ vfsmod.binary }}
-          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
-
-      - name: SHA-256 checksum (Linux / macOS)
-        if: runner.os != 'Windows'
-        run: sha256sum "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
-
-      - name: SHA-256 checksum (Windows)
-        if: runner.os == 'Windows'
-        shell: msys2 {0}
-        run: sha256sum "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
-
-      - name: Upload artifact
+      - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ vfsmod.target }}
-          path: |
-            ${{ env.ARCHIVE }}
-            ${{ env.ARCHIVE }}.sha256
-          retention-days: 1
+          name: ${{ env.ARTIFACT_NAME }}
+          path: build/vfsmod*
+          retention-days: 3
