@@ -1,45 +1,62 @@
 # .github/workflows/build.yml
+
 name: Build
 
 on:
   push:
 
 jobs:
-  build:
-    name: Build
-    runs-on: ${{ vfsmod.os }}
-
-    strategy:
-      fail-fast: false
-      vfsmod:
-        os: [ubuntu-24.04, macos-14, windows-latest]
-
+  build-linux:
+    name: Build / Linux
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set artifact name
-        shell: bash
-        run: |
-          SAFE_REF="${{ github.ref_name }}"
-          SAFE_REF="${SAFE_REF//\//-}"
-          echo "ARTIFACT_NAME=vfsmod-${SAFE_REF}-${{ vfsmod.os }}" >> "$GITHUB_ENV"
-
-      - name: Install gfortran (Linux)
-        if: runner.os == 'Linux'
+      - name: Install gfortran
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y gfortran-13
           sudo update-alternatives --install /usr/bin/gfortran gfortran \
             /usr/bin/gfortran-13 100
 
-      - name: Install gfortran (macOS)
-        if: runner.os == 'macOS'
+      - name: Build
+        run: ./setup
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfsmod-linux
+          path: build/vfsmod
+          retention-days: 3
+
+  build-macos:
+    name: Build / macOS
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran
         run: |
           brew install gcc@13
           ln -sf "$(brew --prefix gcc@13)/bin/gfortran-13" /usr/local/bin/gfortran
 
-      - name: Install gfortran (Windows)
-        if: runner.os == 'Windows'
+      - name: Build
+        run: ./setup
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfsmod-macos
+          path: build/vfsmod
+          retention-days: 3
+
+  build-windows:
+    name: Build / Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -48,18 +65,13 @@ jobs:
             mingw-w64-x86_64-gcc-fortran
             make
 
-      - name: Build (Linux / macOS)
-        if: runner.os != 'Windows'
-        run: ./setup
- 
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
+      - name: Build
         shell: msys2 {0}
         run: ./setup
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: build/vfsmod*
+          name: vfsmod-windows
+          path: build/vfsmod.exe
           retention-days: 3
