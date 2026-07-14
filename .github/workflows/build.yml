@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    name: Build / ${{ vfsmod.target }}
+    name: Build
     needs: test
     runs-on: ${{ vfsmod.os }}
 
