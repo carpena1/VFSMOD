@@ -1,0 +1,104 @@
+# .github/workflows/build.yml
+
+name: Build
+
+on:
+  push:
+
+jobs:
+  build-linux:
+    name: Build / Linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran-13
+          sudo update-alternatives --install /usr/bin/gfortran gfortran \
+            /usr/bin/gfortran-13 100
+
+      - name: Build
+        run: |
+          cd src_vfsm
+          make $1
+          cp vfsm ..
+          cd ../src_uh
+          make $1
+          cp uh ..
+
+      - name: Package
+        run: tar -czf vfsmod-linux.tar.gz ./*
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfsmod-linux.tar.gz
+          path: vfsmod-linux.tar.gz
+          retention-days: 3
+
+  build-macos:
+    name: Build / macOS
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran
+        run: |
+          brew install gcc@13
+          ln -sf "$(brew --prefix gcc@13)/bin/gfortran-13" /usr/local/bin/gfortran
+
+      - name: Build
+        run: |
+          cd src_vfsm
+          make $1
+          cp vfsm ..
+          cd ../src_uh
+          make $1
+          cp uh ..
+
+      - name: Package
+        run: tar -czf vfsmod-macos.tar.gz ./*
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfsmod-macos.tar.gz
+          path: vfsmod-macos.tar.gz
+          retention-days: 3
+
+  build-windows:
+    name: Build / Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gfortran
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc-fortran
+            make
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cd src_vfsm
+          make $1
+          cp vfsm.exe ..
+          cd ../src_uh
+          make $1
+          cp uh.exe ..
+
+      - name: Package
+        run: zip -r vfsmod-windows.zip ./*
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfsmod-windows.zip
+          path: vfsmod-windows.zip
+          retention-days: 3
