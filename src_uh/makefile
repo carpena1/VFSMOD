@@ -2,14 +2,14 @@
 # version as of 2/21/99 for $(FC)
 
 # Fortran compiler given below
-FC=ifort
-#FC=gfortran
+#FC=ifort
+FC=gfortran
 #FC=f77
 #FC=g77
 
 # LINKER GIVEN BELOW
-LD=ifort
-#LD=gfortran
+#LD=ifort
+LD=gfortran
 #LD=f77
 #LD=g77
 
