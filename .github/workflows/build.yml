@@ -94,6 +94,7 @@ jobs:
           cp uh.exe ..
 
       - name: Package
+        shell: msys2 {0}
         run: zip -r vfsmod-windows.zip ./*
 
       - name: Upload binary
