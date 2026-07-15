@@ -28,8 +28,8 @@ SRCS = uh.f \
        hyetograph.f
 
 # COMPILER FLAGS GIVEN BELOW
-
-FTOPT = -O -fp-model precise
+FTOPT=-O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc
+#FTOPT = -O -fp-model precise
 #FTOPT = -g -traceback -check
 #FTOPT = -O2 -fp-model precise
 #FTOPT = -fast -fp-model precise
@@ -40,11 +40,11 @@ FTOPT = -O -fp-model precise
 #FTOPT = -v -Qpath /ncsu/nagf90/lib -I/ncsu/nagf90/lib -L/ncsu/nagf90/lib
 #FTNCOPT = -check_bounds
 #DBGOPT = -check_bounds -g
-OPT3 = -align records -align dcommons -O3
-OPT4 = -v -align records -align dcommons -O4
-OPT5 = -v -align records -align dcommons -O5
+#OPT3 = -align records -align dcommons -O3
+#OPT4 = -v -align records -align dcommons -O4
+#OPT5 = -v -align records -align dcommons -O5
 #LDOPT =  -Qpath /ncsu/nagf90/lib -L/ncsu/nagf90/lib
-LDOPT =-Wl,-ld_classic
+#LDOPT =-Wl,-ld_classic
 
 # INCLUDE SEARCH PATH GIVEN BELOW
 INCLUDES=
