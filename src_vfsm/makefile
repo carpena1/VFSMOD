@@ -169,9 +169,22 @@ vfsm : $(OBJS)
 # -mtune=generic, or -march=x86-64-v2 / -mcpu=apple-m1) to target older/other CPUs.
 # This is the recipe used to produce executables/vfsm4621.
 #   Usage:  make clean && make release-gfortran     (`make release` is an alias)
+
+# determine static linking strategy across OS targets using gfortran
+UNAME_S := $(shell uname -s)
+
+# macos
+ifeq ($(UNAME_S),Darwin)
+    GF_LDFLAGS = -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 \
+                 -static-libgfortran -static-libquadmath -static-libgcc
+# windows / linux
+else
+    GF_LDFLAGS = -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static
+endif
+
 release-gfortran : FC=gfortran
 release-gfortran : LD=gfortran
-release-gfortran : LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static
+release-gfortran : LDFLAGS=$(GF_LDFLAGS)
 release-gfortran : $(OBJS)
 	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
 
