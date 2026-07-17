@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: |
           cd src_vfsm
-          make $1
+          make release
           cp vfsm ..
           cd ../src_uh
           make $1
@@ -52,7 +52,7 @@ jobs:
       - name: Build
         run: |
           cd src_vfsm
-          make $1
+          make release
           cp vfsm ..
           cd ../src_uh
           make $1
@@ -87,7 +87,7 @@ jobs:
         shell: msys2 {0}
         run: |
           cd src_vfsm
-          make $1
+          make release
           cp vfsm.exe ..
           cd ../src_uh
           make $1
