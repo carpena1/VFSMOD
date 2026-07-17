@@ -171,7 +171,7 @@ vfsm : $(OBJS)
 #   Usage:  make clean && make release-gfortran     (`make release` is an alias)
 release-gfortran : FC=gfortran
 release-gfortran : LD=gfortran
-release-gfortran : LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc -static
+release-gfortran : LDFLAGS= -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static-libgfortran -static-libquadmath -static-libgcc -static-lpthread
 release-gfortran : $(OBJS)
 	$(LD) -o vfsm $(LDFLAGS) $(OBJS) $(LIBRARIES)
 
