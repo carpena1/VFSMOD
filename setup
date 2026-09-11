@@ -1,5 +1,5 @@
 #sh
-rm vfsm uh
+rm -f vfsm uh
 cd src_vfsm
 make $1
 cd ../src_uh

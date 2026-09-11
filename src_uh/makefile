@@ -54,6 +54,8 @@ INCLUDES=
 uh: $(OBJS)
 	$(FC) $(LDOPT) $(OBJS) -o uh
 
+release: uh
+
 uh.o: uh.f
 	$(FC) $(FTOPT) -c uh.f
 

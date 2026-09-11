@@ -1,0 +1,66 @@
+name: Build VFSMOD
+description: >-
+  Install gfortran, build the vfsm and uh binaries into build/ (static release),
+  and run tests. Shared by Build and Release.
+
+inputs:
+  gfortran:
+    description: gfortran major version to install
+    required: false
+    default: "13"
+
+runs:
+  using: composite
+  steps:
+    - name: Install gfortran (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y gfortran-${{ inputs.gfortran }}
+        sudo update-alternatives --install /usr/bin/gfortran gfortran \
+          /usr/bin/gfortran-${{ inputs.gfortran }} 100
+
+    - name: Install gfortran (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        brew install gcc@${{ inputs.gfortran }}
+        mkdir -p "$HOME/bin"
+        ln -sf "$(brew --prefix gcc@${{ inputs.gfortran }})/bin/gfortran-${{ inputs.gfortran }}" \
+          "$HOME/bin/gfortran"
+        echo "$HOME/bin" >> "$GITHUB_PATH"
+
+    - name: Install gfortran (Windows)
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc-fortran
+          make
+          zip
+
+    - name: Build (Linux / macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        sh ./setup release
+        mkdir -p build
+        cp src_vfsm/vfsm src_uh/uh build/
+
+    - name: Build (Windows)
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        sh ./setup release
+        mkdir -p build
+        cp src_vfsm/vfsm.exe src_uh/uh.exe build/
+
+    - name: Regression check tests (Linux / macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        PATH="$PWD/build:$PATH" sh check_vfsm.sh
+        PATH="$PWD/build:$PATH" sh check_uh.sh
