@@ -1,0 +1,201 @@
+File: output/841215.osm                               VFSMOD v4.6.1.1 10/2025
+ INPUTS
+ ------
+ File: output/841215.ohy                               VFSMOD v4.6.1.1 10/20
+                                                                            
+  Storm parameters                                                          
+  ----------------                                                          
+                     Storm data:  841215                                    
+                     +------+---------------------+------------+            
+                     |Period|    Time interval    |  Rainfall  |            
+                     |      |         (s)         |   (m/s)    |            
+                     +------+---------------------+------------+            
+                     |    1 |     0.0  to 32400.0 | 0.5710E-06 |            
+                     |    2 | 32400.0  to 40500.0 | 0.0000E+00 |            
+                     +------+---------------------+------------+            
+            Total rainfall (mm)=       18.50                                
+   Peak rainfall intensity(m/s)=  0.5710E-06                                
+     Peak inflow rate BC (m3/s)=  0.5780E-02                                
+          (The inflow hydrograph can be found in the OUTPUTS)               
+                                                                            
+  Filter parameters                                                         
+  -----------------                                                         
+        Length of the strip (m)=    5.000000                                
+         Width of the strip (m)=  100.000000                                
+        Surface characteristics=                                            
+                     +---------------------+---------+---------+            
+                     |    x(m) interval    |    n    |    So   |            
+                     +---------------------+---------+---------+            
+                     |  0.0000  to  5.0000 |  0.4000 |  0.0500 |            
+                     +---------------------+---------+---------+            
+                                                                            
+   Elemental information follows (IELOUT=1):                                
+                     +-----+-----+-----+---------+---------+                
+                     | Elem| node|local| alpha   |   x(m)  |                
+                     +-----+-----+-----+---------+---------+                
+                     |    1|    1|    1|   0.5590|   0.0000|                
+                     |    1|    2|    2|   0.5590|   0.0893|                
+                     |    1|    3|    3|   0.5590|   0.1786|                
+                     |    2|    3|    1|   0.5590|   0.1786|                
+                     |    2|    4|    2|   0.5590|   0.2679|                
+                     |    2|    5|    3|   0.5590|   0.3571|                
+                     |    3|    5|    1|   0.5590|   0.3571|                
+                     |    3|    6|    2|   0.5590|   0.4464|                
+                     |    3|    7|    3|   0.5590|   0.5357|                
+                     |    4|    7|    1|   0.5590|   0.5357|                
+                     |    4|    8|    2|   0.5590|   0.6250|                
+                     |    4|    9|    3|   0.5590|   0.7143|                
+                     |    5|    9|    1|   0.5590|   0.7143|                
+                     |    5|   10|    2|   0.5590|   0.8036|                
+                     |    5|   11|    3|   0.5590|   0.8929|                
+                     |    6|   11|    1|   0.5590|   0.8929|                
+                     |    6|   12|    2|   0.5590|   0.9821|                
+                     |    6|   13|    3|   0.5590|   1.0714|                
+                     |    7|   13|    1|   0.5590|   1.0714|                
+                     |    7|   14|    2|   0.5590|   1.1607|                
+                     |    7|   15|    3|   0.5590|   1.2500|                
+                     |    8|   15|    1|   0.5590|   1.2500|                
+                     |    8|   16|    2|   0.5590|   1.3393|                
+                     |    8|   17|    3|   0.5590|   1.4286|                
+                     |    9|   17|    1|   0.5590|   1.4286|                
+                     |    9|   18|    2|   0.5590|   1.5179|                
+                     |    9|   19|    3|   0.5590|   1.6071|                
+                     |   10|   19|    1|   0.5590|   1.6071|                
+                     |   10|   20|    2|   0.5590|   1.6964|                
+                     |   10|   21|    3|   0.5590|   1.7857|                
+                     |   11|   21|    1|   0.5590|   1.7857|                
+                     |   11|   22|    2|   0.5590|   1.8750|                
+                     |   11|   23|    3|   0.5590|   1.9643|                
+                     |   12|   23|    1|   0.5590|   1.9643|                
+                     |   12|   24|    2|   0.5590|   2.0536|                
+                     |   12|   25|    3|   0.5590|   2.1429|                
+                     |   13|   25|    1|   0.5590|   2.1429|                
+                     |   13|   26|    2|   0.5590|   2.2321|                
+                     |   13|   27|    3|   0.5590|   2.3214|                
+                     |   14|   27|    1|   0.5590|   2.3214|                
+                     |   14|   28|    2|   0.5590|   2.4107|                
+                     |   14|   29|    3|   0.5590|   2.5000|                
+                     |   15|   29|    1|   0.5590|   2.5000|                
+                     |   15|   30|    2|   0.5590|   2.5893|                
+                     |   15|   31|    3|   0.5590|   2.6786|                
+                     |   16|   31|    1|   0.5590|   2.6786|                
+                     |   16|   32|    2|   0.5590|   2.7679|                
+                     |   16|   33|    3|   0.5590|   2.8571|                
+                     |   17|   33|    1|   0.5590|   2.8571|                
+                     |   17|   34|    2|   0.5590|   2.9464|                
+                     |   17|   35|    3|   0.5590|   3.0357|                
+                     |   18|   35|    1|   0.5590|   3.0357|                
+                     |   18|   36|    2|   0.5590|   3.1250|                
+                     |   18|   37|    3|   0.5590|   3.2143|                
+                     |   19|   37|    1|   0.5590|   3.2143|                
+                     |   19|   38|    2|   0.5590|   3.3036|                
+                     |   19|   39|    3|   0.5590|   3.3929|                
+                     |   20|   39|    1|   0.5590|   3.3929|                
+                     |   20|   40|    2|   0.5590|   3.4821|                
+                     |   20|   41|    3|   0.5590|   3.5714|                
+                     |   21|   41|    1|   0.5590|   3.5714|                
+                     |   21|   42|    2|   0.5590|   3.6607|                
+                     |   21|   43|    3|   0.5590|   3.7500|                
+                     |   22|   43|    1|   0.5590|   3.7500|                
+                     |   22|   44|    2|   0.5590|   3.8393|                
+                     |   22|   45|    3|   0.5590|   3.9286|                
+                     |   23|   45|    1|   0.5590|   3.9286|                
+                     |   23|   46|    2|   0.5590|   4.0179|                
+                     |   23|   47|    3|   0.5590|   4.1071|                
+                     |   24|   47|    1|   0.5590|   4.1071|                
+                     |   24|   48|    2|   0.5590|   4.1964|                
+                     |   24|   49|    3|   0.5590|   4.2857|                
+                     |   25|   49|    1|   0.5590|   4.2857|                
+                     |   25|   50|    2|   0.5590|   4.3750|                
+                     |   25|   51|    3|   0.5590|   4.4643|                
+                     |   26|   51|    1|   0.5590|   4.4643|                
+                     |   26|   52|    2|   0.5590|   4.5536|                
+                     |   26|   53|    3|   0.5590|   4.6429|                
+                     |   27|   53|    1|   0.5590|   4.6429|                
+                     |   27|   54|    2|   0.5590|   4.7321|                
+                     |   27|   55|    3|   0.5590|   4.8214|                
+                     |   28|   55|    1|   0.5590|   4.8214|                
+                     |   28|   56|    2|   0.5590|   4.9107|                
+                     |   28|   57|    3|   0.5590|   5.0000|                
+                     +-----+-----+-----+---------+---------+                
+                                                                            
+  Soil parameters                                                           
+  ---------------------                                                     
+  Saturated hydraulic cond.(Ks)=  0.1520E-05                                
+    Sat. soil-water content(Os)=    0.420000                                
+ Initial soil-water content(Oi)=    0.025000                                
+ Initial soil-water deficit (M)=    0.395000                                
+ Avg. suction at wet front(Sav)=    0.220000                                
+    Green-Ampt parameters (A,B)=  0.1520E-05  0.1321E-06                    
+ Node number for flood checking=          29                                
+                                                                            
+  Simulation parameters                                                     
+  ---------------------                                                     
+       Length of simulation (s)=  0.4050E+05                                
+   Order of the basis functions=           2                                
+     Petrov-Galerkin parameters=  0.04332 -0.00308 -0.31645  0.14512        
+       Time weighting parameter=    0.500000                                
+             Space step, dx(m) =    0.089286                                
+             Time step, dt (s) =    2.954076                                
+  Number of nodes in system    =          57                                
+  Number of elements in system =          28                                
+  Number of time steps        =       13709                                 
+  Maximum number of iterations =         350                                
+    Maximum flow rate and depth=    0.000061    0.004181                    
+           Celerity of the wave=    0.024180                                
+              Courant time step=    2.954076                                
+                  Froude number=    0.071637                                
+          Kinematic wave number=    11652.15                                
+                 Courant number=    0.800000                                
+       Surface changes feedback=          NO                                
+                                                                            
+                                                                            
+ File: output/841215.og1                               VFSMOD v4.6.1.1 10/20
+                                                                            
+  Sediment parameters                                                       
+  -----------------------------------------                                 
+  Sediment inflow concentration(Ci)=    0.034000      g/cm3                 
+                    Particle class =   (storm) fine                         
+       Particle size (diameter, dp)=    0.000853         cm                 
+        Particle fall velocity (Vf)=    0.006512       cm/s                 
+  Particle weight density (gamma-s)=    2.650000      g/cm3                 
+  % of particles with dp>0.0037 cm =   50.000000          %                 
+  Porosity of deposited sediment(P)=   43.400000          %                 
+                                                                            
+  Filter parameters for sediment transport                                  
+  -----------------------------------------                                 
+             Filter main slope (Sc)=    0.050000                            
+          Filter media spacing (Ss)=    1.630000         cm                 
+   Modified Manning coefficient (n)=    0.012000  s.cm^-.33                 
+  Manning coeff. for bare soil (n2)=    0.050000   s.m^-.33                 
+            Filter media height (H)=   10.000000         cm                 
+                                                                            
+ OUTPUTS
+ -------
+ Water balance
+ -------------
+Volume from rainfall=     0.9250E+01 m3
+Volume from up-field=     0.9363E+02 m3
+Volume from outflow =     0.5446E+02 m3
+Volume infiltrated  =     0.4843E+02 m3
+  
+ Hydrology
+ -----------
+Time to beginning   =     0.5261E+04 s
+Time and q at peak  =     0.1255E+05 s     0.4320E-02 m3/s
+Time to end runoff  =     0.2995E+05 s
+  
+ Sediment
+ --------
+Sediment inflow     =     0.3184E+03 g/cm    0.3184E+07 g
+Sediment outflow    =     0.1376E+02 g/cm    0.1376E+06 g
+Trapping efficiency =       95.7 %
+                     ----------------
+Sediment deposition :
+        - Sediment wedge depth,   Y(t) =    0.08 cm
+        - Sediment wedge length,  X2(t)=    0.31 cm
+        - Effective filter length,L(t) =  499.69 cm
+        - Sediment tail at field, X1(t)=    1.59 cm
+        - Sediment depth in low section=    0.41 cm
+        - Rough sediment balance error =    0.00 %
+        - Rough water balance error    =    0.00 % (adjusted)

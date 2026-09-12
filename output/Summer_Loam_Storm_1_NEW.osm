@@ -1,0 +1,127 @@
+File: output/Summer_Loam_Storm_1_NEW.osm              VFSMOD v4.6.1.1 10/2025
+ INPUTS
+ ------
+ File: output/Summer_Loam_Storm_1_NEW.ohy              VFSMOD v4.6.1.1 10/20
+                                                                            
+  Storm parameters                                                          
+  ----------------                                                          
+                     Storm data: Unit9,                                     
+                     +------+---------------------+------------+            
+                     |Period|    Time interval    |  Rainfall  |            
+                     |      |         (s)         |   (m/s)    |            
+                     +------+---------------------+------------+            
+                     |    1 |     0.0  to  3600.0 | 0.1426E-04 |            
+                     |    2 |  3600.0  to  3600.0 | 0.1426E-04 |            
+                     |    3 |  3600.0  to  5400.0 | 0.0000E+00 |            
+                     +------+---------------------+------------+            
+            Total rainfall (mm)=       51.34                                
+   Peak rainfall intensity(m/s)=  0.1426E-04                                
+     Peak inflow rate BC (m3/s)=  0.7315E-05                                
+          (The inflow hydrograph can be found in the OUTPUTS)               
+                                                                            
+  Filter parameters                                                         
+  -----------------                                                         
+        Length of the strip (m)=    1.200000                                
+         Width of the strip (m)=    0.400000                                
+        Surface characteristics=                                            
+                     +---------------------+---------+---------+            
+                     |    x(m) interval    |    n    |    So   |            
+                     +---------------------+---------+---------+            
+                     |  0.0000  to  1.2000 |  0.0350 |  0.0100 |            
+                     +---------------------+---------+---------+            
+                                                                            
+   Elemental information follows (IELOUT=1):                                
+                     +-----+-----+-----+---------+---------+                
+                     | Elem| node|local| alpha   |   x(m)  |                
+                     +-----+-----+-----+---------+---------+                
+                     |    1|    1|    1|   2.8571|   0.0000|                
+                     |    1|    2|    2|   2.8571|   0.2000|                
+                     |    1|    3|    3|   2.8571|   0.4000|                
+                     |    2|    3|    1|   2.8571|   0.4000|                
+                     |    2|    4|    2|   2.8571|   0.6000|                
+                     |    2|    5|    3|   2.8571|   0.8000|                
+                     |    3|    5|    1|   2.8571|   0.8000|                
+                     |    3|    6|    2|   2.8571|   1.0000|                
+                     |    3|    7|    3|   2.8571|   1.2000|                
+                     +-----+-----+-----+---------+---------+                
+                                                                            
+  Soil parameters                                                           
+  ---------------------                                                     
+  Saturated hydraulic cond.(Ks)=  0.5592E-04                                
+    Sat. soil-water content(Os)=    0.356000                                
+ Initial soil-water content(Oi)=    0.233361                                
+ Initial soil-water deficit (M)=    0.122639                                
+ Avg. suction at wet front(Sav)=    0.497821                                
+    Green-Ampt parameters (A,B)=  0.5592E-04  0.3414E-05                    
+ Node number for flood checking=           4                                
+                                                                            
+  Simulation parameters                                                     
+  ---------------------                                                     
+       Length of simulation (s)=  0.5400E+04                                
+   Order of the basis functions=           2                                
+     Petrov-Galerkin parameters=  0.04332 -0.00308 -0.31645  0.14512        
+       Time weighting parameter=    0.500000                                
+             Space step, dx(m) =    0.200000                                
+             Time step, dt (s) =    3.084009                                
+  Number of nodes in system    =           7                                
+  Number of elements in system =           3                                
+  Number of time steps        =        1750                                 
+  Maximum number of iterations =         750                                
+    Maximum flow rate and depth=    0.000035    0.001137                    
+           Celerity of the wave=    0.051881                                
+              Courant time step=    3.084009                                
+                  Froude number=    0.294716                                
+          Kinematic wave number=      121.49                                
+                 Courant number=    0.800000                                
+       Surface changes feedback=          NO                                
+                                                                            
+                                                                            
+ File: output/Summer_Loam_Storm_1_NEW.og1              VFSMOD v4.6.1.1 10/20
+                                                                            
+  Sediment parameters                                                       
+  -----------------------------------------                                 
+  Sediment inflow concentration(Ci)=    0.006030      g/cm3                 
+                    Particle class =    (user) coarse                       
+       Particle size (diameter, dp)=    0.023600         cm                 
+        Particle fall velocity (Vf)=    4.657347       cm/s                 
+  Particle weight density (gamma-s)=    2.540000      g/cm3                 
+  % of particles with dp>0.0037 cm =  100.000000          %                 
+  Porosity of deposited sediment(P)=   35.600000          %                 
+                                                                            
+  Filter parameters for sediment transport                                  
+  -----------------------------------------                                 
+             Filter main slope (Sc)=    0.010000                            
+          Filter media spacing (Ss)=    1.310000         cm                 
+   Modified Manning coefficient (n)=    0.035000  s.cm^-.33                 
+  Manning coeff. for bare soil (n2)=    0.030000   s.m^-.33                 
+            Filter media height (H)=    4.000000         cm                 
+                                                                            
+ OUTPUTS
+ -------
+ Water balance
+ -------------
+Volume from rainfall=     0.2464E-01 m3
+Volume from up-field=     0.2627E-01 m3
+Volume from outflow =     0.0000E+00 m3
+Volume infiltrated  =     0.5091E-01 m3
+  
+ Hydrology
+ -----------
+Time to beginning   =     0.0000E+00 s
+Time and q at peak  =     0.5243E+04 s     0.0000E+00 m3/s
+Time to end runoff  =     0.0000E+00 s
+  
+ Sediment
+ --------
+Sediment inflow     =     0.3931E+01 g/cm    0.1573E+03 g
+Sediment outflow    =     0.0000E+00 g/cm    0.0000E+00 g
+Trapping efficiency =      100.0 %
+                     ----------------
+Sediment deposition :
+        - Sediment wedge depth,   Y(t) =    0.21 cm
+        - Sediment wedge length,  X2(t)=    1.28 cm
+        - Effective filter length,L(t) =  118.72 cm
+        - Sediment tail at field, X1(t)=   21.23 cm
+        - Sediment depth in low section=    0.00 cm
+        - Rough sediment balance error =    0.00 %
+        - Rough water balance error    =    0.00 % (adjusted)

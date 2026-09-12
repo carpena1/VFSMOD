@@ -1,0 +1,59 @@
+ 1                             ;1 = read/create iwq & owq files
+ 0 155.28                      ;Kd proc.: 0= Kd(L/Kg); 1=Koc (Koc L/Kg) , %OC)
+ 13                            ;% Clay content in sediment
+ 1                             ;IDG
+ 1 182.407 0.338 3.0725E-03 2. 0.07 0.02  ;ndgday  dgHalfL(d) FC(-) dgPin(mg)  dgML(cm) dgLD dgMRES0(mg)
+     4.1
+   0.307
+
+  850224
+------------------------------------------------------------------
+IDG    : flag to calculate degradation (1, other ignore).
+ndgday : no. of days between events
+dgKref : kref, pesticide half-life (days)
+FC     : top soil field capacity (m3/m3). This can be taken from 
+         FOCUS R1-R4 scenario parameters used by the PRZM model
+dgPin  : Pin, pesticide mass entering filter (mg)
+dgML   : Surface mixing layer thickness (cm, std.=2cm)
+dgT(i) : T, daily air temperatures (C) for period between events
+-------------------------------------------------------
+ *** Runoff event info *** 
+Run 36 of 39
+Event Data
+ Date           : 24.feb..85
+ P2T row        : 8674
+ Duration       : 12 h  
+ Precipitation  : 0 mm    
+ Runoff 
+  - Volume      : 3.782E-02 mm/h  
+  - Flux        : 2.351E-04 mg as/m2/h  
+ Erosion 
+ -  Mass        : 1.133E-01 kg/h  
+  - Flux        : 2.094E-05 mg as/m2/h   
+ Tot. Mass      : 3.072E-03 mg as/m2   
+
+ Pest. residue  : 0 mg/m2 from file 850202.owq (Run 35)
+dgPin (iwq) =       Prev. Event Residual mass (from *.owq) + 
+              (Act. RunOffFlux + Act. ErosionFlux)
+                   * Event Duration
+dgPin (iwq) =       0 mg/m2                     
+              (0.0002351 mg/m2/h + 2.094E-05 mg/m2/h
+                   * 12h
+ dgPin(iwq) for event at 24/02/1985 : 0.00307248 mg as/m2
+ write dgPin(iwq) to file 850224.iwq
+-------------------------------------------------------
+ *** Runoff event info *** 
+Run 36 of 39
+Event Data
+ Date           : 24.feb..85
+ P2T row        : 8674
+ Duration       : 12 h  
+ Precipitation  : 0 mm    
+ Runoff 
+  - Volume      : 3.782E-02 mm/h  
+  - Flux        : 2.351E-04 mg as/m2/h  
+ Erosion 
+ -  Mass        : 1.133E-01 kg/h  
+  - Flux        : 2.094E-05 mg as/m2/h   
+ Tot. Mass      : 3.072E-03 mg as/m2   
+-------------------------------------------------------

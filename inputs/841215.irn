@@ -1,0 +1,33 @@
+      3 5.7099E-07     Nrain, Rpeak (m/s)
+      0 5.7099E-07     start, Rpeak (m/s)          
+32400 0                Rain duration in sec, 9h * 60(->min) * 60(->sec))
+40500 0                End of simulation, runoff tailing, 32400 * 1.25
+------------------------------------------------------------------
+
+
+     2 5.6699E-07       Nrain, Rpeak (m/s)
+     0 5.6699E-07
+ 61200 5.6699E-07       (17 * 3600s)
+------------------------------------------------------------------
+ NRAIN      (integer) number of rainfall periods including period to end simulation Default 2
+ RPEAK      maximum rainfall intensity for the storm (m/s)
+ RAIN(I,J)  time (s) and rainfall rate o intensity (m/s) 
+            over the VFS for each period. The last time step corresponds with the desired simulation
+            time chosen by the user (typically coupled with a rainfall intensity of 0)
+ Rpeak (m/s) = Rainfall rate = PRCP (mm) / 1000 / (Duration * 3600)
+ Te          = End time (s)  = Duration * 3600
+
+
+     3 5.7099E-07              Nrain, Rpeak (m/s)
+     0 5.7099E-07              start, Rpeak (m/s)          
+ 32400 5.7099E-07              Event duration in sec, 9h * 60(->min) * 60(->sec))
+ 32401 0                       End of rain
+ 40500 0                       End of simulation, tailing, 32400 * 1.25
+------------------------------------------------------------------
+
+
+     3 5.7099E-07              Nrain, Rpeak (m/s)
+     0 5.7099E-07              start, Rpeak (m/s)          
+ 32400 0              Event duration in sec, 9h * 60(->min) * 60(->sec))
+40500 0                       Tailing, 32400 * 1.25
+------------------------------------------------------------------

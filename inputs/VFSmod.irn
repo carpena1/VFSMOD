@@ -1,0 +1,11 @@
+     2 0.0000E+00       Nrain, Rpeak (m/s)
+     0 0.0000E+00
+ 43200 0.0000E+00       (12 * 3600s)
+------------------------------------------------------------------
+ NRAIN      (integer) number of rainfall periods including period to end simulation Default 2
+ RPEAK      maximum rainfall intensity for the storm (m/s)
+ RAIN(I,J)  time (s) and rainfall rate o intensity (m/s) 
+            over the VFS for each period. The last time step corresponds with the desired simulation
+            time chosen by the user (typically coupled with a rainfall intensity of 0)
+ Rpeak (m/s) = Rainfall rate = PRCP (mm) / 1000 / (Duration * 3600)
+ Te          = End time (s)  = Duration * 3600

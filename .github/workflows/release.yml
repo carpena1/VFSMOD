@@ -1,0 +1,160 @@
+# .github/workflows/release.yml
+#
+# Triggered by pushing a version tag, e.g.: git tag v1.2.3 && git push --tags
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"          # e.g. v1.2.3
+      - "v[0-9]+.[0-9]+.[0-9]+.[0-9]+"   # e.g. v1.2.3.4 (optional 4th number)
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build / ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux-x86_64
+            gfortran: 13
+            archive_ext: tar.gz
+
+          - os: macos-14
+            target: macos-arm64
+            gfortran: 13
+            archive_ext: tar.gz
+
+          - os: windows-latest
+            target: windows-x86_64
+            gfortran: 13
+            archive_ext: zip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build VFSMOD
+        uses: ./.github/actions/build-vfsmod
+        with:
+          gfortran: ${{ matrix.gfortran }}
+
+      - name: Package (tar.gz - Linux / macOS)
+        if: matrix.archive_ext == 'tar.gz'
+        shell: bash
+        run: |
+          ARCHIVE="vfsmod-${GITHUB_REF_NAME}-${{ matrix.target }}.tar.gz"
+          tar -czf "${ARCHIVE}" -C build vfsm uh
+          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
+
+      - name: Package (zip - Windows)
+        if: matrix.archive_ext == 'zip'
+        shell: msys2 {0}
+        run: |
+          ARCHIVE="vfsmod-${GITHUB_REF_NAME}-${{ matrix.target }}.zip"
+          zip -j "${ARCHIVE}" build/vfsm.exe build/uh.exe
+          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
+
+      - name: SHA-256 checksum (Linux / macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
+          else
+            shasum -a 256 "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
+          fi
+
+      - name: SHA-256 checksum (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
+          else
+            shasum -a 256 "${{ env.ARCHIVE }}" > "${{ env.ARCHIVE }}.sha256"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: |
+            ${{ env.ARCHIVE }}
+            ${{ env.ARCHIVE }}.sha256
+          retention-days: 1
+
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          pattern: dist-*
+          merge-multiple: true
+
+      - name: List release assets
+        run: ls -lh dist/
+
+      - name: Combine checksums into SHA256SUMS.txt
+        run: |
+          cat dist/*.sha256 > dist/SHA256SUMS.txt
+          echo "SHA256SUMS:"
+          cat dist/SHA256SUMS.txt
+
+      - name: Generate release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo "## VFSMOD v${VERSION}"
+            echo ""
+
+            # Pull the relevant section from CHANGES.md
+            if [[ -f CHANGES.md ]]; then
+              awk "/^## \\[${VERSION}\\]/{found=1;next} found && /^## /{exit} found{print}" \
+                CHANGES.md
+            else
+              echo "See the commit history for details."
+            fi
+
+            echo ""
+            echo "## Downloads"
+            echo ""
+            echo "| Platform | Archive |"
+            echo "|----------|---------|"
+            for f in dist/*.tar.gz dist/*.zip; do
+              [[ -f "$f" ]] || continue
+              fname=$(basename "$f")
+              echo "| ${fname} | \`${fname}\` |"
+            done
+            echo ""
+            echo "Verify your download with \`SHA256SUMS.txt\`:"
+            echo '```'
+            echo "sha256sum -c SHA256SUMS.txt"
+            echo '```'
+          } > release_notes.md
+          cat release_notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "${{ github.ref_name }}"
+          body_path: release_notes.md
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

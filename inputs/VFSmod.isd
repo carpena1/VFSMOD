@@ -1,0 +1,10 @@
+ 7 0.4 6.6506E-04 4.9057E-01   Npart, COARSE, CI, Por 
+ 0.002 2.65   DP, SG 
+------------------------------------------------------------------
+NPART   (integer) incoming sediment particle class according to the USDA (1975) particle classes:
+COARSE  % of particles from incoming sediment with diameter > 0.0037 cm std. = 0.4 '
+        (coarse fraction that will be routed through wedge) (unit fraction, i.e. 100% = 1.0).
+CI      Incoming flow sediment concentration (g/cm3)
+POR     Porosity of deposited sediment (unit fraction, i.e. 43.4% = 0.434)  1 - BulkDensity/Sed.BulkDensity)
+DP      Sediment particle size, diameter, d50 (cm), read only if NPART=7 Default 0.0002
+SG      Sediment particle density, (g/cm3), read only if NPART=7 Default 2.65 g/cm3

@@ -1,0 +1,14 @@
+ 1.52E-06     0.22     0.42  0.0026     0              0.5
+------------------------------------------------------------------
+  Ks(m/s)   Sav(m)  Theta-s Theta-i Sm(m) Schk(ponding ck)
+ Scenario Scenario Scenario  Matrix     0              0.5
+
+ Ks      saturated hydraulic conductivity (m/s, Scenario)
+ SAV     (Green - Ampt) 's average suction at wet front (m, Scenario)
+ Theta-s saturated soil-water content,  (m3/m3, Scenario)
+ Theta-i initial soil-water content (m3/m3, from datamatrix)
+ SM      maximum surface storage (m, std. 0m)
+ SCHK    relative distance from de upper filter edge where
+         the check for ponding conditions is made 
+         (i.e. 1= end filter, 0.5= mid point, 0= beginning)
+         std. = 0.5 (mid point)
