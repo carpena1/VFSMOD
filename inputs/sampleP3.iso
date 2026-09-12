@@ -1,0 +1,7 @@
+  1.33e-05   0.37904   0.311   0.125   0.0   1.0
+ 
+     -------------------------------------
+ Ks(m/s)   Sav(m)  Theta-s   Theta-i   Sm(m)   Schk(ponding ck)  WTD(Water Table Depth / No value means 'standard' iso file)
+ WTD(m, no value or non numeric value means no water table present and lines below not needed)
+ ITHETATYPE OR/OR  VGALPHA/BCALPHA VGN/BCLAMBDA VGM
+ IKUNSATYPE VGM/BCETA/GDNALPHA         BCALPHA 

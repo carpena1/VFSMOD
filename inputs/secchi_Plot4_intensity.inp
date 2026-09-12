@@ -1,0 +1,24 @@
+ 46  73  .7735  5  3  164  .00119311734  'P,CN,A,storm type,D,L,Y
+                                         'Note: Storm type I,IA,II,III (j=1,4)
+Silty clay                               'Soil Type
+ -1  .8  .6 -1                           'K, C, P, Dp 
+  1                                      'IREOTY
+  4                                      'Soil Org Matter
+ 6.96                                    'tmid (h) Time for mid storm point P/P24=0.5
+    0  0                                 '{time (h), P/P24}, User defined storm
+    1.5  0.0435
+    3  0.0696
+    4.5  0.0696
+    6  0.0696
+    7.5  0.7348
+    9  0.8957
+    10.5  0.9304
+    12  0.9478
+    13.5  0.9478
+    15  0.9565
+    16.5  0.987
+    18  0.987
+    19.5  0.987
+    21  0.987
+    22.5  0.987
+    24  1

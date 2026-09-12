@@ -1,0 +1,45 @@
+File: output/MODEL_COMPARISON.osp                     VFSMOD v4.6.0 11/2024
+ 
+ Files for this simulation
+   File #=  1 code:ikw=inputs/Summer_Loam_Storm_1_NEW.ikw                                         
+   File #=  2 code:irn=inputs/Summer_Loam_Storm_1_NEW.irn                                         
+   File #=  3 code:iro=inputs/Summer_Loam_Storm_1_NEW.iro                                         
+   File #=  4 code:iso=inputs/Summer_Loam_Storm_1_NEW.iso                                         
+   File #=  5 code:osm=output/MODEL_COMPARISON.osm                                                
+   File #=  6 code:ohy=output/MODEL_COMPARISON.ohy                                                
+   File #=  7 code:igr=inputs/Summer_Loam_Storm_1_NEW.igr                                         
+   File #=  8 code:og1=output/MODEL_COMPARISON.og1                                                
+   File #=  9 code:og2=output/MODEL_COMPARISON.og2                                                
+   File #= 10 code:osp=output/MODEL_COMPARISON.osp                                                
+   File #= 11 code:isd=inputs/Summer_Loam_Storm_1_NEW.isd                                         
+   File #= 12 code:iwq=inputs/Summer_Loam_Storm_1_NEW.iwq                                         
+   File #= 13 code:owq=output/MODEL_COMPARISON.owq                                                
+  
+       Summary of Buffer Performance Indicators:
+  
+        4.8 m^2 = Source Area (input)
+      12.00 m   = Source Flow Length (input)
+       0.40 m   = Source Area Width (input)
+       1.20 m   = Filter Strip Length (input)
+       0.40 m   = Filter Strip Width (input)
+      0.035     = Mean Filter Mannings Roughness (input)
+  
+      10.00 %   = Ratio of Filter Length to Source Flow Length
+     51.336 mm  = Total Rainfall
+      0.025 m3  = Total Rainfall on Filter
+      5.520 mm  = Total Runoff from Source (mm depth over Source Area)
+      0.026 m3  = Total Runoff from Source
+      0.000 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
+      0.000 m3  = Total Runoff out from Filter
+      0.051 m3  = Total Infiltration in Filter
+      0.000     = Runoff Delivery Ratio
+  
+       0.159 kg = Mass Sediment Input to Filter
+       5.985 g/L= Concentration Sediment in Runoff from source Area
+       0.000 kg = Mass Sediment Output from Filter
+       0.000 g/L= Concentration Sediment in Runoff exiting the Filter
+       0.159 kg = Mass Sediment retained in Filter
+       0.000    = Sediment Delivery Ratio
+  
+       1.19 m   = Effective Filter Length
+       0.01 m   = Wedge Distance

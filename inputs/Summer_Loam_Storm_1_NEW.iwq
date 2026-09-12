@@ -1,0 +1,37 @@
+3 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;IWQPRO CSAB(I)
+1 9 1.5 64 267 3791                      ; IKD (Kd or Koc) (%OC) (repeat Koc or Kd for j species)
+0			; %Clay content in field soil
+1 IDG
+7 999 0.195 24138.89 2 1 0 313 0.0000768 1 0 52.8 19.25 0.5 0 230 0.08228 0.5 0 ; ndgday dgHalf FC dgPin dgML dgLD dgmres0 (repeat {dgHalf,dgPIN,dgLD,dgmres0}_j for j species)
+19.5 17.8 20.7 21.3 23.1 21.6 19.3 (dgT(i),i=1,ndgday) (Celsius)
+0.223 0.179 0.161 0.149 0.140 0.127 0.120 (dgTheta(i),i=1,ndgday (-)
+1                                       ; IMOB
+79.9 489.48 396.72 394.29                             ; Mj molar mass of compounds (g/mol)
+-1 0 0 0                             ; fij molar formation fraction matrix {jxj}
+0 -1 0 0 
+0 0 -1 0 
+0 0 0 -1 
+
+
+------------------------------------------------------------------
+IWQPRO    : Pesticide trapping: 1=Sabbagh;2= Sabbagh(refit);3=mech.mass bal.;4=Chen
+CSAB(I)   : Coefficients for refitted Sabbagh equation (used when IWQPRO=2)
+IKD       : Sorption type: 0, Kd(L/Kg); 1, Koc (L/Kg)
+Kd(j) Koc(j): Sorption coefficient (j species) as distribution Kd (IKD= 0) or Koc (IKD=1) (L/Kg)
+%OC       : Source soil organic carbon, only read when IKD=1 (Koc) (%)
+IDG       : Degradation type: 1: EU-FOCUS k=Kref.k(T).k(theta); 2: US-EPA k=Kref;
+            3: k=Kref.k(T);4: k=Kref.k(1theta; 0: No degradation (no more inputs are read)
+ndgday    : no. of days (i) between events (d)
+dgHalf(j) : t0.5, pesticide half-life (d), kref=Ln2/t0.5
+FC        : top soil field capacity (m3/m3). This can be taken from FOCUS R1-R4 scenario
+            parameters used by the PRZM model
+dgPin(j)  : Pin, pesticide mass entering filter for event over source area (mg/m2)
+dgML      : Surface mixing layer thickness (cm, standard= 2cm PRZM)
+dgLD(j)   : lambda, dispersion length of chemical (m). This can be taken as  
+            0.05m from FOCUS-Pearl (Default)
+dgmres0(j): Pesticide residues (i species) on VFS surface (mixing layer) when event starts (mg/m2)
+dgT(i)    : T, daily air temperatures (C) for period between events, PRZM weather
+dgTheta(i): theta, Topsoil daily volumetric moisture (-) for period between events
+IMOB      : Residues remobilization: 1(or none): partial (recomm); 2:full; 3:no remob.
+Mj        : Molar mass of compounds (g/mol) (only read when number of compounds is j>1)
+fij       : matrix of molar formation fractions between compounds {jxj} (when number of compounds is j>1)

@@ -1,0 +1,27 @@
+ 100 100       Swidth(m), Slength(m)
+     3 5.78E-03       nbcroff, bcropeak(m3/s)
+     0 0              Beginning of triangular runoff
+ 12135 5.78E-03       time to runoff meak = entime/2.67
+ 32400 0              end runoff time (9 * 3600s)
+------------------------------------------------------------------
+SWIDTH      Source area width (m)
+SLENGTH     Source area flow path length (m)
+NBCROFF     (integer) number of time steps of the incoming field hydrograph Default 2
+BCROPEAK    peak flow of the incoming triangular field hydrograph (m3/s)
+BCROFF(I,J) incoming field hydrograph: flow rate, time (s) vs. qin(m3/s).
+BCROPEAK    Triangular peak runoff rate(m3/s) = 2*[RunoffVolume (mm/h) * (1 m/1000mm) * (1h/3600 sec)] * [A(ha) * (10000 m2/ha)]
+BCPEAKTIME  Triangular peak runoff time (s)= DR2/2.67 (see below) 
+DR2         End time (s) = Duration (h) * 3600 s/h
+
+Original:
+ 100 100       Swidth(m), Slength(m)
+     2 2.8917E-03       nbcroff, bcropeak(m3/s)
+     0 2.8917E-03
+ 61200 2.8917E-03       (17 * 3600s)
+
+With Triangular as proposed in 4.5.2:
+ 100 100       Swidth(m), Slength(m)
+     3 5.78E-03       nbcroff, bcropeak(m3/s)
+     0 0
+ 12135 5.78E-03
+ 61200 0              (17h * 3600s/h)

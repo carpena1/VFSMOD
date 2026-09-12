@@ -1,0 +1,29 @@
+ 1 -11.5142 0.5949 0.4892 -0.3753 0.2039 ;iwqpro dP eq.=1:Sabbagh;2:refitSabbagh;3:mass-bal.;4:Chen)
+ 1 13.2 3.0                       ;Kd proc.: 0= Kd(L/Kg); 1=Koc (Koc L/Kg) , %OC)
+ 25                            ;% Clay content in sediment
+ 1                             ;IDG
+ 3 27.995 0.26 6.097E+00 2     ;ndgday  dgHalfL(d) FC(-) dgPin(mg/m)  dgML(cm)
+     9.5     8.6     6.3       ;(dgT(i),i=1,ndgday) (Celsius)
+   0.265   0.264   0.265       ;(dgTheta(i),i=1,ndgday (-)
+ 4                              ;IMOB (1 or missing:100% res;2:100% ml;3:part. ml;4:no remob)
+
+  841213  841214  841215
+
+------------------------------------------------------------------
+IDG    : flag to calculate degradation (1, other ignore).
+ndgday : no. of days between events
+dgKref : kref, pesticide half-life (days)
+FC     : top soil field capacity (m3/m3). This can be taken from 
+         FOCUS R1-R4 scenario parameters used by the PRZM model
+dgPin  : Pin, pesticide mass entering filter (µg/L)
+dgML   : Surface mixing layer thickness (cm, std.=2cm)
+dgT(i) : T, daily air temperatures (C) for period between events
+
+Prev. Event at  : 1984-12-13
+ Residual mass  : 6.097 mg/m
+Act.  Event at  : 1984-12-15
+ Duration       : 17 h
+ Runoff vol.    : 1.041 mm/h
+ Runoff flux    : 0 mg/h
+ Erosion mass   : 26.31 kg/h
+ Erosion flux   : 0 mg/h

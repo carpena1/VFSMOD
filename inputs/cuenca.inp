@@ -1,0 +1,6 @@
+ 271.8  45  404.7  3  24  3048 0.01       'P,CN,A,storm type,D,L,Y
+                                          'Note: Storm type I,IA,II,III (j=1,4)
+Sandy loam                                'Soil Type
+ -1  1  1 -1                              'K, C, P, Dp 
+  1                                       'IREOTY
+  1                                       'Soil Org Matter

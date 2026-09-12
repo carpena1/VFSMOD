@@ -1,0 +1,13 @@
+Unit9,                      
+ 0.4
+ 1.2   -1   0.5   0.8   750   3   1   1
+ 1
+ 1.2   0.035   0.01
+ 4
+-------------------------------------
+ title
+ fwidth
+ vl n thetaw cr maxiter npol ielout kpg
+ nprop
+ sx(iprop), rna(iprop), soa(iprop), iprop=1,nprop
+WQ flag=1 if Pesticides Bayer Option has been chosen
