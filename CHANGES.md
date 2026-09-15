@@ -1,6 +1,6 @@
 # VFSMOD — Changelog
 
-_Markdown rendering of `src_vfsm/CHANGES.txt` (the authoritative source). Versions are listed newest first._
+_Markdown rendering of `src_vfsm/CHANGES.txt` (the authoritative source). Versions are listed newest first. The history of the `uh` utility (`src_uh/CHANGES_UH.txt`) follows at the end: [UH — Changelog](#uh--changelog)._
 
 ## 4.6.2.1
 
@@ -461,3 +461,170 @@ IMPORTANT: Recommended input values
 - Some parameters little used or confusing have been eliminated (IOUT and others).
 
 - The documentation has been enlarged and revised.
+
+---
+
+# UH — Changelog
+
+_Markdown rendering of `src_uh/CHANGES_UH.txt`, the modification history of the `uh` unit hydrograph utility. Versions are listed newest first; dates are as written in the source file. Initials: rmc = R. Muñoz-Carpena, jep = J. E. Parsons._
+
+## 3.0.9
+
+**(02/04/25)**
+
+- Fixed bug in mass balance in .iro and .irn where the values for total rain and runoff reported on the .out file do not match the integral under the irn and irn curves. (rmc)
+
+## 3.0.8
+
+**(20/02/23)**
+
+- Fixed processing issues with user hyetographs (jstype=5,6) affecting runoff, rainfall and sediment calculations and outfiles. Issue remains with Intel compiler integer/real conversions that affects array bounds when selecting compiler optimization (-O or higher). The code must be compiled with option '-O -fp-model precise' to ensure correct floating point preserve array bounds. More in next version. (rmc)
+
+## 3.0.7
+
+**(20/02/23)**
+
+- Added option to calculate sediment using MUSS used in PRZM (ieroty=5 in .inp file). (rmc)
+- 5-min hyeto-/hydrographs are now written in .irn and .iro VFSMOD files (option to select duration of step is added as last input in first line of INP but if not provided dincr=5min). (rmc)
+
+## 3.0.6
+
+**(15/06/21)**
+
+- Added check for duration of the storm (and user normalized cumulative hyetograph) cannot exceed 24 hr. (rmc)
+- Simplified .iro, irn VFSMOD outputs to write 15-min hydro- and hydrographs using moving average, mass balanced maintained. (rmc)
+
+## 3.0.5
+
+**(24/11/20)**
+
+- Fixed i30 calculation, fixed typo in USLE K in structure factor data for vfSL texture. (rmc)
+- Added user option ("storm type"=5 in .INP file) to read actual cumulative hyetograph provided by user hyetograph (hr,mm). (rmc)
+
+## 3.0.4
+
+**(8/10/20)**
+
+- Reordered Erosion ieroty 0=Foster; (none or) 1=Williams, 2=Gleams to make Williams recommended. (rmc)
+
+## 3.0.3
+
+**(03/12/20)**
+
+- Fixed printing tp on the final hydrograph & added debug to `print*,' full tabular hydrograph'`. (rmc)
+
+## 3.0.2
+
+**(02/15/14)**
+
+- Fix user hyetograph option (jstype=5). (rmc)
+
+## 3.0.1
+
+**(02/15/12)**
+
+- Added user table for 24-h hyetograph. (rmc)
+
+## 3.0.0
+
+**(09/15/11)**
+
+- Rewritten hydrograph calculation with convolution of excess rain steps. (rmc)
+
+## 2.4.1
+
+**(01/10/05)**
+
+- Added changes suggested by U. of Guelph group. (rmc)
+
+## Before 2.4.1
+
+**(11/13/03)**
+
+- Fixed coef. on Type Ia - did not add new hyet curves. (rmc)
+
+**(11/10/03)**
+
+- Reordered Erosion ieroty 1=Williams, 2=Gleams 3=Foster to coincide with changes in Shell. (jep)
+
+**(5/01/03)**
+
+- Added check for small runoff case to switch to Williams sediment calculation that includes runoff. (rmc, jep)
+
+**(4/20/03)**
+
+- Runoff calculation for low CN revised. (rmc)
+
+**(4/19/03)**
+
+- dp now being read in. (jep)
+
+**(4/18/03)**
+
+- Fixed K - computed if we enter -1, other use entered value, also fixed dp output format. (jep)
+
+**(16/03/02)**
+
+- Version changed to 1.06 to couple with VFSMOD (jep); author affiliation changed (rmc).
+
+**(16/06/00)**
+
+- Version changed to 1.0, erosion output organized. (rmc)
+
+**(3/09/00)**
+
+- Version changed to 0.9, general program cleanup. (rmc)
+
+**(10/26/99)**
+
+- Implemented the project file concept as in vfsm. (jep)
+
+**(10/01/99)**
+
+- Fixed array so that storm duration (D) can now be up to 24h. (rmc)
+
+**(8/27/99)**
+
+- Added option to select different methods for applying MUSLE, default is Foster, 2=Williams, 3=GLEAMS. (rmc)
+
+**(3/28/99)**
+
+- Erosion part: fixes in I30 calculation after Chow and checked for consistency in units, clean up; Hydro: added delay time. (rmc)
+
+**(3/10/99)**
+
+- Checked Input/Output files as in VFSMOD. (rmc)
+- Cleanup - created hydrograph.f for hydrograph subroutines, created io.f for input and output related processing. (jep)
+
+**(3/06/99)**
+
+- Input/Output files as in VFSMOD. (jep)
+
+**(3/05/99)**
+
+- Output irs file for VFSMOD. (jep)
+
+**(3/03/99)**
+
+- Added hyetographs for storm types I & IA. (rmc)
+
+**(3/02/99)**
+
+- Additional work on Musle - units close. (jep)
+
+**(3/01/99)**
+
+- Checked erosion parameters and units. (rmc)
+
+**(2/20/99)**
+
+- Roughed in MUSLE. (jep)
+
+**(2/18/99)**
+
+- Added hyetograph output for 6 h storm. (jep)
+- Modify File Inputs for Erosion. (jep)
+
+**(2/17/99)**
+
+- Check for 0.1<Ia/P<0.5. (rmc)
