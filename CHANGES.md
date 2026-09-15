@@ -1,6 +1,12 @@
 # VFSMOD — Changelog
 
-_Markdown rendering of `src_vfsm/CHANGES.txt` (the authoritative source). Versions are listed newest first. The history of the `uh` utility (`src_uh/CHANGES_UH.txt`) follows at the end: [UH — Changelog](#uh--changelog)._
+**Contents:** [VFSMOD changes](#vfsmod-changes) · [UH changes](#uh-changes)
+
+---
+
+# VFSMOD changes
+
+_Markdown rendering of `src_vfsm/CHANGES.txt` (the authoritative source). Versions are listed newest first._
 
 ## 4.6.2.1
 
@@ -464,7 +470,7 @@ IMPORTANT: Recommended input values
 
 ---
 
-# UH — Changelog
+# UH changes
 
 _Markdown rendering of `src_uh/CHANGES_UH.txt`, the modification history of the `uh` unit hydrograph utility. Versions are listed newest first; dates are as written in the source file. Initials: rmc = R. Muñoz-Carpena, jep = J. E. Parsons._
 
