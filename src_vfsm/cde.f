@@ -403,24 +403,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       return
       END
 
-      FUNCTION SCONC(JJ,C1,C2,TT,TT0,ZD)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  Auxiliary sorbed concentration integrand for Freundlich mass integration    C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      COMMON/WQ1/VKD(10),VKF(10),VKN(10),CCP,CSAB(5),DGMRES0(10),
-     &           DGMOL(10),DGFRAC(10,10)
-
-      CVAL=CONC(JJ,C1,C2,TT,TT0,ZD)
-      IF(CVAL.GT.0.D0) THEN
-         SCONC=CVAL**VKN(JJ)
-      ELSE
-         SCONC=0.D0
-      ENDIF
-
-      return
-      END
-
       FUNCTION erfcc(x)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C   Returns the complementary error function erfc(x) with fractional error    C
@@ -437,18 +419,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       return
       END
 C  (C) Copr. 1986-92 Numerical Recipes Software #>0K!.
-
-      FUNCTION erf(x)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C   Returns the complementary error function erfc(x) with fractional error    C
-C   everywhere less than 1.2e−7, based on Chebyshev fitting.                  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-
-      erf=1.d0-erfcc(x)
-
-      return
-      END
 
       subroutine qgausscde(JJ,C1,C2,TT,TT0,a,b,ngl,sst)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -469,26 +439,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         dx=xr*xi(j,ngl)
         sst=sst+w(j,ngl)*CONC(JJ,C1,C2,TT,TT0,xm+dx)
 11     continue
-      sst=xr*sst
-
-      return
-      end
-
-      subroutine qgausssorb(JJ,C1,C2,TT,TT0,a,b,ngl,sst)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  Numerical integration of the Freundlich sorbed integrand C^N over depth     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit double precision (a-h,o-z)
-      COMMON/CINT/XI(20,20),W(20,20)
-      external SCONC
-
-      xm=0.5d0*(b+a)
-      xr=0.5d0*(b-a)
-      sst=0.d0
-      do 12 j=1,ngl
-        dx=xr*xi(j,ngl)
-        sst=sst+w(j,ngl)*SCONC(JJ,C1,C2,TT,TT0,xm+dx)
- 12   continue
       sst=xr*sst
 
       return
