@@ -22,7 +22,8 @@ else
 fi
 
 projects="sample.prj sampleP.prj sampleP2.prj sampleP3.prj samplePF.prj \
-sampleP3nodeg.prj samplePnodeg.prj samplePnoRain.prj sampleWT.prj sampleWTP.prj"
+sampleP3nodeg.prj samplePnodeg.prj samplePnoRain.prj sampleWT.prj sampleWTP.prj \
+sampleWTpond.prj"
 
 # -- 1. run all projects ---------------------------------------------------
 echo "Running ${VFSM} on all sample projects ..."
