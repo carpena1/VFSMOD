@@ -1,3 +1,13 @@
+Changes since 4.6.2.1 (unreleased)
+----------------------------------
+(09/2026)
+
+Maintenance & documentation:
+- Removed the indirect recursion func -> qgaus -> func in the shallow water table Green-Ampt infiltration (gasubwt.f), which is not allowed in Fortran 77. All four integrals of the unsaturated conductivity vKuns now use the new routine qgausk, and qgaus no longer has the ieq=1 (Kuns) option, so a single routine integrates vKuns and the call graph has no cycle. Results are bit-identical.
+- Removed the unused functions SCONC and ERF and the subroutine QGAUSSSORB (cde.f). SCONC and QGAUSSSORB lost their callers when the sorbed-mass quadrature was replaced in 4.6.2.1; ERF was never called and shadowed the Fortran 2008 intrinsic of the same name. Results are bit-identical.
+- Renamed the COMMON/PAR/ variable MAXISTER to MAXITER in shapef.f to match all other program units (not referenced in shapef.f; no effect on results).
+- New regression sample sampleWTpond (sampleWT with Ks lowered to 5.0e-6 m/s) added to check_vfsm.sh. It covers ponding over a shallow water table, a branch of gasubwt.f that no previous sample executed.
+
 Changes in 4.6.2.1
 ------------------
 (06/2026)
