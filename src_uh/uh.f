@@ -91,6 +91,11 @@ c   02/04/25   Fixed bug in mass balance in .iro and .irn where  rmc
 c              the values for total rain and runoff reported on  rmc
 c              the .out file do not match the integral under the rmc
 c              irn and irn curves.    v3.0.9                     rmc
+c   24/09/26   Removed unused COMMON/RAIN/ variable RFIX (set in rmc
+c              hyetgh, never read) and corrected the COMMON      rmc
+c              documentation in uh.f and io.f (array sizes,      rmc
+c              units of rti and rfi). Outputs unchanged.         rmc
+c              (unreleased)                                      rmc
 c                                                                rmc
 c---------------------------------------------------------------
 c    Compiling for Win32 and Unix environments9
@@ -99,15 +104,13 @@ c       2. Change the Unix/Win32 comments in the finput.f program
 c          to reflect your operating system.   3/9/00
 c---------------------------------------------------------------
 c common/hydgph:
-c       rot(208), runoff time (units)
-c       roq(208), runoff rate (m3/s)
-c       u(208,2), unit hydrograph
+c       u(10000,2), unit hydrograph (time, ordinate)
+c       qh(10000,2), runoff hydrograph (time, runoff rate)
 c common/rain/:
-c       rfix, maximum rain intensity (mm/h)
-c       rti(200), rainfall time (hrs)
-c       rfi(200), rainfall intensity (mm/h)
-c       rcum(100,2), cumm rainfall (mm)
-c       ref(100), excess rainfall intensity (mm/h)
+c       rti(10000), rainfall time (h)
+c       rfi(10000), rainfall intensity (m/s)
+c       rcum(10000,2), cumm rainfall curve (time (h), P/P24)
+c       ref(10000,2), excess rainfall hyetograph (time (h), excess rain (mm))
 c       ncum: number of steps if user hyetograph is read
 c other:
 c       nref=number of excess hyetograph steps
@@ -121,7 +124,7 @@ C---------------------------------------------------------------
       dimension sconc(6)
 
       common/hydgph/u(10000,2),qh(10000,2)
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
 
 c------------------------------------------

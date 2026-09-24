@@ -192,7 +192,7 @@ C   nref: number of excess hyetograph steps
 C---------------------------------------------------------------
       implicit double precision (a-h, o-z)
       common/hydgph/u(10000,2),qh(10000,2)
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
 
       write(2,205)mref,nref
