@@ -138,7 +138,7 @@ c------------------normal case, calculate singular times tp, to, tw
 c------------------get potential FPI at the beginning of the new period to
 c------------------compare with rain
                  zist=dabs(WTD)-dabs(z)
-                 call qgaus(1,0.d0,zist,20,vkint)
+                 call qgausk(0.d0,zist,20,vkint)
                  fpr=vks+(1.d0/z)*vkint*vks
 c------------------if new rainfall period after no-ponding calculate tp,
 c------------------tpp, the cum. infiltration at tp (Ftp), and if there is
@@ -207,7 +207,7 @@ c------------------find shifting time (tpp)
                     fpi=0.d0
                   else
                     call nrsol1(time,z,zw,z,2)
-                    call qgaus(1,0.d0,zist,20,vkint)
+                    call qgausk(0.d0,zist,20,vkint)
                     fpi=vks+(1.d0/z)*vkint*vks
                  endif
                  call qgaus(3,-WTD-z,-WTD,20,dF)
@@ -258,7 +258,8 @@ c-----cummulative rain to the one just calculated in this time step
       subroutine qgaus(ieq,a,b,ngl,sst)
 C
 C  Numerical integration of a generic function using Gauss-Legendre quadrature
-C   ieq: function to integrate (1:Kuns; 2: time integral; 3: water content)
+C   ieq: function to integrate (2: time integral; 3: water content)
+C        (the Kuns integral is done by qgausk)
 C   a,b: limits of integration
 C   ngl: orger of the gauss-Legendre quadrature
 C   sst: value of integral
@@ -266,24 +267,47 @@ C
       implicit double precision (a-h,o-z)
       COMMON/WTGA2/ITHETATYPE,IKUNSTYPE,ITWBC
       COMMON/CINT/XI(20,20),W(20,20)
-      external vKuns,func
+      external func
 
 c------Set selected soil hydraulic functions------
       ic=ithetatype
-      ikc=ikunstype
 
       xm=0.5d0*(b+a)
       xr=0.5d0*(b-a)
       sst=0.d0
       do 11 j=1,ngl
         dx=xr*xi(j,ngl)
-        if(ieq.eq.1) then
-            sst=sst+w(j,ngl)*vKuns(xm+dx,ic,ikc)
-         elseif(ieq.eq.2) then
+        if(ieq.eq.2) then
             sst=sst+w(j,ngl)*func(xm+dx)
          else
             sst=sst+w(j,ngl)*swcc(xm+dx,ic)
         endif
+11     continue
+      sst=xr*sst
+
+      return
+      end
+
+
+      subroutine qgausk(a,b,ngl,sst)
+C
+C  Gauss-Legendre integral of the unsaturated conductivity vKuns over [a,b].
+C  Separate from qgaus so that func, which qgaus integrates, does not call
+C  qgaus again (recursion is not allowed in F77).
+C
+      implicit double precision (a-h,o-z)
+      COMMON/WTGA2/ITHETATYPE,IKUNSTYPE,ITWBC
+      COMMON/CINT/XI(20,20),W(20,20)
+      external vKuns
+
+      ic=ithetatype
+      ikc=ikunstype
+      xm=0.5d0*(b+a)
+      xr=0.5d0*(b-a)
+      sst=0.d0
+      do 11 j=1,ngl
+        dx=xr*xi(j,ngl)
+        sst=sst+w(j,ngl)*vKuns(xm+dx,ic,ikc)
 11     continue
       sst=xr*sst
 
@@ -419,7 +443,7 @@ C   Time to ponding calculation
       ikc=ikunstype
       vks=AGA
 
-      call qgaus(1,0.d0,dabs(-WTD-xval),20,vkint)
+      call qgausk(0.d0,dabs(-WTD-xval),20,vkint)
       fval= xval - 1.d0/(rainL-vKs)*vkint*vKs
       dfval=1.d0 + vKs/(rainL-vKs)*vKuns(-WTD-xval,ic,ikc)
 
@@ -547,7 +571,7 @@ c   Time integral equation (Chu, Salvucci function)
       vks=AGA
 
       zist=dabs(WTD)-dabs(zx)
-      call qgaus(1,0.d0,zist,20,vkint)
+      call qgausk(0.d0,zist,20,vkint)
       FPP=vks+(1.d0/zx)*vkint*vks
       OZ=swcc(zist,ic)
       func=(OS-OZ)/FPP
