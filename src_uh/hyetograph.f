@@ -52,7 +52,7 @@ c !----------------------------------------------------------------
 
       implicit double precision (a-h, o-z)
       character*5 stype(6)
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
       dimension rainh(10000),rainh30(10000)
       data stype/'I','IA','II','III','user','user1'/
@@ -182,7 +182,6 @@ c---rmc-08/24/11-- excess rainfall hyetograph for tabular hydrograph
 c---rmc-08/24/11-- number of hyetograph steps
       nhyet=i-1
 c----rmc 03/11/99---
-      rfix=raimax/(dtime*3600.d0)/1000.d0
       rfix30=raimax30*2.d0
       rI30=rfix30/25.4d0
 
@@ -256,7 +255,7 @@ c !     P24         c  (e|t-b|+f )
 c !----------------------------------------------------
        implicit double precision (a-h,o-z)
 
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
       dimension cff(4,7)
       data cff/0.4511d0,0.3919d0,0.495d0,0.5d0,9.995d0,7.96d0,11.8d0,

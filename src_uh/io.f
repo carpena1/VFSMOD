@@ -4,7 +4,7 @@ C---------------------------------------------------------------
 C       Input parameters
 C---------------------------------------------------------------
       implicit double precision (a-h, o-z)
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
       character*20 soilty
 
@@ -160,14 +160,14 @@ c--------------------------------
 c   Output for VFSMOD input files
 c   dt = dincr*60 time step of hyet-/hydrographs in IRN, IRO (s)
 c   qh(i,j)= hydrograph (i=time step, j=1 time (h), j=2 flow (m3/s))
-c   rti(i),rfi(i)= hyetograph time (s) and instensity (m/s)(i=time step)
+c   rti(i),rfi(i)= hyetograph time (h) and intensity (m/s)(i=time step)
 c   nhyd= total number of hydrograph steps
 c   nhyet= total rnumber of hyetograph steps
 c   predm(i,j)=interpolated hydro/hyetograph (i=time step, j=1 time (s), j=2 flow/rain)
 c--------------------------------
       implicit double precision (a-h,o-z)
       common/hydgph/u(10000,2),qh(10000,2)
-      common/rain/rfix,rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
+      common/rain/rti(10000),rfi(10000),rcum(10000,2),ref(10000,2),
      1 ncum
       dimension sconc(6),predm(10000,2)
       logical ende

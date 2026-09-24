@@ -91,5 +91,10 @@ c   02/04/25   Fixed bug in mass balance in .iro and .irn where  rmc
 c              the values for total rain and runoff reported on  rmc
 c              the .out file do not match the integral under the rmc
 c              irn and irn curves.    v3.0.9                     rmc
+c   24/09/26   Removed unused COMMON/RAIN/ variable RFIX (set in rmc
+c              hyetgh, never read) and corrected the COMMON      rmc
+c              documentation in uh.f and io.f (array sizes,      rmc
+c              units of rti and rfi). Outputs unchanged.         rmc
+c              (unreleased)                                      rmc
 c                                                                rmc
 c---------------------------------------------------------------

@@ -485,6 +485,12 @@ IMPORTANT: Recommended input values
 
 _Markdown rendering of `src_uh/CHANGES_UH.txt`, the modification history of the `uh` unit hydrograph utility. Versions are listed newest first; dates are as written in the source file. Initials: rmc = R. Muñoz-Carpena, jep = J. E. Parsons._
 
+## Unreleased (since 3.0.9)
+
+**(24/09/26)**
+
+- Removed unused COMMON/RAIN/ variable RFIX (set in hyetgh, never read) and corrected the COMMON documentation in uh.f and io.f (array sizes, units of rti and rfi). Outputs unchanged. (rmc)
+
 ## 3.0.9
 
 **(02/04/25)**
