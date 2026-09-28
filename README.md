@@ -27,7 +27,7 @@ A VFSMOD platform-independent graphical user interface (GUI) was developed and m
 - Advanced uncertainty and sensitivity analysis
 - Inverse calibration
 - Design under uncertainty
-For portability (Windows, Linux, macOS) the GUI is entirely written in Python and packaged in a stand-alone installer (.exe for Windows, and .pkg for macOS that includes Intel and Apple silicon binaries). 
+For portability (Windows, macOS) the GUI is entirely written in Python and packaged in a stand-alone installer (.exe for Windows, and .pkg for macOS that includes Intel and Apple silicon binaries). 
 
 The GUI can be downloaded from Dr. Barberena's GitHub: https://github.com/Inigobarbe/VFSMOD-GUI. 
 
