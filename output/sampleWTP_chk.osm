@@ -111,7 +111,7 @@ File: output/sampleWTP.osm                            VFSMOD v4.6.2.1 05/2026
 Volume from rainfall=     0.8423E+00 m3
 Volume from up-field=     0.1325E+01 m3
 Volume from outflow =     0.1328E+01 m3
-Volume infiltrated  =     0.8418E+00 m3
+Volume infiltrated  =     0.8393E+00 m3
   
  Hydrology
  -----------
@@ -132,4 +132,4 @@ Sediment deposition :
         - Sediment tail at field, X1(t)=    0.09 cm
         - Sediment depth in low section=    0.03 cm
         - Rough sediment balance error =    0.01 %
-        - Rough water balance error    =   -0.12 %
+        - Rough water balance error    =    0.00 % (adjusted)

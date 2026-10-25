@@ -31,7 +31,7 @@ File: output/sampleWTpond.osp                         VFSMOD v4.6.2.1 05/2026
       1.325 m3  = Total Runoff from Source
       8.175 mm  = Total Runoff out from Filter (mm depth over Source+Filter)
       1.386 m3  = Total Runoff out from Filter
-      0.806 m3  = Total Infiltration in Filter
+      0.782 m3  = Total Infiltration in Filter
       1.046     = Runoff Delivery Ratio
   
       34.195 kg = Mass Sediment Input to Filter
