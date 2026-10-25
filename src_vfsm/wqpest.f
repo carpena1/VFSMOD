@@ -131,6 +131,12 @@ c-------------Chen eq. (California)
                 DELTAP=101.D0-(8.06D0-0.07D0*PDQ+0.02D0*PDSED+0.05D0*CCP-
      &          2.17D0*ICAT+0.02D0*PDQ*ICAT-0.0003D0*PDQ*PDSED)**2.D0
             END SELECT
+C-RMC---- No incoming load at all (no field inflow): the mechanistic form
+C-------- above is 0/0 and returns NaN, which every guard below then misses
+C-------- because a NaN fails all comparisons.  Report 100 %, matching the
+C-------- runoff-reduction and sediment-reduction lines printed beside it.
+            IF (VINL+VKDEFF*SMIN.LE.0.D0) DELTAP=100.D0
+            IF (DELTAP.NE.DELTAP) DELTAP=100.D0
             IF (DELTAP.GT.100.D0.OR.PDQ.GE.100.d0.OR.VOUT.LE.0.d0) DELTAP=100.D0
             IF (PDQ.EQ.0.d0.AND.PDSED.EQ.0.d0) DELTAP=0.D0
             IF (DELTAP.LT.0.d0) DELTAP=0.D0
@@ -236,8 +242,16 @@ c-----Calculate surface residue mass in the porewater based sorption
 c-----equilibrium for the soil water content at the next event
 c-------Residue porewater/sorbed split: linear or Freundlich NR
         IF(VKN(JJ).EQ.1.D0) THEN
-           DGMRESD(JJ)=DGMRES(JJ)*Vw/(Vw+DGMsoil*VKD(JJ))
-           DGMRESP(JJ)=DGMRESD(JJ)*VKD(JJ)*DGMsoil/Vw
+C-RMC---- Vw is the mixing-layer water volume; it is zero when the soil
+C-------- moisture series is empty (NDGDAY=0), and the sorbed line below
+C-------- is then 0/0.  With no porewater the whole residue is sorbed.
+           IF(Vw.LE.0.D0) THEN
+              DGMRESD(JJ)=0.D0
+              DGMRESP(JJ)=DGMRES(JJ)
+            ELSE
+              DGMRESD(JJ)=DGMRES(JJ)*Vw/(Vw+DGMsoil*VKD(JJ))
+              DGMRESP(JJ)=DGMRESD(JJ)*VKD(JJ)*DGMsoil/Vw
+           ENDIF
         ELSE
 c---------NR: solve Cd*Vw + Kf*Cd^N*DGMsoil = DGMRES(JJ)
 c---------f(Cd) = Cd*Vw + Kf*Cd^N*DGMsoil - DGMRES = 0
