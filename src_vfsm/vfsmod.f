@@ -358,7 +358,8 @@ C---- Unit 30 is free: finput.f uses 99 for the .prj, and 1-21 are taken.
       NSCNT=0
       QOUTA=0.D0
       DO 913 J=1,3
-913      QSEDA(J)=0.D0
+         QSEDA(J)=0.D0
+913   CONTINUE
       IF(NSUB.LT.1) NSUB=1
       IF(NSUB.GT.NWRITE) NSUB=NWRITE
       IF(NDT.LT.NPRINT) NWRITE=1
