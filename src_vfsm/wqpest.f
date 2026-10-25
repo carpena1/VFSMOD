@@ -404,10 +404,11 @@ c-----      4,5 for NDGDAY and IMOB (mg/m2),
       CHARACTER*3 SNDGDAY 
       CHARACTER*1 SIMOB 
       CHARACTER*58 DESCR     
+      DOUBLE PRECISION ZFLOOR
       
       LINE = ' '
       DO JJ = 1, IWQ
-            WRITE(LINE, '(A,E15.6,E15.6)') TRIM(LINE),DUM(JJ)
+            WRITE(LINE, '(A,E15.6,E15.6)') TRIM(LINE),ZFLOOR(DUM(JJ))
       END DO
 
       SELECT CASE (IFMT)
@@ -434,4 +435,16 @@ c-----      4,5 for NDGDAY and IMOB (mg/m2),
 
       return
       END
-      
+
+
+      DOUBLE PRECISION FUNCTION ZFLOOR(X)
+C-RMC---- Report negligible magnitudes as exact zero.  Below ZTOL a value has no
+C-------- physical meaning in any VFSMOD output, and written with an E descriptor
+C-------- it loses the 'E' once the exponent needs three digits (0.527473-100),
+C-------- which no downstream reader can parse.  Formats are left untouched.
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      PARAMETER (ZTOL=1.0D-30)
+      ZFLOOR=X
+      IF(DABS(X).LT.ZTOL) ZFLOOR=0.D0
+      RETURN
+      END
