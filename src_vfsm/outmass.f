@@ -155,6 +155,20 @@ C---------------Water and sediment balance for the event----------
           ELSE
               WAT_ERR=0.0d0
       ENDIF
+c-----Infiltration cannot exceed the water that entered minus the water that
+c-----left.  VF above is a point potential (Green-Ampt column, integrated on
+c-----the output grid); VFE is the residual and closes the balance.  Without
+c-----this bound the tolerance test below lets an overestimate of up to 5 % of
+c-----the incoming volume through, which at long filters is a large fraction
+c-----of the infiltration itself.
+      IF(AGA.GT.0.d0.AND.VFE.GE.0.d0.AND.VF.GT.VFE) THEN
+          VF=VFE
+          WAT_OUT= Vout+VF
+          WAT_BAL=WAT_IN-WAT_OUT
+          IF (WAT_IN.GT.0.d0) WAT_ERR=WAT_BAL/WAT_IN*100.d0
+          F= VF/VFSAREA
+          Z=F/DM
+      ENDIF
 c-----Check water balance and adjust for leaching and pollutant calculations
       IF(DABS(WAT_ERR).GT.5.d0) THEN
           VF=VFE
