@@ -121,15 +121,15 @@ Time to end runoff  =     0.3927E+04 s
   
  Sediment
  --------
-Sediment inflow     =     0.8836E+02 g/cm    0.3419E+05 g
-Sediment outflow    =     0.4473E+02 g/cm    0.1731E+05 g
-Trapping efficiency =       49.4 %
+Sediment inflow     =     0.8836E+02 g/cm    0.3420E+05 g
+Sediment outflow    =     0.4436E+02 g/cm    0.1717E+05 g
+Trapping efficiency =       49.8 %
                      ----------------
 Sediment deposition :
         - Sediment wedge depth,   Y(t) =    0.01 cm
-        - Sediment wedge length,  X2(t)=    0.04 cm
-        - Effective filter length,L(t) =  865.46 cm
-        - Sediment tail at field, X1(t)=    0.25 cm
+        - Sediment wedge length,  X2(t)=    0.02 cm
+        - Effective filter length,L(t) =  865.48 cm
+        - Sediment tail at field, X1(t)=    0.09 cm
         - Sediment depth in low section=    0.03 cm
-        - Rough sediment balance error =   -0.00 %
+        - Rough sediment balance error =    0.01 %
         - Rough water balance error    =   -0.12 %

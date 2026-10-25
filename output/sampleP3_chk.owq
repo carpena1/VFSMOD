@@ -46,12 +46,12 @@ COMPOUND  1:
    Incoming runoff volume (Vi)=   1325.1266          L
             Event rainfall (P)=    842.2920          L
         Total infiltration (F)=   1437.5333          L
-        Incoming sediment (Ei)=     34.1944         Kg
+        Incoming sediment (Ei)=     34.1952         Kg
   Incoming pesticide mass (mi)=    100.0000      mg/m2
- Incoming dissolved mass (mdi)=     79.4883      mg/m2
-Incoming sed-sorbed mass (mpi)=     20.5117      mg/m2
- Incoming dissolved mass (mdi)=  10810.4149         mg
-Incoming sed-sorbed mass (mpi)=   2789.5851         mg
+ Incoming dissolved mass (mdi)=     79.4879      mg/m2
+Incoming sed-sorbed mass (mpi)=     20.5121      mg/m2
+ Incoming dissolved mass (mdi)=  10810.3606         mg
+Incoming sed-sorbed mass (mpi)=   2789.6394         mg
       Pulse concentration (C1)=      4.9877       mg/L
    Linear sorption coeff. (Kd)=     10.0000       L/Kg
          Dispersion length (l)=      0.0500          m
@@ -87,12 +87,12 @@ Pesticide half-life (Ln2/Kref)=     30.0000       days
       0.2300      0.0000      0.0000
       0.2400      0.0000      0.0000
 
-        Soil profile total mass (mfF mg)=   7169.9719  100.00%
-   Soil profile dissolved mass (mfFd mg)=    120.0819    1.67%
-      Soil profile sorbed mass (mfFp mg)=   7049.8900   98.33%
-       Mixing layer total mass (mfml mg)=   6539.1500   91.20%
-  Mixing layer dissolved mass (mfmld mg)=    109.5170    1.53%
-     Mixing layer sorbed mass (mfmlp mg)=   6429.6330   89.67%
+        Soil profile total mass (mfF mg)=   7169.9359  100.00%
+   Soil profile dissolved mass (mfFd mg)=    120.0813    1.67%
+      Soil profile sorbed mass (mfFp mg)=   7049.8546   98.33%
+       Mixing layer total mass (mfml mg)=   6539.1171   91.20%
+  Mixing layer dissolved mass (mfmld mg)=    109.5164    1.53%
+     Mixing layer sorbed mass (mfmlp mg)=   6429.6007   89.67%
 
 COMPOUND  2:
  Huang & van Genuchten (1995) CDE analytical solution
@@ -101,12 +101,12 @@ COMPOUND  2:
    Incoming runoff volume (Vi)=   1325.1266          L
             Event rainfall (P)=    842.2920          L
         Total infiltration (F)=   1437.5333          L
-        Incoming sediment (Ei)=     34.1944         Kg
+        Incoming sediment (Ei)=     34.1952         Kg
   Incoming pesticide mass (mi)=      5.0000      mg/m2
- Incoming dissolved mass (mdi)=      1.3965      mg/m2
-Incoming sed-sorbed mass (mpi)=      3.6035      mg/m2
- Incoming dissolved mass (mdi)=    189.9197         mg
-Incoming sed-sorbed mass (mpi)=    490.0803         mg
+ Incoming dissolved mass (mdi)=      1.3964      mg/m2
+Incoming sed-sorbed mass (mpi)=      3.6036      mg/m2
+ Incoming dissolved mass (mdi)=    189.9163         mg
+Incoming sed-sorbed mass (mpi)=    490.0837         mg
       Pulse concentration (C1)=      0.0876       mg/L
    Linear sorption coeff. (Kd)=    100.0000       L/Kg
          Dispersion length (l)=      0.0500          m
@@ -116,7 +116,7 @@ Pesticide half-life (Ln2/Kref)=     60.0000       days
 
       Z(m)   C_dis(mg/L)   S_lin(mg/mg)
  -------------------------------------
-      0.0000      0.0066      0.6571
+      0.0000      0.0066      0.6570
       0.0100      0.0001      0.0132
       0.0200      0.0000      0.0000
       0.0300      0.0000      0.0000
@@ -142,12 +142,12 @@ Pesticide half-life (Ln2/Kref)=     60.0000       days
       0.2300      0.0000      0.0000
       0.2400      0.0000      0.0000
 
-        Soil profile total mass (mfF mg)=    125.9729  100.00%
+        Soil profile total mass (mfF mg)=    125.9706  100.00%
    Soil profile dissolved mass (mfFd mg)=      0.2142    0.17%
-      Soil profile sorbed mass (mfFp mg)=    125.7587   99.83%
-       Mixing layer total mass (mfml mg)=    125.9631   99.99%
+      Soil profile sorbed mass (mfFp mg)=    125.7564   99.83%
+       Mixing layer total mass (mfml mg)=    125.9609   99.99%
   Mixing layer dissolved mass (mfmld mg)=      0.2142    0.17%
-     Mixing layer sorbed mass (mfmlp mg)=    125.7489   99.82%
+     Mixing layer sorbed mass (mfmlp mg)=    125.7467   99.82%
 
 COMPOUND  3:
  Huang & van Genuchten (1995) CDE analytical solution
@@ -156,12 +156,12 @@ COMPOUND  3:
    Incoming runoff volume (Vi)=   1325.1266          L
             Event rainfall (P)=    842.2920          L
         Total infiltration (F)=   1437.5333          L
-        Incoming sediment (Ei)=     34.1944         Kg
+        Incoming sediment (Ei)=     34.1952         Kg
   Incoming pesticide mass (mi)=     25.0000      mg/m2
  Incoming dissolved mass (mdi)=     24.3711      mg/m2
 Incoming sed-sorbed mass (mpi)=      0.6289      mg/m2
- Incoming dissolved mass (mdi)=   3314.4714         mg
-Incoming sed-sorbed mass (mpi)=     85.5286         mg
+ Incoming dissolved mass (mdi)=   3314.4693         mg
+Incoming sed-sorbed mass (mpi)=     85.5307         mg
       Pulse concentration (C1)=      1.5292       mg/L
    Linear sorption coeff. (Kd)=      1.0000       L/Kg
          Dispersion length (l)=      0.0500          m
@@ -197,12 +197,12 @@ Pesticide half-life (Ln2/Kref)=    100.0000       days
       0.2300      0.0000      0.0000
       0.2400      0.0000      0.0000
 
-        Soil profile total mass (mfF mg)=   2198.3120  100.00%
-   Soil profile dissolved mass (mfFd mg)=    319.9453   14.55%
-      Soil profile sorbed mass (mfFp mg)=   1878.3667   85.45%
-       Mixing layer total mass (mfml mg)=    979.2397   44.55%
-  Mixing layer dissolved mass (mfmld mg)=    142.5199    6.48%
-     Mixing layer sorbed mass (mfmlp mg)=    836.7198   38.06%
+        Soil profile total mass (mfF mg)=   2198.3106  100.00%
+   Soil profile dissolved mass (mfFd mg)=    319.9451   14.55%
+      Soil profile sorbed mass (mfFp mg)=   1878.3656   85.45%
+       Mixing layer total mass (mfml mg)=    979.2391   44.55%
+  Mixing layer dissolved mass (mfmld mg)=    142.5198    6.48%
+     Mixing layer sorbed mass (mfmlp mg)=    836.7193   38.06%
 
 -------------------------------------------
   Outputs for Water Quality
@@ -211,84 +211,84 @@ Pesticide half-life (Ln2/Kref)=    100.0000       days
 COMPOUND  1:
  0.133E+01 m3 = Runoff inflow
  0.342E+02 Kg = Sediment inflow
-     6.339    = Phase distribution, Fph
+     6.338    = Phase distribution, Fph
     66.325 %  = Infiltration (dQ)
-    59.854 %  = Sediment reduction (dE)
+    60.557 %  = Sediment reduction (dE)
     44.920 %  = Runoff inflow reduction
 
-    64.997 %  = Pesticide reduction (dP)
+    65.142 %  = Pesticide reduction (dP)
 
 COMPOUND  2:
  0.133E+01 m3 = Runoff inflow
  0.342E+02 Kg = Sediment inflow
      0.634    = Phase distribution, Fph
     66.325 %  = Infiltration (dQ)
-    59.854 %  = Sediment reduction (dE)
+    60.557 %  = Sediment reduction (dE)
     44.920 %  = Runoff inflow reduction
 
-    61.661 %  = Pesticide reduction (dP)
+    62.168 %  = Pesticide reduction (dP)
 
 COMPOUND  3:
  0.133E+01 m3 = Runoff inflow
  0.342E+02 Kg = Sediment inflow
-    63.385    = Phase distribution, Fph
+    63.384    = Phase distribution, Fph
     66.325 %  = Infiltration (dQ)
-    59.854 %  = Sediment reduction (dE)
+    60.557 %  = Sediment reduction (dE)
     44.920 %  = Runoff inflow reduction
 
-    66.162 %  = Pesticide reduction (dP)
+    66.180 %  = Pesticide reduction (dP)
 
 ----------------------------------------------------------------------------------------------------
     Compound degradation between runoff events (mg)
 ----------------------------------------------------------------------------------------------------
     Time(d)  Compound 1  Compound 2  Compound 3
-          0. 0.81979E+04 0.41927E+03 0.10162E+04
-          1. 0.81153E+04 0.43481E+03 0.10517E+04
-          2. 0.80128E+04 0.45395E+03 0.10956E+04
-          3. 0.78962E+04 0.47554E+03 0.11453E+04
-          4. 0.77917E+04 0.49469E+03 0.11897E+04
-          5. 0.76533E+04 0.51982E+03 0.12483E+04
-          6. 0.74854E+04 0.54986E+03 0.13189E+04
-          7. 0.72921E+04 0.58387E+03 0.13995E+04
-          8. 0.71451E+04 0.60930E+03 0.14604E+04
-          9. 0.70143E+04 0.63159E+03 0.15143E+04
-         10. 0.68993E+04 0.65093E+03 0.15613E+04
-         11. 0.67924E+04 0.66869E+03 0.16049E+04
+          0. 0.82175E+04 0.42272E+03 0.10168E+04
+          1. 0.81347E+04 0.43828E+03 0.10524E+04
+          2. 0.80320E+04 0.45745E+03 0.10964E+04
+          3. 0.79151E+04 0.47907E+03 0.11463E+04
+          4. 0.78104E+04 0.49825E+03 0.11908E+04
+          5. 0.76716E+04 0.52342E+03 0.12495E+04
+          6. 0.75033E+04 0.55350E+03 0.13203E+04
+          7. 0.73095E+04 0.58757E+03 0.14012E+04
+          8. 0.71622E+04 0.61303E+03 0.14622E+04
+          9. 0.70311E+04 0.63535E+03 0.15162E+04
+         10. 0.69158E+04 0.65473E+03 0.15634E+04
+         11. 0.68086E+04 0.67251E+03 0.16070E+04
 
 ----------------------------------------------------------------------------------------------------
     Pesticide mass balance, degradation & remobilization
 ----------------------------------------------------------------------------------------------------
      Compound 1     Compound 2     Compound 3
    0.136000E+05   0.680000E+03   0.340000E+04 mg   = Pesticide input (mi)                                                                                                                               
-   0.476035E+04   0.260704E+03   0.115050E+04 mg   = Pesticide output (mo)                                                                                                                              
-   0.753590E+03   0.170207E+03   0.212390E+02 mg   = Pesticide outflow in solid phase (mop)                                                                                                             
-   0.400676E+04   0.904970E+02   0.112926E+04 mg   = Pesticide outflow in liquid phase (mod)                                                                                                            
-   0.883965E+04   0.419296E+03   0.224950E+04 mg   = Pesticide trapped in VFS (mf)                                                                                                                      
-   0.166968E+04   0.293333E+03   0.511923E+02 mg   = Pesticide trapped with sediment (mfsed)                                                                                                            
-   0.653915E+04   0.125963E+03   0.979240E+03 mg   = Pesticide trapped in mixing layer (mfml)                                                                                                           
-   0.109165E+02   0.213501E-01   0.142062E+02 mg   = Pesticide leached from mixing layer (mfleach)                                                                                                      
+   0.474075E+04   0.257260E+03   0.114989E+04 mg   = Pesticide output (mo)                                                                                                                              
+   0.739417E+03   0.166928E+03   0.208637E+02 mg   = Pesticide outflow in solid phase (mop)                                                                                                             
+   0.400134E+04   0.903326E+02   0.112903E+04 mg   = Pesticide outflow in liquid phase (mod)                                                                                                            
+   0.885925E+04   0.422740E+03   0.225011E+04 mg   = Pesticide trapped in VFS (mf)                                                                                                                      
+   0.168931E+04   0.296778E+03   0.517945E+02 mg   = Pesticide trapped with sediment (mfsed)                                                                                                            
+   0.653912E+04   0.125961E+03   0.979239E+03 mg   = Pesticide trapped in mixing layer (mfml)                                                                                                           
+   0.109164E+02   0.213498E-01   0.142062E+02 mg   = Pesticide leached from mixing layer (mfleach)                                                                                                      
    0.000000E+00   0.000000E+00   0.000000E+00 mg   = Pesticide sorbed in mixing layer from last event (mfml0)                                                                                           
-   0.819791E+04   0.419274E+03   0.101623E+04 mg   = Total surface residue (mres1=mfml+mfsed+mfml0-mfleach)                                                                                             
-   0.679239E+04   0.668691E+03   0.160485E+04 mg   = Total surface residue after degradation ( 11 days)                                                                                                 
-   0.819578E+02   0.815709E+00   0.174675E+03 mg   = Dissolved surface residue after degradation ( 11 days)                                                                                             
-   0.671043E+04   0.667875E+03   0.143018E+04 mg   = Sorbed surface residue after degradation ( 11 days)                                                                                                
-   0.819578E+02   0.815709E+00   0.174675E+03 mg   = Next event residue remobilization (mresn, IMOB=1)                                                                                                  
+   0.821751E+04   0.422718E+03   0.101683E+04 mg   = Total surface residue (mres1=mfml+mfsed+mfml0-mfleach)                                                                                             
+   0.680863E+04   0.672511E+03   0.160705E+04 mg   = Total surface residue after degradation ( 11 days)                                                                                                 
+   0.821538E+02   0.820369E+00   0.174914E+03 mg   = Dissolved surface residue after degradation ( 11 days)                                                                                             
+   0.672648E+04   0.671691E+03   0.143213E+04 mg   = Sorbed surface residue after degradation ( 11 days)                                                                                                
+   0.821538E+02   0.820369E+00   0.174914E+03 mg   = Next event residue remobilization (mresn, IMOB=1)                                                                                                  
 
  Normalized values by source area:
 
          136.00 m^2  = Source Area (input)
    0.100000E+03   0.500000E+01   0.250000E+02 mg/m2= Pesticide input (mi)                                                                                                                               
-   0.350026E+02   0.191694E+01   0.845953E+01 mg/m2= Pesticide output (mo)                                                                                                                              
-   0.554111E+01   0.125152E+01   0.156169E+00 mg/m2= Pesticide outflow in solid phase (mop)                                                                                                             
-   0.294615E+02   0.665419E+00   0.830336E+01 mg/m2= Pesticide outflow in liquid phase (mod)                                                                                                            
-   0.649974E+02   0.308306E+01   0.165405E+02 mg/m2= Pesticide trapped in VFS (mf)                                                                                                                      
-   0.122770E+02   0.215686E+01   0.376414E+00 mg/m2= Pesticide trapped with sediment (mfsed)                                                                                                            
-   0.480820E+02   0.926199E+00   0.720029E+01 mg/m2= Pesticide trapped in mixing layer (mfml)                                                                                                           
-   0.802683E-01   0.156986E-03   0.104457E+00 mg/m2= Pesticide leached from mixing layer (mfleach)                                                                                                      
+   0.348585E+02   0.189162E+01   0.845511E+01 mg/m2= Pesticide output (mo)                                                                                                                              
+   0.543689E+01   0.122741E+01   0.153409E+00 mg/m2= Pesticide outflow in solid phase (mop)                                                                                                             
+   0.294216E+02   0.664210E+00   0.830170E+01 mg/m2= Pesticide outflow in liquid phase (mod)                                                                                                            
+   0.651415E+02   0.310838E+01   0.165449E+02 mg/m2= Pesticide trapped in VFS (mf)                                                                                                                      
+   0.124214E+02   0.218219E+01   0.380842E+00 mg/m2= Pesticide trapped with sediment (mfsed)                                                                                                            
+   0.480817E+02   0.926183E+00   0.720029E+01 mg/m2= Pesticide trapped in mixing layer (mfml)                                                                                                           
+   0.802679E-01   0.156984E-03   0.104457E+00 mg/m2= Pesticide leached from mixing layer (mfleach)                                                                                                      
    0.000000E+00   0.000000E+00   0.000000E+00 mg/m2= Pesticide sorbed in mixing layer from last event (mfml0)                                                                                           
-   0.602788E+02   0.308290E+01   0.747225E+01 mg/m2= Total surface residue (mres1=mfml+mfsed+mfml0-mfleach)                                                                                             
-   0.499441E+02   0.491685E+01   0.118004E+02 mg/m2= Total surface residue after degradation ( 11 days)                                                                                                 
-   0.602631E+00   0.599786E-02   0.128437E+01 mg/m2= Dissolved surface residue after degradation ( 11 days)                                                                                             
-   0.493414E+02   0.491085E+01   0.105160E+02 mg/m2= Sorbed surface residue after degradation ( 11 days)                                                                                                
-   0.602631E+00   0.599786E-02   0.128437E+01 mg/m2= Next event residue remobilization (mresn, IMOB=1)                                                                                                  
+   0.604229E+02   0.310822E+01   0.747667E+01 mg/m2= Total surface residue (mres1=mfml+mfsed+mfml0-mfleach)                                                                                             
+   0.500635E+02   0.494494E+01   0.118165E+02 mg/m2= Total surface residue after degradation ( 11 days)                                                                                                 
+   0.604072E+00   0.603213E-02   0.128613E+01 mg/m2= Dissolved surface residue after degradation ( 11 days)                                                                                             
+   0.494594E+02   0.493891E+01   0.105304E+02 mg/m2= Sorbed surface residue after degradation ( 11 days)                                                                                                
+   0.604072E+00   0.603213E-02   0.128613E+01 mg/m2= Next event residue remobilization (mresn, IMOB=1)                                                                                                  
 
