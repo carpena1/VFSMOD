@@ -70,6 +70,11 @@ c      IF(N.EQ.-1) N=min(101,2*nint(0.5d0*(1.5d0*(VL-0.5d0)+6.d0))-1)
         N=2*nint((23.d0*CR+1.4d0)/2.d0)+1
         N=min(N,2*nint(VL)+1)
         N=max(5,min(101,N))
+C-RMC---- Floor of 9 nodes once the strip reaches 1 m.  The short-strip cap
+C-------- above gives N=5 at VL=1 m and N=7 at VL=3 m, which leave a 0.5 %
+C-------- volume error against the exact solution; N=9 halves that for
+C-------- ~0.2 ms per run.  Strips below 1 m keep the coarse mesh on purpose.
+        IF(VL.GE.1.d0) N=max(N,9)
       ENDIF
  
 C--[EVR-1998]-Check if N is compatible with type of shape funcion -----
