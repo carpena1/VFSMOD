@@ -39,6 +39,7 @@ C        integrals don't require to take the average value over interval   C
 C                                                                          C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON/SEDLU/LU13,LU14
       COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
       COMMON/GRASSD3/SUSMASS,WEDGEMASS,NFUP
@@ -219,10 +220,10 @@ c------- time step CDEP to reduce the actual GSO (Wilson et al. 1981).
 
 c-----Write output to .og1 file----
       IF(ISCR.EQ.0) THEN
-         WRITE(13,80)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,GSIMASS,
+         WRITE(LU13,80)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,GSIMASS,
      &      WEDGEMASS,SUSMASS,GSOMASS,FI,FRAC,DEP,CDEP,TOTRAP
        ELSE
-         WRITE(13,80)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,GS2*FWID,
+         WRITE(LU13,80)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,GS2*FWID,
      &      GSO*FWID,GSIMASS*FWID,WEDGEMASS*FWID,SUSMASS*FWID,
      &      GSOMASS*FWID,FI,FRAC,DEP,CDEP,TOTRAP
       ENDIF
@@ -235,7 +236,7 @@ c-----Update values for next time step-------------
       YTOLD=YT
 
 c ---- Formats ---------
-80    FORMAT(f7.0,4F10.3,F10.6,13E10.3)
+80    FORMAT(f7.0,4(1X,F11.3),1X,E12.5,13(1X,E11.3))
 340   format(/,66('*'),/,'*  WARNING: Top of vegetation reached',
      &     ' - trapezoidal wedge starts *',/,66('*'))
 350   format(/,66('*'),/,'*  WARNING: Strip filled up!',37x,'*',

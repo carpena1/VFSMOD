@@ -1147,7 +1147,8 @@ c---- Reduce Courant number by 0.2 units or by 1/2, whichever is smaller
 c---- Time step and number of time steps based on Courant number
       DT=CRR*DX/C
       NDT=IDINT(DR/DT)
-      print*,CRR,DT,NDT,C,ISCR
+      IF(ISCR.EQ.0) WRITE(*,'(A,F6.3,A,E12.5,A,I9)')
+     &   ' ... CR reduced to ',CRR,', dt (s) = ',DT,', steps = ',NDT
 C-------Old calculation of the PG Parameters (n=50) (Muñoz-Carpena et al., 1993)-
 !         PGPAR(1)=0.0215873D0 - 0.345217D0*CRR + 1.33259D0*CRR**2.D0 -
 !      &               1.62016D0*CRR**3.D0 + 0.670333D0*CRR**4.D0

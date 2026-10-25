@@ -28,6 +28,7 @@ C             OCF, EINSTEIN, STEP3                                            C
 C                                                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON/SEDLU/LU13,LU14
       COMMON/GRASSD/PART(3),SC,SS,VN1,VN2,VN,GSI,H,VLCM,POR,CI,ICO
       COMMON/GRASSD2/GSIMASS,GSOMASS,TTE,DEP,QSED(4),RS(3),DF(3),VM(3)
       COMMON/GRASSD3/SUSMASS,WEDGEMASS,NFUP
@@ -62,11 +63,11 @@ c----- Check if strip is filled-up (NFUP=1)
             TOTRAP=0.D0
             DEP=H
             IF(ISCR.EQ.0) THEN
-                  WRITE(13,180)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,
+                  WRITE(LU13,180)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,
      &            GSIMASS,WEDGEMASS,SUSMASS,GSOMASS,FI,FRAC,DEP,CDEP,
      &            TOTRAP
               ELSE
-                  WRITE(13,180)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,
+                  WRITE(LU13,180)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,
      &            GS2*FWID,GSO*FWID,GSIMASS*FWID,WEDGEMASS*FWID,
      &            SUSMASS*FWID,GSOMASS*FWID,FI,FRAC,DEP,CDEP,TOTRAP
             ENDIF
@@ -78,10 +79,27 @@ C-------        the filter to be used later on------------
       DO 10 NPLACE=1,3
           CALL OCF(NPLACE)
 10    CONTINUE
-      WRITE(14,200)TIME,QIN,(QSED(J),RS(J),VM(J),DF(J),J=1,3), QSED(4)
+      WRITE(LU14,200)TIME,QIN,(QSED(J),RS(J),VM(J),DF(J),J=1,3), QSED(4)
 c-----Check and fix errors in incoming hydro/sedimentograph (values <0)
       IF((QIN.LE.0.D0.OR.QSED(2).LE.0.D0).AND.QOUT.GT.0.D0) THEN
           GS2=0.D0
+C----     keep the .og1 row count at NPRINT: write on an output step
+C----     (LU13=13) even though nothing changed this step
+          IF(LU13.EQ.13) THEN
+            YTW=YTOLD
+            X1W=YTW/SC
+            XTW=XTOLD
+            VLTW=VLCM-XTW
+            IF(ISCR.EQ.0) THEN
+              WRITE(LU13,180)TIME,YTW,X1W,XTW,VLTW,SE,GSI,GSI,
+     &        0.D0,0.D0,GSIMASS,WEDGEMASS,SUSMASS,GSOMASS,
+     &        0.D0,0.D0,DEP,CDEP,0.D0
+             ELSE
+              WRITE(LU13,180)TIME,YTW,X1W,XTW,VLTW,SE,GSI*FWID,
+     &        GSI*FWID,0.D0,0.D0,GSIMASS*FWID,WEDGEMASS*FWID,
+     &        SUSMASS*FWID,GSOMASS*FWID,0.D0,0.D0,DEP,CDEP,0.D0
+            ENDIF
+          ENDIF
           RETURN
         ELSEIF((QIN.LE.0.D0.OR.QSED(2).LE.0.D0).AND.QOUT.LE.0.D0) THEN
           YT=YTOLD
@@ -97,11 +115,11 @@ c-----Check and fix errors in incoming hydro/sedimentograph (values <0)
           GSOLD=GSO
           TOTRAP=0.D0
           IF(ISCR.EQ.0) THEN
-                WRITE(13,180)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,
+                WRITE(LU13,180)TIME,YT,X1,XT,VLT,SE,GSI,GSSI,GS2,GSO,
      &          GSIMASS,WEDGEMASS,SUSMASS,GSOMASS,FI,FRAC,DEP,CDEP,
      &          TOTRAP
             ELSE
-                WRITE(13,180)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,
+                WRITE(LU13,180)TIME,YT,X1,XT,VLT,SE,GSI*FWID,GSSI*FWID,
      &          GS2*FWID,GSO*FWID,GSIMASS*FWID,WEDGEMASS*FWID,
      &          SUSMASS*FWID,GSOMASS*FWID,FI,FRAC,DEP,CDEP,TOTRAP
           ENDIF
@@ -120,8 +138,8 @@ C-------STEP 4: Position points (1), (2), (3) at system nodes so that flow --
 C-------        rates can be read at those points at next time step ---------
       CALL POINTS(N,XPOINTS,NODEX,VBT)
 
-180   FORMAT(f7.0,4F10.3,F10.6,13E10.3)
-200   FORMAT(F7.0,14E10.3)
+180   FORMAT(f7.0,4(1X,F11.3),1X,E12.5,13(1X,E11.3))
+200   FORMAT(F7.0,14(1X,E11.3))
 201   FORMAT(A32,F8.4,a4)
 
 130   RETURN

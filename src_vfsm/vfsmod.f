@@ -235,7 +235,11 @@ c     Change Log: See CHANGES file in source code directory                  c
 C                                                                            c
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       PARAMETER (MAXEQN=1001,MAXBND=40)
+C---- sediment steps per output step (see the sub-stepping block below)
+      PARAMETER (KSUB=5)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON/SEDLU/LU13,LU14
+      DIMENSION QSEDA(3)
 
       COMMON/PAR/QK(1001),R,THETAW,DX,DT,NDT,NELEM,MAXITER,NPOL,IOUT,NL
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
@@ -335,6 +339,28 @@ C-------Start time loop for numerical time dependent solution-----------
       MFLAG=0
       NPRINT=100
       NWRITE=NDT/NPRINT
+C---- Sediment sub-stepping.  KSUB is the number of sediment steps per OUTPUT
+C---- step, so the sediment step is NSUB=max(1,NWRITE/KSUB) hydraulic steps and
+C---- the sediment model runs NPRINT*KSUB times whatever the filter length.
+C---- Before 4.6.2.1 the sediment model ran once per output step (KSUB=1), which
+C---- on long strips put the Tollner trapping onset on the coarse output grid and
+C---- made the outgoing sediment step up and down with any small input change.
+C---- KSUB=5 removes that at a few percent of run time; see CHANGES.
+C---- .og1/.og2 must keep exactly NPRINT rows for downstream readers, so the
+C---- sediment rows computed between output steps go to a scratch unit instead.
+C---- STATUS='SCRATCH' is standard Fortran and portable; the file is deleted on
+C---- exit.  Only (KSUB-1) rows per output step are discarded this way.
+C---- Unit 30 is free: finput.f uses 99 for the .prj, and 1-21 are taken.
+      OPEN(30,STATUS='SCRATCH')
+      LU13=13
+      LU14=14
+      NSUB=NWRITE/KSUB
+      NSCNT=0
+      QOUTA=0.D0
+      DO 913 J=1,3
+913      QSEDA(J)=0.D0
+      IF(NSUB.LT.1) NSUB=1
+      IF(NSUB.GT.NWRITE) NSUB=NWRITE
       IF(NDT.LT.NPRINT) NWRITE=1
       VLCM=VL*100.D0
       QTEMP=0.d0
@@ -495,34 +521,45 @@ C--------------b) Call numerical transport subroutine IWQ=5 (not in this version
 C--------------c) Write outputs files (and pesticide trapping when IWQ=1-4)-------
 
             QTEMP=QTEMP+Q0(N)
+            QOUTA=QOUTA+Q0(N)
             DO 25 J=1,3
                   ND=NODEX(J)
-                  QSED(J)=QSED(J)+Q0(ND)
+                  QSEDA(J)=QSEDA(J)+Q0(ND)
 25          CONTINUE
+            NSCNT=NSCNT+1
+C---- is this one of the NPRINT output steps?
+            IPRT=0
             DO 30 I=1,NPRINT
-                IF(LCOUNT.EQ.I*NWRITE) THEN
-                  QTEMP=QTEMP/NWRITE
+                IF(LCOUNT.EQ.I*NWRITE) IPRT=1
+30          CONTINUE
+C---- sediment step: every NSUB hydraulic steps, and always on an output step
+            IF(NSCNT.GE.NSUB.OR.IPRT.EQ.1) THEN
                   DO 27 J=1,3
-                        QSED(J)=QSED(J)/NWRITE*10000.D0
+                        QSED(J)=QSEDA(J)/NSCNT*10000.D0
                         IF(QSED(J).LT.0.D0)QSED(J)=DABS(QSED(J))
 27                CONTINUE
-                  QSED(4)=QTEMP*10000.D0
+                  QSED(4)=QOUTA/NSCNT*10000.D0
                   QIN=QK(1)*BCRO**(5.D0/3.D0)*10000.D0
                   QOUT=Q0(N)
+                  LU13=30
+                  LU14=30
+                  IF(IPRT.EQ.1) LU13=13
+                  IF(IPRT.EQ.1) LU14=14
                   CALL GRASSED(TIME,N,QIN,QOUT,NODEX,
      &                        ICOARSE,COARSE,FWIDTH,ISCR)
-c                  IF((BCRO.NE.0.D0).or.(QOUT.ne.0.d0)) THEN
-c                     IF(IWQ.GT.5) CALL WQSUB(IWQ,TIME,N)
-c                   ENDIF
                   TOLD=TIME
+                  NSCNT=0
+                  QOUTA=0.D0
+                  DO 28 J=1,3
+                        QSEDA(J)=0.D0
+28                CONTINUE
+            ENDIF
+            IF(IPRT.EQ.1) THEN
+                  QTEMP=QTEMP/NWRITE
                   CALL KWWRITE(N,LCOUNT,M,QTEMP,X,BCROQ,FWIDTH)
                   IF(IELOUT.EQ.2) WRITE(21,*)TIME,(X(IXN),IXN=1,N)
                   QTEMP=0.D0
-                  DO 28 J=1,4
-                        QSED(J)=0.D0
-28                CONTINUE
-                ENDIF
-30          CONTINUE
+            ENDIF
 40     CONTINUE
 
       IF(IELOUT.EQ.2) CLOSE(21)
