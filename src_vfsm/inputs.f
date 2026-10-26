@@ -70,6 +70,11 @@ c      IF(N.EQ.-1) N=min(101,2*nint(0.5d0*(1.5d0*(VL-0.5d0)+6.d0))-1)
         N=2*nint((23.d0*CR+1.4d0)/2.d0)+1
         N=min(N,2*nint(VL)+1)
         N=max(5,min(101,N))
+C-RMC---- Floor of 9 nodes once the strip reaches 1 m.  The short-strip cap
+C-------- above gives N=5 at VL=1 m and N=7 at VL=3 m, which leave a 0.5 %
+C-------- volume error against the exact solution; N=9 halves that for
+C-------- ~0.2 ms per run.  Strips below 1 m keep the coarse mesh on purpose.
+        IF(VL.GE.1.d0) N=max(N,9)
       ENDIF
  
 C--[EVR-1998]-Check if N is compatible with type of shape funcion -----
@@ -238,6 +243,10 @@ c---------- mod for shallow water table, rmc, 10/2013
 !------- then hb=1/PAR2
       hb=0.d0
       IF(ITHETATYPE.EQ.2) hb=1/PARW(2)
+C-RMC---- van Genuchten: alpha is also taken as ~1/hb (an approximation; the
+C-------- air entry value is not strictly that).  Leaving hb=0 here placed the
+C-------- capillary fringe too deep by 1/alpha for every vG soil.
+      IF(ITHETATYPE.EQ.1.AND.PARW(2).GT.0.d0) hb=1/PARW(2)
       zw=dabs(WTD)-dabs(hb)
 ! CL-----Input checking for shallow water table
       IF(PARW(3).LT.1.d0.AND.ITHETATYPE.EQ.1)write(*,*)
@@ -1147,7 +1156,8 @@ c---- Reduce Courant number by 0.2 units or by 1/2, whichever is smaller
 c---- Time step and number of time steps based on Courant number
       DT=CRR*DX/C
       NDT=IDINT(DR/DT)
-      print*,CRR,DT,NDT,C,ISCR
+      IF(ISCR.EQ.0) WRITE(*,'(A,F6.3,A,E12.5,A,I9)')
+     &   ' ... CR reduced to ',CRR,', dt (s) = ',DT,', steps = ',NDT
 C-------Old calculation of the PG Parameters (n=50) (Muñoz-Carpena et al., 1993)-
 !         PGPAR(1)=0.0215873D0 - 0.345217D0*CRR + 1.33259D0*CRR**2.D0 -
 !      &               1.62016D0*CRR**3.D0 + 0.670333D0*CRR**4.D0

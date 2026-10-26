@@ -110,26 +110,26 @@ File: output/sampleWTpond.osm                         VFSMOD v4.6.2.1 05/2026
  -------------
 Volume from rainfall=     0.8423E+00 m3
 Volume from up-field=     0.1325E+01 m3
-Volume from outflow =     0.1569E+01 m3
-Volume infiltrated  =     0.6200E+00 m3
+Volume from outflow =     0.1386E+01 m3
+Volume infiltrated  =     0.7817E+00 m3
   
  Hydrology
  -----------
-Time to beginning   =     0.6283E+03 s
-Time and q at peak  =     0.1806E+04 s     0.2368E-02 m3/s
-Time to end runoff  =     0.2985E+04 s
+Time to beginning   =     0.9425E+03 s
+Time and q at peak  =     0.1806E+04 s     0.2283E-02 m3/s
+Time to end runoff  =     0.2827E+04 s
   
  Sediment
  --------
-Sediment inflow     =     0.8836E+02 g/cm    0.3419E+05 g
-Sediment outflow    =     0.5036E+02 g/cm    0.1949E+05 g
-Trapping efficiency =       43.0 %
+Sediment inflow     =     0.8836E+02 g/cm    0.3420E+05 g
+Sediment outflow    =     0.4943E+02 g/cm    0.1913E+05 g
+Trapping efficiency =       44.1 %
                      ----------------
 Sediment deposition :
         - Sediment wedge depth,   Y(t) =    0.01 cm
-        - Sediment wedge length,  X2(t)=    0.04 cm
-        - Effective filter length,L(t) =  865.46 cm
-        - Sediment tail at field, X1(t)=    0.25 cm
+        - Sediment wedge length,  X2(t)=    0.02 cm
+        - Effective filter length,L(t) =  865.48 cm
+        - Sediment tail at field, X1(t)=    0.09 cm
         - Sediment depth in low section=    0.03 cm
-        - Rough sediment balance error =   -0.00 %
-        - Rough water balance error    =   -1.01 %
+        - Rough sediment balance error =    0.01 %
+        - Rough water balance error    =    0.00 % (adjusted)

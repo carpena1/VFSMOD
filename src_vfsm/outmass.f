@@ -6,6 +6,7 @@ C       of the water balance and hydrograph. The results go in "filename.osm" C
 C                                                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      DOUBLE PRECISION ZFLOOR
       COMMON/PAR1/VL,FWIDTH,SWIDTH,SLENGTH
       COMMON/GA1/PS,PSOLD,PST,F,RO,TP,TPP,FPI,STO,CU,AGA,BGA,DM,SM,Z,OS
       COMMON/WTGA1/WTD,PARW(4),PARK(2),hb,RAINL,ZW,TW,RVH
@@ -131,7 +132,7 @@ c-----Write summary outputs into summary file .OSM---------
 
 C---------------Calculate totals for event in m3 ----------
       TOTRAIN=TRAI*VFSAREA
-      WRITE(10,600)TOTRAIN
+      WRITE(10,600)ZFLOOR(TOTRAIN)
       Vout=SUM1
       Vie=SUM2*VFSAREA
       Vin=SUM0
@@ -154,6 +155,20 @@ C---------------Water and sediment balance for the event----------
           ELSE
               WAT_ERR=0.0d0
       ENDIF
+c-----Infiltration cannot exceed the water that entered minus the water that
+c-----left.  VF above is a point potential (Green-Ampt column, integrated on
+c-----the output grid); VFE is the residual and closes the balance.  Without
+c-----this bound the tolerance test below lets an overestimate of up to 5 % of
+c-----the incoming volume through, which at long filters is a large fraction
+c-----of the infiltration itself.
+      IF(AGA.GT.0.d0.AND.VFE.GE.0.d0.AND.VF.GT.VFE) THEN
+          VF=VFE
+          WAT_OUT= Vout+VF
+          WAT_BAL=WAT_IN-WAT_OUT
+          IF (WAT_IN.GT.0.d0) WAT_ERR=WAT_BAL/WAT_IN*100.d0
+          F= VF/VFSAREA
+          Z=F/DM
+      ENDIF
 c-----Check water balance and adjust for leaching and pollutant calculations
       IF(DABS(WAT_ERR).GT.5.d0) THEN
           VF=VFE
@@ -169,23 +184,23 @@ c-----leaching and pollutant calculations -------------------------------------
 
 c-(02/1999)--Write Filter performance summary output file .OSM -------------
 
-      WRITE(10,300)Vin
-      WRITE(10,150)Vout
-      WRITE(10,400)VF
+      WRITE(10,300)ZFLOOR(Vin)
+      WRITE(10,150)ZFLOOR(Vout)
+      WRITE(10,400)ZFLOOR(VF)
       WRITE(10,*)' '
       WRITE(10,*)'Hydrology'
       WRITE(10,*)'-----------'
-      WRITE(10,700)TINI
-      WRITE(10,800)TBIG,QBIG
-      WRITE(10,900)TEND
+      WRITE(10,700)ZFLOOR(TINI)
+      WRITE(10,800)ZFLOOR(TBIG),ZFLOOR(QBIG)
+      WRITE(10,900)ZFLOOR(TEND)
       WRITE(10,*)' '
       WRITE(10,*)'Sediment'
       WRITE(10,*)'--------'
       TTE=1.D0
       IF(GSIMASS.GT.0.D0) TTE=(GSIMASS-GSOMASS)/GSIMASS
       FWID=FWIDTH*100.D0
-      WRITE(10,1100)GSIMASS,GSIMASS*FWID
-      WRITE(10,1200)GSOMASS,GSOMASS*FWID
+      WRITE(10,1100)ZFLOOR(GSIMASS),ZFLOOR(GSIMASS*FWID)
+      WRITE(10,1200)ZFLOOR(GSOMASS),ZFLOOR(GSOMASS*FWID)
       WRITE(10,1010)TTE*100
 
 c-------Sediment wedge final shape ------------------------------
