@@ -29,7 +29,7 @@ c-----Write welcome message ---------------------------------------
         WRITE(*,*)'                 @    @ @    @'
         WRITE(*,*)'                 @    @ @@@@@@'
         WRITE(*,*)'                 @    @ @    @'
-        WRITE(*,*)'                  @@@@  @    @  April 2025-v3.0.9'
+        WRITE(*,*)'                  @@@@  @    @  04/2025 v3.0.9'
         WRITE(*,160)
         WRITE(*,*)'        R.Munoz-Carpena              J.E. Parsons'
         WRITE(*,*)'          UFL - USA                   NCSU - USA'

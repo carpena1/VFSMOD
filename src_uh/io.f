@@ -312,7 +312,7 @@ c----------
 c Output message at end of program -----------------
 c----------
       WRITE(*,*)
-      WRITE(*,*)'...FINISHED...','UH v3.0.9 09/2024'
+      WRITE(*,*)'...FINISHED...','UH v3.0.9 04/2025'
       WRITE(*,*)
 
 c-------------------

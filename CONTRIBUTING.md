@@ -57,11 +57,21 @@ inconsistent):
    `Changes in X.Y.Z` heading; keeping the same style. `CHANGES.md` at the repo
    root is the Markdown mirror; update it to match.
 2. Update the version and release date in the source code locations.
-   From `src_vfsm/` and `src_uh/`:
+   From `src_vfsm/`:
    ```
-   sh version.sh vOLD vNEW 'MM\/YYYY' 'MM\/YYYY'
+   sh version.sh vOLD vNEW MM/YYYY MM/YYYY
    ```
-   e.g. `sh version.sh v4.6.2.1 v4.7.0 '05\/2026' '11\/2026'`
+   e.g. `sh version.sh v4.6.2.1 v4.6.3 05/2026 10/2026`
+
+   The dates may also be written backslash-escaped (`'05\/2026'`), as older
+   instructions showed. The script rewrites only the banner lines - the lines
+   stating the version the program currently is - and leaves every historical
+   mention alone, then prints what it changed, what it left as history, and any
+   banner missing the new date. Read that report.
+
+   `src_uh/` has the same script, but **uh carries its own version series** and
+   is bumped only when uh itself changes. VFSMOD 4.6.3 ships uh v3.0.9,
+   04/2025.
 3. Update the global `VERSION` file at the repo root to the new number. e.g. `4.6.2.1`
 4. Commit all of it on `main` with a message naming the version
    (e.g. `v4.7.0: <name-or-summary>`). No branch, no PR needed.
