@@ -1,6 +1,6 @@
-Changes since 4.6.2.1 (unreleased)
-----------------------------------
-(09-10/2026)
+Changes in 4.6.3
+----------------
+(10/2026)
 
 Bug fixes:
 - Sediment sub-stepping (vfsmod.f, grassed.f, step3.f). The sediment model (GRASSED -> EINSTEIN/STEP3) ran once per .ohy output step, so its time step was NWRITE=NDT/NPRINT hydraulic steps and grew with the filter length; on long strips that placed the Tollner trapping onset (FRAC) on the coarse 100-point output grid and made the outgoing sediment step up and down as any small input change moved the onset across a grid interval. The sediment step is now NSUB=max(1,NWRITE/KSUB) hydraulic steps with KSUB=5, so the sediment model runs NPRINT*KSUB times whatever the filter length. The hydraulic solver is untouched and the water balance is unchanged. .og1/.og2 keep exactly NPRINT rows: the rows computed between output steps go to a scratch unit (unit 30, STATUS='SCRATCH') selected through COMMON/SEDLU/, and GRASSED now also writes a row when it returns early on a non-positive inflow, which previously dropped that output step and left fewer than NPRINT rows. The .og1/.og2 formats are widened (F10.3 -> 1X,F11.3, E10.3 -> 1X,E11.3, slope F10.6 -> 1X,E12.5) because the released widths let adjacent columns run together once a value needed more digits, which no fixed-width reader could parse. Run time rises a few percent.

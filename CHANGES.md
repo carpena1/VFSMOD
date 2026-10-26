@@ -8,9 +8,9 @@
 
 _Markdown rendering of `src_vfsm/CHANGES.txt` (the authoritative source). Versions are listed newest first._
 
-## Unreleased (since 4.6.2.1)
+## 4.6.3
 
-**(09-10/2026)**
+**(10/2026)**
 
 ### Bug fixes
 
