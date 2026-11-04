@@ -120,9 +120,10 @@ jobs:
             echo "## VFSMOD v${VERSION}"
             echo ""
 
-            # Pull the relevant section from CHANGES.md
+            # Pull the relevant section from CHANGES.md: from its "## X.Y.Z" heading
+            # (exact match, so the dots are not regex wildcards) to the next "## "
             if [[ -f CHANGES.md ]]; then
-              awk "/^## \\[${VERSION}\\]/{found=1;next} found && /^## /{exit} found{print}" \
+              awk -v ver="${VERSION}" '$0 == "## " ver {found=1} found && /^## / && $0 != "## " ver {exit} found{print}' \
                 CHANGES.md
             else
               echo "See the commit history for details."
