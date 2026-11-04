@@ -362,7 +362,13 @@ c         write(*,'(A39)')'WARNING:root must be bracketed in NRSOL'
             xh=x1
             xl=x2
       endif
-      xval=.5d0*(x1+x2)
+c-----Warm start for the wetting-front depth (ieq=2,4): x1 is the front depth
+c-----of the previous time step, which is close to the new root
+      if(ieq.eq.2.or.ieq.eq.4) then
+         xval=x1
+       else
+         xval=.5d0*(x1+x2)
+      endif
       dxvalold=abs(x2-x1)
       dxval=dxvalold
       if(ieq.eq.1) then
