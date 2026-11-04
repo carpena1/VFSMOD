@@ -243,10 +243,8 @@ c---------- mod for shallow water table, rmc, 10/2013
 !------- then hb=1/PAR2
       hb=0.d0
       IF(ITHETATYPE.EQ.2) hb=1/PARW(2)
-C-RMC---- van Genuchten: alpha is also taken as ~1/hb (an approximation; the
-C-------- air entry value is not strictly that).  Leaving hb=0 here placed the
-C-------- capillary fringe too deep by 1/alpha for every vG soil.
-      IF(ITHETATYPE.EQ.1.AND.PARW(2).GT.0.d0) hb=1/PARW(2)
+C-RMC---- van Genuchten has no air entry (Munoz-Carpena et al. 2018, Eq. A2), so
+C-------- hb stays 0 and zw=|WTD|; 1/alpha is not an air-entry value for vG.
       zw=dabs(WTD)-dabs(hb)
 ! CL-----Input checking for shallow water table
       IF(PARW(3).LT.1.d0.AND.ITHETATYPE.EQ.1)write(*,*)
