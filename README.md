@@ -35,6 +35,8 @@ The GUI can be downloaded from Dr. Barberena's GitHub: https://github.com/Inigob
 
 Clone this repository for source code and example project files for running the command-line program. VFSMOD (and UH) source code is distributed both in Windows and Unix (macOS and Linux) versions, with source code, make files for GNU GFortran and Intel's ifort/ifx compilers, and sample input and output files. The source code is written entirely in FORTRAN so that compilation should be straightforward following the included makefile and using the proper set of files for each platform (Windows/UNIX). 
 
+Ready-to-run binaries (`vfsm` and `uh`) are not kept in the repository. Download them from the [Releases page](https://github.com/carpena1/VFSMOD/releases): one archive per platform (Linux x86_64, macOS Apple Silicon, macOS Intel, Windows x86_64). The binaries are statically linked, so they do not need a Fortran compiler or runtime on your computer.
+
 ### Installing in Windows systems 
 
 a) Create a directory named VFSMOD.
