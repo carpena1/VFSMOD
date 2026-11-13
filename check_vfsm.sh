@@ -18,6 +18,14 @@ else
     exit 2
 fi
 
+# say which binary is under test, so a stale or unexpected one is obvious
+target=`readlink "$VFSM" 2>/dev/null || true`
+if [ -n "$target" ]; then
+    echo "Testing $VFSM -> $target"
+else
+    echo "Testing $VFSM"
+fi
+
 projects="sample.prj sampleP.prj sampleP2.prj sampleP3.prj samplePF.prj \
 sampleP3nodeg.prj samplePnodeg.prj samplePnoRain.prj sampleWT.prj sampleWTP.prj \
 sampleWTpond.prj"
