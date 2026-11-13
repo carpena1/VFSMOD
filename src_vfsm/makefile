@@ -165,21 +165,31 @@ vfsm : $(OBJS)
 # Homebrew/gcc runtime at the destination. Self-contained (sets its own FC/LD/LDFLAGS)
 # so it works whatever the active compiler is, mirroring release-ifort. Objects built
 # earlier with another compiler are NOT rebuilt automatically, so clean first.
-# Note: -march=native makes the binary CPU-specific; replace with a baseline (e.g.
-# -mtune=generic, or -march=x86-64-v2 / -mcpu=apple-m1) to target older/other CPUs.
-# This is the recipe used to produce executables/vfsm4621.
+# No -march=native here: it ties the binary to the CPU of the build machine (the CI
+# runner), and the binary then stops with "Illegal instruction" on older CPUs. On
+# x86_64 the release uses the generic x86-64 baseline; on arm64 the compiler default
+# runs on every Apple Silicon CPU.
+# This is the recipe that the GitHub Release workflow uses (via ./setup release).
 #   Usage:  make clean && make release-gfortran     (`make release` is an alias)
 
 # determine static linking strategy across OS targets using gfortran
 UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+# portable CPU baseline
+ifeq ($(UNAME_M),x86_64)
+    GF_ARCH = -march=x86-64 -mtune=generic
+else
+    GF_ARCH =
+endif
 
 # macos
 ifeq ($(UNAME_S),Darwin)
-    GF_LDFLAGS = -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 \
+    GF_LDFLAGS = -O3 $(GF_ARCH) -ffpe-summary=none -ffixed-line-length-132 \
                  -static-libgfortran -static-libquadmath -static-libgcc
 # windows / linux
 else
-    GF_LDFLAGS = -O3 -march=native -ffpe-summary=none -ffixed-line-length-132 -static
+    GF_LDFLAGS = -O3 $(GF_ARCH) -ffpe-summary=none -ffixed-line-length-132 -static
 endif
 
 release-gfortran : FC=gfortran

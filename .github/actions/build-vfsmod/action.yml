@@ -58,6 +58,50 @@ runs:
         mkdir -p build
         cp src_vfsm/vfsm.exe src_uh/uh.exe build/
 
+    # Fail the build when a binary needs the gfortran runtime (dynamic link) or
+    # when its CPU type does not match the runner (so the package name is right).
+    - name: Check binaries are static and match the platform (Linux / macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        case "${{ runner.os }}-${{ runner.arch }}" in
+          Linux-X64)   want='ELF 64-bit.*x86-64' ;;
+          macOS-ARM64) want='Mach-O 64-bit.*arm64' ;;
+          macOS-X64)   want='Mach-O 64-bit.*x86_64' ;;
+          *) echo "::error::no check defined for runner ${{ runner.os }}-${{ runner.arch }}"; exit 1 ;;
+        esac
+        fail=0
+        for b in build/vfsm build/uh; do
+          file "$b"
+          file "$b" | grep -Eq "$want" || { echo "::error::$b is not $want"; fail=1; }
+          if [ "${{ runner.os }}" = Linux ]; then
+            file "$b" | grep -Eq 'statically linked|static-pie linked' \
+              || { echo "::error::$b is not statically linked"; ldd "$b" || true; fail=1; }
+          else
+            otool -L "$b"
+            if otool -L "$b" | tail -n +2 | grep -Ev '^[[:space:]]*(/usr/lib/|/System/)'; then
+              echo "::error::$b links a library that is not part of macOS"; fail=1
+            fi
+          fi
+        done
+        exit $fail
+
+    - name: Check binaries are static and match the platform (Windows)
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        fail=0
+        for b in build/vfsm.exe build/uh.exe; do
+          objdump -f "$b" | grep -q 'pei-x86-64' \
+            || { echo "::error::$b is not a Windows x86-64 binary"; fail=1; }
+          dlls=$(objdump -p "$b" | sed -n 's/^[[:space:]]*DLL Name: //p')
+          echo "$b needs: $(echo $dlls)"
+          if echo "$dlls" | grep -iE 'libgfortran|libgcc|libquadmath|libwinpthread|libstdc'; then
+            echo "::error::$b needs a MinGW runtime DLL"; fail=1
+          fi
+        done
+        exit $fail
+
     - name: Regression check tests (Linux / macOS)
       if: runner.os != 'Windows'
       shell: bash

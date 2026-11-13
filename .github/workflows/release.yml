@@ -31,6 +31,11 @@ jobs:
             gfortran: 13
             archive_ext: tar.gz
 
+          - os: macos-15-intel
+            target: macos-x86_64
+            gfortran: 13
+            archive_ext: tar.gz
+
           - os: windows-latest
             target: windows-x86_64
             gfortran: 13

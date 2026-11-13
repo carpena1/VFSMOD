@@ -12,12 +12,9 @@ if [ -x ./vfsm ]; then
     VFSM=./vfsm
 elif command -v vfsm >/dev/null 2>&1; then
     VFSM=vfsm
-elif [ -x executables/vfsm4621_arm64 ]; then
-    VFSM=executables/vfsm4621_arm64
-elif [ -x executables/vfsm4621.exe ]; then
-    VFSM=executables/vfsm4621.exe
 else
-    echo "ERROR: cannot find a vfsm executable (./vfsm, on PATH, or in executables/)." >&2
+    echo "ERROR: cannot find a vfsm executable (./vfsm or on PATH). Build it with" >&2
+    echo "       'sh setup release', or download it from the GitHub Releases page." >&2
     exit 2
 fi
 

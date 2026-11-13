@@ -51,10 +51,34 @@ INCLUDES=
 
 .SUFFIXES: .uid .uil .o .c .f .for .F .FOR .hpf .mpl .p .pas .P .PAS .cob .cbl .COB .CBL .prj
 
+# FTOPT is also passed at link time: the -static-lib* flags only act when linking.
 uh: $(OBJS)
-	$(FC) $(LDOPT) $(OBJS) -o uh
+	$(FC) $(FTOPT) $(LDOPT) $(OBJS) -o uh
 
-release: uh
+# ── Portable release build (gfortran), same recipe as `make release` in src_vfsm ──
+# Static runtime: macOS links libgfortran/libquadmath/libgcc statically (libSystem
+# stays dynamic, there is no static libSystem); Linux and Windows (MSYS2) use -static.
+# No -march=native: a CI-built binary must run on any CPU, not only on the runner's.
+# Objects built earlier with other flags are NOT rebuilt automatically, so clean first.
+#   Usage:  make clean && make release
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+    GF_ARCH = -march=x86-64 -mtune=generic
+else
+    GF_ARCH =
+endif
+ifeq ($(UNAME_S),Darwin)
+    GF_STATIC = -static-libgfortran -static-libquadmath -static-libgcc
+else
+    GF_STATIC = -static
+endif
+
+release : FC=gfortran
+release : FTOPT=-O3 $(GF_ARCH) -ffpe-summary=none -ffixed-line-length-132
+release : LDOPT=$(GF_STATIC)
+release : $(OBJS)
+	$(FC) $(FTOPT) $(LDOPT) $(OBJS) -o uh
 
 uh.o: uh.f
 	$(FC) $(FTOPT) -c uh.f
