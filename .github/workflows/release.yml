@@ -26,7 +26,7 @@ jobs:
             gfortran: 13
             archive_ext: tar.gz
 
-          - os: macos-14
+          - os: macos-15
             target: macos-arm64
             gfortran: 13
             archive_ext: tar.gz
