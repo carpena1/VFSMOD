@@ -1,3 +1,21 @@
+Changes in 4.6.3.1
+------------------
+(11/2026)
+
+Release packaging only: no change to the model code or its results (all 63 regression outputs are identical to 4.6.3 apart from the version in the file headers).
+
+New features:
+- macOS Intel (x86_64) release package, built by CI next to the Linux x86_64, macOS Apple Silicon (arm64) and Windows x86_64 packages. Until now only the hand-built binaries in executables/ covered Intel Macs.
+
+Bug fixes:
+- The uh release binaries are statically linked (src_uh/makefile). The -static-libgfortran/-static-libquadmath/-static-libgcc flags were passed only when compiling, not when linking, so the 4.6.3 uh needed the gfortran runtime on every platform (on macOS a Homebrew path on the CI build machine, libgfortran.so.5 on Linux, libgfortran-5.dll on Windows) and did not start where gfortran is not installed. A new 'make release' target in src_uh links uh like vfsm: -static on Linux and Windows, the -static-lib* flags on macOS, where only the system libSystem stays dynamic.
+- The release binaries run on any CPU of their platform (src_vfsm/makefile, src_uh/makefile). The release builds used -march=native, which tied each binary to the CPU of the CI build machine (AVX2/FMA code on Windows, AVX-512 on Linux), so they could stop with "Illegal instruction" on older processors. Release builds now use the generic x86-64 target on x86_64 and the compiler default on Apple Silicon; local builds keep -march=native.
+
+Maintenance & documentation:
+- Removed the executables/ directory, which held hand-built 4.6.2.1 binaries (vfsm4621, uh309) that shipped with the 4.6.3 source. Binaries are now published only on the GitHub Releases page (README.md). check_vfsm.sh no longer falls back to those binaries and prints which binary it tests.
+- CI checks every release binary: the build fails if a binary links a library that is not part of the operating system or if its CPU type does not match the package. The macOS Apple Silicon build moved from the retired macos-14 runner to macos-15.
+- version.sh (src_vfsm and src_uh) rewrites only the banner lines and leaves historical version mentions in comments alone; the src_uh copy can now run. The uh banners use the mm/yyyy date form like VFSMOD's (uh stays at v3.0.9). CONTRIBUTING.md is updated to match.
+
 Changes in 4.6.3
 ----------------
 (10/2026)
