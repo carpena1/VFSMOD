@@ -11,7 +11,7 @@
 if [ -x ./vfsm ]; then
     VFSM=./vfsm
 elif command -v vfsm >/dev/null 2>&1; then
-    VFSM=vfsm
+    VFSM=`command -v vfsm`      # full path, so readlink below reads that file
 else
     echo "ERROR: cannot find a vfsm executable (./vfsm or on PATH). Build it with" >&2
     echo "       'sh setup release', or download it from the GitHub Releases page." >&2
