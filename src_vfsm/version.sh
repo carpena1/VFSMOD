@@ -38,10 +38,22 @@ total=0
 for f in $FILES; do
     awk -v ov="$OLDV" -v nv="$NEWV" -v od="$OLDD" -v nd="$NEWD" -v ban="$BANNER" '
         function lit(s) { gsub(/[.[\]()*+?^$|\\]/, "\\\\&", s); return s }
+        # Replace the old version only where no further version number
+        # follows it, so v4.6.3 does not match the start of v4.6.3.1 (and a
+        # second run cannot turn v4.6.3.1 into v4.6.3.1.1).
+        function subv(s, re, rep,   out, rest) {
+            out = ""
+            while (match(s, re)) {
+                rest = substr(s, RSTART + RLENGTH)
+                out = out substr(s, 1, RSTART - 1) (rest ~ /^\.?[0-9]/ ? substr(s, RSTART, RLENGTH) : rep)
+                s = rest
+            }
+            return out s
+        }
         BEGIN { ovr = lit(ov); odr = lit(od) }
         {
             before = $0
-            if (before ~ ban) { gsub(ovr, nv); gsub(odr, nd) }
+            if (before ~ ban) { $0 = subv($0, ovr, nv); gsub(odr, nd) }
             if ($0 != before) print FILENAME ":" FNR "  " $0 > "/dev/stderr"
             print
         }
@@ -63,7 +75,9 @@ echo ""
 echo "$total banner line(s) updated."
 echo ""
 echo "Left as history, not touched - confirm this is correct:"
-grep -n "$OLDV" *.f 2>/dev/null | sed 's/^/    /' || echo "    (none)"
+# same boundary as the replacement: the old version not followed by more numbers
+OLDRE=`printf '%s\n' "$OLDV" | sed 's/[.]/[.]/g'`
+grep -nE "${OLDRE}([^.0-9]|[.][^0-9]|[.]?\$)" *.f 2>/dev/null | sed 's/^/    /' || echo "    (none)"
 echo ""
 echo "Banner lines carrying $NEWV but NOT the new date $NEWD:"
 grep -nE "$BANNER" *.f 2>/dev/null | grep -- "$NEWV" | grep -v -- "$NEWD" | sed 's/^/    /' \
